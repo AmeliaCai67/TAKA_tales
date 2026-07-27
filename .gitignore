@@ -1,0 +1,39 @@
+# 内部文档（不公开）
+AGENTS.md
+
+# 环境变量与密钥（绝不提交）
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+
+# macOS
+.DS_Store
+
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# 日志与本地数据
+*.log
+logs/
+data/*.json
+!data/.gitkeep
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
