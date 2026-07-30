@@ -30,6 +30,19 @@ check("按钮最小高度 40px", re.search(r"min-height:\s*40px", HTML))
 warm_uses = [m.start() for m in re.finditer(r"#ffb703", HTML, re.I)]
 check("暖黄使用处 <=4（token、渐变、高光、hover）", len(warm_uses) <= 4)
 
+# --- SVG 立绘 ---
+for frag in ['id="metalGrad"', 'id="eyeGrad"', 'id="nutRing"', 'id="rustNut"',
+             'id="arms"', 'id="legs"', 'id="takaBody"', 'class="eyeGlow"']:
+    check(f"svg {frag}", frag in HTML)
+
+# --- 6 状态 class ---
+for st in ["st-standby", "st-speaking", "st-thinking",
+           "st-listening", "st-low", "st-off"]:
+    check(f"state .{st}", f".{st}" in HTML)
+
+# --- 形态红线：锈螺母只在 defs 定义一次（背视图/水下不出现第二个） ---
+check("锈螺母唯一", HTML.count('id="rustNut"') == 1)
+
 if failures:
     print("FAIL:")
     for f in failures:

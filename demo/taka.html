@@ -144,6 +144,38 @@
             height: 100%;
             background: var(--accent-dim);
         }
+
+        /* ===== 塔卡 6 态灯光（动画只作用在眼睛的光上） ===== */
+        .eyeGlow { transform-box: fill-box; transform-origin: center; }
+
+        .st-standby .eyeGlow { animation: breathe 3.2s infinite alternate ease-in-out; }
+        @keyframes breathe {
+            from { opacity: .55; filter: drop-shadow(0 0 2px rgba(255,183,3,.4)); }
+            to   { opacity: 1;   filter: drop-shadow(0 0 7px rgba(255,183,3,.8)); }
+        }
+
+        .st-speaking .eyeGlow { opacity: 1; filter: drop-shadow(0 0 9px rgba(255,183,3,.95)); }
+        .st-speaking .takaBody { animation: bob 1.6s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
+        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        .st-thinking .eyeGlow { animation: think 2.4s infinite; }
+        @keyframes think {
+            0% { opacity: 1; } 6% { opacity: .15; } 12% { opacity: 1; }
+            18% { opacity: .15; } 24% { opacity: 1; } 30% { opacity: .15; }
+            36% { opacity: 1; } 100% { opacity: 1; }
+        }
+
+        .st-listening .eyeGlow { animation: listen 4.5s infinite ease-in-out; }
+        @keyframes listen {
+            0%,100% { opacity: .35; filter: drop-shadow(0 0 1px rgba(255,183,3,.3)); }
+            50%     { opacity: .8;  filter: drop-shadow(0 0 5px rgba(255,183,3,.6)); }
+        }
+
+        .st-low .eyeGlow { fill: var(--low-orange); animation: low 2s infinite; }
+        @keyframes low { 0%,100% { opacity: .3; } 50% { opacity: .65; } }
+
+        .st-off .takaBody { transform: rotate(-3deg); transform-box: fill-box; transform-origin: center; opacity: .75; }
+        .st-off .eyeGlow { display: none; }
     </style>
 </head>
 <body>
@@ -152,7 +184,87 @@
     <div class="hud">ENERGY <span id="battery-text">100%</span></div>
 
     <div class="taka-figure st-standby" id="taka-figure">
-        <!-- Task 2: SVG 立绘 -->
+        <svg viewBox="0 0 220 210">
+            <defs>
+                <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#b3bdc9"/>
+                    <stop offset="0.55" stop-color="#7d8896"/>
+                    <stop offset="1" stop-color="#5d6875"/>
+                </linearGradient>
+                <radialGradient id="eyeGrad" cx="0.5" cy="0.45" r="0.6">
+                    <stop offset="0" stop-color="#fff6d8"/>
+                    <stop offset="0.55" stop-color="#ffb703"/>
+                    <stop offset="1" stop-color="#9c7108"/>
+                </radialGradient>
+                <!-- 螺钉 9 颗：上 3、下 2（角落）、两侧各 2 -->
+                <g id="nutRing" fill="#525d6b" stroke="#39424e">
+                    <polygon points="77.5,55 75.25,58.9 70.75,58.9 68.5,55 70.75,51.1 75.25,51.1"/>
+                    <polygon points="114.5,55 112.25,58.9 107.75,58.9 105.5,55 107.75,51.1 112.25,51.1"/>
+                    <polygon points="151.5,55 149.25,58.9 144.75,58.9 142.5,55 144.75,51.1 149.25,51.1"/>
+                    <polygon points="77.5,140 75.25,143.9 70.75,143.9 68.5,140 70.75,136.1 75.25,136.1"/>
+                    <polygon points="69.5,72 67.25,75.9 62.75,75.9 60.5,72 62.75,68.1 67.25,68.1"/>
+                    <polygon points="69.5,112 67.25,115.9 62.75,115.9 60.5,112 62.75,108.1 67.25,108.1"/>
+                    <polygon points="159.5,72 157.25,75.9 152.75,75.9 150.5,72 152.75,68.1 157.25,68.1"/>
+                    <polygon points="159.5,112 157.25,115.9 152.75,115.9 150.5,112 152.75,108.1 157.25,108.1"/>
+                </g>
+                <!-- 松动带锈的一颗：前面板右下角，正面专属 -->
+                <g id="rustNut" transform="rotate(20 147 140)">
+                    <polygon points="151.5,140 149.25,143.9 144.75,143.9 142.5,140 144.75,136.1 149.25,136.1" fill="#6b5335" stroke="#8a4b2a"/>
+                </g>
+                <!-- 双臂：链条 3 节 + 喇叭口 -->
+                <g id="arms">
+                    <circle cx="50" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <circle cx="43" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <circle cx="39" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <path d="M37 139 L27 154 Q35 162 44 155 L40.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
+                    <circle cx="170" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <circle cx="177" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <circle cx="181" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                    <path d="M183 139 L193 154 Q185 162 176 155 L179.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
+                </g>
+                <!-- 伸缩腿：陆地模式（伸出） -->
+                <g id="legs">
+                    <rect x="80" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
+                    <rect x="81.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
+                    <rect x="72" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
+                    <rect x="130" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
+                    <rect x="131.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
+                    <rect x="122" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
+                </g>
+                <!-- 伸缩腿：水下模式（收回贴腹，备用） -->
+                <g id="legsStub">
+                    <rect x="80" y="145" width="10" height="8" fill="#525d6b" stroke="#39424e"/>
+                    <rect x="130" y="145" width="10" height="8" fill="#525d6b" stroke="#39424e"/>
+                </g>
+                <!-- 机体壳：身体 + 螺钉 + 眼睛外环 + 胸口面板（不含眼睛的光） -->
+                <g id="bodyShell">
+                    <rect x="60" y="50" width="100" height="95" rx="9" fill="url(#metalGrad)" stroke="#414b58" stroke-width="2"/>
+                    <use href="#nutRing"/>
+                    <use href="#rustNut"/>
+                    <circle cx="110" cy="92" r="27" fill="#18212b" stroke="#39424e" stroke-width="3"/>
+                    <rect x="88" y="124" width="44" height="13" rx="4" fill="#414b58" opacity="0.65"/>
+                    <circle cx="97" cy="130.5" r="2" fill="#48bb78"/>
+                    <circle cx="106" cy="130.5" r="2" fill="#718096"/>
+                    <circle cx="115" cy="130.5" r="2" fill="#718096"/>
+                </g>
+                <!-- 完整个体：陆地 / 水下两版 -->
+                <g id="takaBody">
+                    <use href="#arms"/>
+                    <use href="#legs"/>
+                    <use href="#bodyShell"/>
+                    <ellipse cx="110" cy="198" rx="52" ry="6" fill="#000" opacity="0.28"/>
+                </g>
+                <g id="takaBodySwim">
+                    <use href="#arms"/>
+                    <use href="#legsStub"/>
+                    <use href="#bodyShell"/>
+                    <ellipse cx="110" cy="182" rx="36" ry="5" fill="#000" opacity="0.18"/>
+                </g>
+            </defs>
+            <g class="takaBody"><use href="#takaBody"/></g>
+            <circle class="eyeGlow" cx="110" cy="92" r="17" fill="url(#eyeGrad)"/>
+            <circle cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
+        </svg>
     </div>
 
     <div class="choices" id="choices"></div>
