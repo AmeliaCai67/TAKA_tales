@@ -43,6 +43,15 @@ for st in ["st-standby", "st-speaking", "st-thinking",
 # --- 形态红线：锈螺母只在 defs 定义一次（背视图/水下不出现第二个） ---
 check("锈螺母唯一", HTML.count('id="rustNut"') == 1)
 
+# --- 8 个场景都有 eyeState ---
+scenes = ["start", "clean_branch", "surface", "ask_wind",
+          "just_listen", "climax", "ending_a", "ending_b"]
+for s in scenes:
+    m = re.search(rf'\b{s}:\s*\{{[^}}]*?eyeState:\s*"(st-[a-z]+)"', HTML, re.S)
+    check(f"scene {s} 有 eyeState", bool(m))
+# --- ending_b 有 endState st-off ---
+check("ending_b endState", re.search(r'ending_b:\s*\{[^}}]*?endState:\s*"st-off"', HTML, re.S))
+
 if failures:
     print("FAIL:")
     for f in failures:
