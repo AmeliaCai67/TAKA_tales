@@ -176,6 +176,25 @@
 
         .st-off .takaBody { transform: rotate(-3deg); transform-box: fill-box; transform-origin: center; opacity: .75; }
         .st-off .eyeGlow { display: none; }
+
+        /* ===== 竖屏降级：上下堆叠，选项通栏（低频场景） ===== */
+        @media (orientation: portrait) {
+            body { overflow: auto; }
+            #stage {
+                height: auto;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 16px;
+            }
+            .hud { position: static; align-self: flex-end; order: 0; }
+            .taka-figure { position: static; order: 1; margin-top: 8px; }
+            .taka-figure svg { height: 220px; }
+            .dialog { position: static; order: 2; width: 100%; margin-top: 12px; }
+            .choices { position: static; order: 3; width: 100%; min-width: 0; margin-top: 12px; }
+            .choice-btn { width: 100%; }
+        }
     </style>
 </head>
 <body>

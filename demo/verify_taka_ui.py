@@ -52,6 +52,9 @@ for s in scenes:
 # --- ending_b 有 endState st-off ---
 check("ending_b endState", re.search(r'ending_b:\s*\{[^}}]*?endState:\s*"st-off"', HTML, re.S))
 
+# --- 竖屏降级 ---
+check("竖屏 media query", "@media" in HTML and "portrait" in HTML)
+
 if failures:
     print("FAIL:")
     for f in failures:
