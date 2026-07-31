@@ -1,6 +1,7 @@
 # 内部文档（不公开）
 AGENTS.md
 .superpowers/
+/docs/
 
 # 环境变量与密钥（绝不提交）
 .env
