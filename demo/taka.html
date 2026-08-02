@@ -754,6 +754,18 @@
     async function generateSceneText(scene, ctx, settings) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 15000); // 15s 超时
+        // 推理模型（deepseek-v4）先烧 reasoning 额度，极端输入下会无限反刍烧光预算→空正文。
+        // 压低推理强度（仅 DeepSeek 端点加此参数，避免其他提供商报未知参数）
+        const body = {
+            model: settings.model,
+            messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                { role: "user", content: buildUserPrompt(scene, ctx) }
+            ],
+            temperature: 0.8,
+            max_tokens: 1200
+        };
+        if (/deepseek/i.test(settings.baseUrl)) body.reasoning_effort = "low";
         let res;
         try {
             res = await fetch(settings.baseUrl.replace(/\/+$/, "") + "/chat/completions", {
@@ -762,15 +774,7 @@
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + settings.apiKey
                 },
-                body: JSON.stringify({
-                    model: settings.model,
-                    messages: [
-                        { role: "system", content: SYSTEM_PROMPT },
-                        { role: "user", content: buildUserPrompt(scene, ctx) }
-                    ],
-                    temperature: 0.8,
-                    max_tokens: 800 // 推理模型（deepseek-v4）先烧 reasoning 额度，300 会被吃光导致空正文
-                }),
+                body: JSON.stringify(body),
                 signal: controller.signal
             });
         } finally {
