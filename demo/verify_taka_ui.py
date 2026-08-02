@@ -94,6 +94,16 @@ check("中段 4 场景有 beats", HTML.count("beats:") >= 4)
 check("中段 4 场景标记 ai", HTML.count("ai: true") >= 4)
 check("失败回退内置文案", "回退" in HTML)
 
+# --- 语音输出（spec 2026-08-02 voice）：speechSynthesis 零配置离线 ---
+check("语音开关按钮", 'id="speech-btn"' in HTML)
+check("speechSynthesis 调用", "speechSynthesis" in HTML and "SpeechSynthesisUtterance" in HTML)
+check("声音列表异步加载", "onvoiceschanged" in HTML)
+check("优先本地声音（离线）", "localService" in HTML)
+check("语音偏好存 localStorage", "taka_speech" in HTML)
+check("选项朗读开关", 'id="sp-readchoices"' in HTML and "speakChoices" in HTML)
+check("切场景打断旧语音", "stopSpeech" in HTML)
+check("长文本拆段朗读（防 Chrome 中断）", re.search(r'split\(/\\n\+/\)', HTML))
+
 # --- 竖屏降级 ---
 check("竖屏 media query", "@media" in HTML and "portrait" in HTML)
 

@@ -63,6 +63,20 @@
         }
         .settings-btn:hover { opacity: 1; }
 
+        /* 语音开关：左上角，⚙ 右邻 */
+        .speech-btn {
+            position: absolute;
+            top: 10px;
+            left: 44px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .speech-btn:hover { opacity: 1; }
+
         .settings-panel {
             position: absolute;
             top: 36px;
@@ -276,9 +290,10 @@
 <div id="stage">
     <div class="hud">ENERGY <span id="battery-text">100%</span></div>
 
-    <button class="settings-btn" id="settings-btn" title="AI 设置">⚙</button>
+    <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
+    <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
     <div class="settings-panel" id="settings-panel" hidden>
-        <div class="sp-title">AI 设 置</div>
+        <div class="sp-title">设 置</div>
         <label>Base URL
             <input type="text" id="sp-baseurl" placeholder="https://api.openai.com/v1">
         </label>
@@ -289,6 +304,7 @@
             <input type="text" id="sp-model" placeholder="gpt-4o-mini">
         </label>
         <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 启用 AI 场景生成</label>
+        <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> 朗读选项（家长代读 / 大孩子可关）</label>
         <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
         <div class="sp-actions">
             <button id="sp-save">保存</button>
@@ -533,6 +549,8 @@
                 model: document.getElementById("sp-model").value.trim() || DEFAULT_SETTINGS.model,
                 enabled: document.getElementById("sp-enabled").checked
             }));
+            speechPref.readChoices = document.getElementById("sp-readchoices").checked;
+            localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
             panel.hidden = true;
             showStatus("设置已保存", 2000);
         };
@@ -544,6 +562,74 @@
         document.getElementById("ai-status").innerText = msg;
         clearTimeout(statusTimer);
         if (msg && ms) statusTimer = setTimeout(() => { document.getElementById("ai-status").innerText = ""; }, ms);
+    }
+
+    /* ===== 语音输出：浏览器 speechSynthesis，零配置、零网络、离线可跑 ===== */
+    const SPEECH_KEY = "taka_speech";
+    let speechPref = { on: true, readChoices: true };
+    try { speechPref = { ...speechPref, ...JSON.parse(localStorage.getItem(SPEECH_KEY) || "{}") }; } catch {}
+
+    const speechSupported = "speechSynthesis" in window;
+    let zhVoice = null;
+
+    function pickVoice() {
+        if (!speechSupported) return;
+        const voices = speechSynthesis.getVoices();
+        const zh = voices.filter(v => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("zh"));
+        // 优先本地声音（离线可用），Google 云端声音仅作兜底
+        const local = zh.filter(v => v.localService);
+        const pool = local.length ? local : zh;
+        const preferred = ["xiaoxiao", "xiaoyi", "xiaobing", "ting", "mei", "sinji", "lilian",
+                           "晓晓", "小冰", "婷婷", "美佳"];
+        zhVoice = pool.find(v => preferred.some(p => v.name.toLowerCase().includes(p))) || pool[0] || null;
+    }
+    if (speechSupported) {
+        pickVoice();
+        speechSynthesis.onvoiceschanged = pickVoice; // Chrome 异步加载声音列表
+    }
+
+    function makeUtterance(text) {
+        const u = new SpeechSynthesisUtterance(text);
+        if (zhVoice) u.voice = zhVoice;
+        u.lang = "zh-CN";
+        u.rate = 0.95; // 略慢，给孩子留反应时间
+        u.pitch = 1.1; // 略亮，但不尖
+        return u;
+    }
+
+    // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）；
+    // 去掉（）内舞台说明（如“完 - 分享而非牺牲”），不读出来
+    function speakStory(text) {
+        if (!speechSupported || !speechPref.on) return;
+        speechSynthesis.cancel();
+        text.split(/\n+/)
+            .map(s => s.replace(/（[^）]*）/g, "").trim())
+            .filter(Boolean)
+            .forEach(p => speechSynthesis.speak(makeUtterance(p)));
+    }
+
+    // 选项朗读：排队在正文之后，不打断；两个选项时前缀“你选。”（呼应海鸥台词）
+    function speakChoices(choices) {
+        if (!speechSupported || !speechPref.on || !speechPref.readChoices || !choices || !choices.length) return;
+        const prefix = choices.length > 1 ? "你选。" : "";
+        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => c.text).join("。") + "。"));
+    }
+
+    function stopSpeech() {
+        if (speechSupported) speechSynthesis.cancel();
+    }
+
+    function initSpeech() {
+        const btn = document.getElementById("speech-btn");
+        const sync = () => { btn.innerText = speechPref.on ? "🔊" : "🔇"; };
+        sync();
+        document.getElementById("sp-readchoices").checked = speechPref.readChoices;
+        btn.onclick = () => {
+            speechPref.on = !speechPref.on;
+            if (!speechPref.on) stopSpeech();
+            localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
+            sync();
+        };
     }
 
     /* ===== AI 生成：白名单填空，红线注入（AGENTS.md §3.3 / §5.3） ===== */
@@ -644,6 +730,7 @@
             };
             box.appendChild(btn);
         });
+        speakChoices(scene.choices); // 排队在正文朗读之后
     }
 
     function runListenBar(next) {
@@ -658,6 +745,7 @@
                 clearInterval(t);
                 document.getElementById("choices").innerHTML =
                     `<button class="choice-btn" onclick="event.stopPropagation();this.disabled=true;renderScene('${next}', { prevText: currentText, choiceText: '静静听完风声' })">睁开眼睛，太阳升起来了...</button>`;
+                speakChoices([{ text: "睁开眼睛，太阳升起来了" }]);
             }
         }, 80);
     }
@@ -665,6 +753,7 @@
     async function renderScene(key, ctx) {
         const scene = storyData[key];
         if (!scene) return;
+        stopSpeech(); // 切场景打断上一段朗读
         document.getElementById("choices").innerHTML = "";
         document.getElementById("listen-bar").style.display = "none";
         document.getElementById("battery-text").innerText = scene.battery + "%";
@@ -690,6 +779,7 @@
         setFigureState(duringTyping);
 
         currentText = text;
+        speakStory(text); // 语音与打字机各自独立，同时开始
         typeText(text, () => {
             setFigureState(scene.endState || scene.eyeState);
             if (scene.isSpecialListen) {
@@ -706,6 +796,7 @@
     }
 
     initSettingsPanel();
+    initSpeech();
     renderScene("start");
 </script>
 
