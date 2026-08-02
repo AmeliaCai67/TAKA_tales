@@ -103,6 +103,7 @@ check("语音偏好存 localStorage", "taka_speech" in HTML)
 check("选项朗读开关", 'id="sp-readchoices"' in HTML and "speakChoices" in HTML)
 check("切场景打断旧语音", "stopSpeech" in HTML)
 check("长文本拆段朗读（防 Chrome 中断）", re.search(r'split\(/\\n\+/\)', HTML))
+check("朗读前剔除引号字符", "cleanForSpeech" in HTML and "「」" in HTML)
 
 # --- 竖屏降级 ---
 check("竖屏 media query", "@media" in HTML and "portrait" in HTML)

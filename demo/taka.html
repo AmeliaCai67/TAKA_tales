@@ -597,13 +597,20 @@
         return u;
     }
 
-    // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）；
-    // 去掉（）内舞台说明（如“完 - 分享而非牺牲”），不读出来
+    // 朗读前清洗：去掉（）内舞台说明（如“完 - 分享而非牺牲”）；
+    // 去掉引号字符（中文语音会把 ASCII 直引号机械地念出来，角色对话靠语气自然区分）
+    function cleanForSpeech(s) {
+        return s.replace(/（[^）]*）/g, "")
+                .replace(/["“”「」『』]/g, "")
+                .trim();
+    }
+
+    // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）
     function speakStory(text) {
         if (!speechSupported || !speechPref.on) return;
         speechSynthesis.cancel();
         text.split(/\n+/)
-            .map(s => s.replace(/（[^）]*）/g, "").trim())
+            .map(cleanForSpeech)
             .filter(Boolean)
             .forEach(p => speechSynthesis.speak(makeUtterance(p)));
     }
@@ -612,7 +619,7 @@
     function speakChoices(choices) {
         if (!speechSupported || !speechPref.on || !speechPref.readChoices || !choices || !choices.length) return;
         const prefix = choices.length > 1 ? "你选。" : "";
-        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => c.text).join("。") + "。"));
+        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。"));
     }
 
     function stopSpeech() {
