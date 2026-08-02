@@ -137,17 +137,19 @@
         }
         .taka-figure svg { height: 300px; display: block; }
 
-        /* 对话框：纯文本 */
+        /* 对话框：纯文本。固定高度——文本再长也不顶跑选项，内部滚动 */
         .dialog {
             position: absolute;
             left: 24px;
             right: 24px;
             bottom: 24px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
             background: var(--bg-dialog);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 16px 20px;
-            min-height: 110px;
         }
 
         .speaker {
@@ -163,9 +165,13 @@
             letter-spacing: 1px;
             color: var(--text-primary);
             white-space: pre-line;
-            min-height: 68px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto; /* 长文本内部滚动 */
             cursor: pointer;
         }
+        .story-text::-webkit-scrollbar { width: 4px; }
+        .story-text::-webkit-scrollbar-thumb { background: var(--choice-border); border-radius: 2px; }
 
         /* 选项：锚定对话框顶边浮起（右侧拇指热区）。
            作为 .dialog 子元素 + bottom:calc(100%+12px)，无论文本多长
@@ -812,6 +818,7 @@
         clearInterval(typing);
         typing = setInterval(() => {
             el.innerText = text.slice(0, ++i);
+            el.scrollTop = el.scrollHeight; // 打字机跟随滚动到底
             if (i >= text.length) { clearInterval(typing); typing = null; onDone(); }
         }, 45);
         // 点击对话框立即补完

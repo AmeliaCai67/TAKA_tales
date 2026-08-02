@@ -45,6 +45,7 @@ class _Nest(HTMLParser):
             self.stack.pop()
 _n = _Nest(); _n.feed(HTML)
 check("choices 嵌套在 dialog 内", _n.ok)
+check("对话框固定高度 + 内部滚动", re.search(r"\.dialog\s*\{[^}]*height:\s*\d+px", HTML) and re.search(r"\.story-text\s*\{[^}]*overflow-y:\s*auto", HTML))
 
 # --- 暖黄面积约束：#ffb703 只允许出现在 eyeGrad / accent token / hover ---
 warm_uses = [m.start() for m in re.finditer(r"#ffb703", HTML, re.I)]
