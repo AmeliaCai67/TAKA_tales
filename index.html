@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="8;url=demo/taka.html">
+    <title>塔卡 (TAKA) - AI 互动童话</title>
+    <style>
+        :root {
+            --bg-deep: #0a141f;
+            --bg-sea: #13283a;
+            --border: #2d3a4a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #8d99a8;
+            --accent-warm: #ffb703;
+            --accent-dim: #cca025;
+            --choice-bg: #182432;
+            --choice-border: #3d4c5e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 塔卡的眼睛：唯一的大面积暖黄 */
+        .eye {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 45% 40%, #fff6d8 0%, var(--accent-warm) 55%, #9c7108 100%);
+            box-shadow: 0 0 24px rgba(255, 183, 3, .5);
+            animation: breathe 3.2s infinite alternate ease-in-out;
+        }
+        @keyframes breathe {
+            from { opacity: .55; box-shadow: 0 0 8px rgba(255, 183, 3, .3); }
+            to   { opacity: 1;   box-shadow: 0 0 28px rgba(255, 183, 3, .6); }
+        }
+
+        h1 {
+            font-size: 28px;
+            letter-spacing: 12px;
+            margin-bottom: 6px;
+        }
+        h1 span { color: var(--accent-dim); }
+
+        .slogan {
+            font-size: 15px;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 2;
+            margin-bottom: 24px;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .features div {
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--choice-bg);
+        }
+
+        .start-btn {
+            display: inline-block;
+            min-width: 220px;
+            padding: 14px 32px;
+            border-radius: 14px;
+            border: 1px solid var(--accent-dim);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .start-btn:hover {
+            border-color: var(--accent-warm);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, .4);
+        }
+
+        .countdown {
+            margin-top: 14px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="eye"></div>
+    <h1>塔 <span>卡</span></h1>
+    <div class="slogan">我们不造神，我们造镜子。</div>
+    <div class="sub">
+        面向 3-6 岁儿童的 AI 互动叙事<br>
+        一个即将报废的铁皮人，获得了新的能源。<br>
+        它想去听听上面的风声——走哪条路，由孩子决定。
+    </div>
+    <div class="features">
+        <div>🎧 &nbsp;语音朗读，角色各有语气（浏览器本地合成，离线可用）</div>
+        <div>✏️ &nbsp;除了 A/B 选项，孩子还能打字或语音说出自己的选择</div>
+        <div>🔀 &nbsp;每个选择都被故事认真对待：大纲是护栏，方向感是孩子的</div>
+        <div>🔒 &nbsp;内容红线内置；AI 设置为可选项，Key 只存在本地浏览器</div>
+    </div>
+    <a class="start-btn" href="demo/taka.html">开 始 故 事</a>
+    <div class="countdown"><span id="sec">8</span> 秒后自动进入</div>
+</div>
+
+<script>
+    let s = 8;
+    const el = document.getElementById("sec");
+    const t = setInterval(() => {
+        el.innerText = --s;
+        if (s <= 0) { clearInterval(t); location.href = "demo/taka.html"; }
+    }, 1000);
+    // 点击卡片任意处立即进入
+    document.querySelector(".card").addEventListener("click", (e) => {
+        if (e.target.closest(".start-btn")) return; // 按钮走自己的链接
+        clearInterval(t);
+        location.href = "demo/taka.html";
+    });
+</script>
+
+</body>
+</html>
