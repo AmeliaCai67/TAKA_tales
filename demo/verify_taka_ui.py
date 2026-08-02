@@ -94,6 +94,13 @@ check("中段 4 场景有 beats", HTML.count("beats:") >= 4)
 check("中段 4 场景标记 ai", HTML.count("ai: true") >= 4)
 check("失败回退内置文案", "回退" in HTML)
 
+# --- 自由输入选项 C（2026-08-02）：打字/语音，编织进骨架 ---
+check("选项 C 输入框 UI", '"choice-input"' in HTML and "你选" in HTML)
+check("语音输入 SpeechRecognition", "SpeechRecognition" in HTML)
+check("3 个场景开启 freeInput（start/clean_branch/surface）", HTML.count("freeInput: true") == 3)
+check("无 AI 时留在页面不 fallback", "塔卡还听不懂" in HTML)
+check("选项朗读补自由输入提示", "说说你的想法" in HTML)
+
 # --- 语音输出（spec 2026-08-02 voice）：speechSynthesis 零配置离线 ---
 check("语音开关按钮", 'id="speech-btn"' in HTML)
 check("speechSynthesis 调用", "speechSynthesis" in HTML and "SpeechSynthesisUtterance" in HTML)

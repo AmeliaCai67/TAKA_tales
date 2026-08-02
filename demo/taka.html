@@ -204,6 +204,50 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 自由输入选项 C：虚线框区别于固定选项 */
+        .choice-input {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 4px 6px 4px 14px;
+            border: 1px dashed var(--choice-border);
+            border-radius: 12px;
+            background: var(--choice-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,.4);
+            animation: choiceIn .3s ease;
+        }
+        .choice-input input {
+            flex: 1;
+            min-width: 0;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+        .choice-input input::placeholder {
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+        .choice-input button {
+            min-width: 32px;
+            min-height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--choice-border);
+            background: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .choice-input button:hover { border-color: var(--accent-warm); }
+        .choice-input button.recording {
+            color: var(--accent-warm);
+            border-color: var(--accent-warm);
+            animation: micPulse 1.2s infinite;
+        }
+        @keyframes micPulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+
         /* 聆听分支进度条 */
         .listen-bar {
             display: none;
@@ -413,6 +457,7 @@
     const storyData = {
         start: {
             mode: "swim",
+            freeInput: true,
             text: "海底很亮。有很多光。\n\n塔卡每天清理珊瑚。光在动。\n\n它听到声音。呼呼。从上面来。\n\n老机器说：\"不要去。上面没有水。\"\n\n塔卡的灯闪了一下：\"我想知道。\"",
             battery: 100,
             eyeState: "st-standby",
@@ -424,6 +469,7 @@
         clean_branch: {
             mode: "swim",
             ai: true,
+            freeInput: true,
             beats: [
                 "塔卡选择留下，继续清理珊瑚",
                 "夜里它的灯一直亮着，睡不着",
@@ -440,6 +486,7 @@
         surface: {
             mode: "swim",
             ai: true,
+            freeInput: true,
             beats: [
                 "塔卡浮出水面，第一次离开水，外壳很疼",
                 "但它听到了风声：呼呼",
@@ -643,10 +690,12 @@
     }
 
     // 选项朗读：排队在正文之后，不打断；两个选项时前缀“你选。”（呼应海鸥台词）
-    function speakChoices(choices) {
+    // 有自由输入选项时，末尾补一句“或者，说说你的想法”
+    function speakChoices(choices, hasFreeInput) {
         if (!speechSupported || !speechPref.on || !speechPref.readChoices || !choices || !choices.length) return;
         const prefix = choices.length > 1 ? "你选。" : "";
-        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。"));
+        const suffix = hasFreeInput ? "或者，说说你的想法。" : "";
+        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix));
     }
 
     function stopSpeech() {
@@ -749,6 +798,63 @@
         };
     }
 
+    let activeRec = null; // 进行中的语音识别（切场景时打断）
+
+    // 自由输入选项 C：打字 / 语音，提交后编织进骨架（走默认主线 + 自定义文本传给 AI）
+    function buildFreeInput(scene) {
+        const row = document.createElement("div");
+        row.className = "choice-input";
+        row.onclick = (e) => e.stopPropagation();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.maxLength = 50;
+        input.placeholder = "你选……";
+        row.appendChild(input);
+
+        // 语音输入（浏览器能力：Chrome 走云端，离线/不支持时隐藏 🎤）
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SR) {
+            const mic = document.createElement("button");
+            mic.innerText = "🎤";
+            mic.title = "语音输入";
+            const rec = new SR();
+            rec.lang = "zh-CN";
+            rec.interimResults = true;
+            rec.onresult = (e) => {
+                input.value = Array.from(e.results).map(r => r[0].transcript).join("");
+            };
+            rec.onend = () => { mic.classList.remove("recording"); if (activeRec === rec) activeRec = null; };
+            mic.onclick = () => {
+                if (activeRec === rec) { rec.stop(); return; }
+                try { rec.start(); activeRec = rec; mic.classList.add("recording"); } catch {}
+            };
+            row.appendChild(mic);
+        }
+
+        const send = document.createElement("button");
+        send.innerText = "✓";
+        send.title = "提交";
+        const submit = () => {
+            const text = input.value.trim();
+            if (!text) return;
+            const settings = loadSettings();
+            if (!(settings.enabled && settings.apiKey)) {
+                // 留在页面：不清空输入、不走主线，孩子可以改选 A/B 或等大人开启 AI
+                showStatus("塔卡还听不懂，需要大人在设置里开启 AI", 3000);
+                return;
+            }
+            if (activeRec) { try { activeRec.abort(); } catch {} }
+            document.getElementById("choices").querySelectorAll("button, input").forEach(b => b.disabled = true);
+            // 默认主线 = 第一个选项的 next；自定义文本作为「孩子的选择」传给 AI
+            renderScene(scene.choices[0].next, { prevText: currentText, choiceText: text });
+        };
+        send.onclick = submit;
+        input.onkeydown = (e) => { if (e.key === "Enter") submit(); };
+        row.appendChild(send);
+        return row;
+    }
+
     function showChoices(scene) {
         const box = document.getElementById("choices");
         box.innerHTML = "";
@@ -765,7 +871,8 @@
             };
             box.appendChild(btn);
         });
-        speakChoices(scene.choices); // 排队在正文朗读之后
+        if (scene.freeInput) box.appendChild(buildFreeInput(scene));
+        speakChoices(scene.choices, scene.freeInput); // 排队在正文朗读之后
     }
 
     function runListenBar(next) {
@@ -789,6 +896,7 @@
         const scene = storyData[key];
         if (!scene) return;
         stopSpeech(); // 切场景打断上一段朗读
+        if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
         document.getElementById("choices").innerHTML = "";
         document.getElementById("listen-bar").style.display = "none";
         document.getElementById("battery-text").innerText = scene.battery + "%";
