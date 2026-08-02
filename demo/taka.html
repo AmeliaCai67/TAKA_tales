@@ -349,7 +349,7 @@
         </label>
         <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 启用 AI 场景生成</label>
         <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> 朗读选项（家长代读 / 大孩子可关）</label>
-        <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
+        <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com，模型 deepseek-v4-flash）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
         <div class="sp-actions">
             <button id="sp-save">保存</button>
             <button id="sp-close">关闭</button>
@@ -577,8 +577,12 @@
     };
 
     function loadSettings() {
-        try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") }; }
-        catch { return { ...DEFAULT_SETTINGS }; }
+        let s;
+        try { s = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") }; }
+        catch { s = { ...DEFAULT_SETTINGS }; }
+        // 历史默认值修正：DeepSeek 端点 + gpt 默认模型 → 自动换成 deepseek-v4-flash
+        if (/deepseek/i.test(s.baseUrl) && s.model === "gpt-4o-mini") s.model = "deepseek-v4-flash";
+        return s;
     }
 
     function initSettingsPanel() {
@@ -759,14 +763,22 @@
                         { role: "user", content: buildUserPrompt(scene, ctx) }
                     ],
                     temperature: 0.8,
-                    max_tokens: 300
+                    max_tokens: 800 // 推理模型（deepseek-v4）先烧 reasoning 额度，300 会被吃光导致空正文
                 }),
                 signal: controller.signal
             });
         } finally {
             clearTimeout(timer);
         }
-        if (!res.ok) throw new Error("HTTP " + res.status);
+        if (!res.ok) {
+            // 带上服务端报错信息（如 “Model Not Exist”），否则排查只能靠猜
+            let msg = "HTTP " + res.status;
+            try {
+                const err = await res.json();
+                if (err && err.error && err.error.message) msg += "：" + err.error.message;
+            } catch {}
+            throw new Error(msg.slice(0, 80));
+        }
         const data = await res.json();
         const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
         if (!text || !text.trim()) throw new Error("empty response");
@@ -825,6 +837,16 @@
                 input.value = Array.from(e.results).map(r => r[0].transcript).join("");
             };
             rec.onend = () => { mic.classList.remove("recording"); if (activeRec === rec) activeRec = null; };
+            rec.onerror = (e) => {
+                const why = {
+                    "not-allowed": "请允许麦克风权限（地址栏左侧图标可改）",
+                    "service-not-allowed": "请允许麦克风权限（地址栏左侧图标可改）",
+                    "network": "语音识别需要联网（Chrome 走云端）",
+                    "audio-capture": "没找到麦克风",
+                    "no-speech": "没听清，再试一次"
+                }[e.error] || e.error;
+                showStatus("🎤 " + why, 3500);
+            };
             mic.onclick = () => {
                 if (activeRec === rec) { rec.stop(); return; }
                 try { rec.start(); activeRec = rec; mic.classList.add("recording"); } catch {}
@@ -913,7 +935,8 @@
                 showStatus("");
             } catch (e) {
                 console.warn("AI 生成失败，回退本地文案：", e);
-                showStatus("已切换本地故事", 3000);
+                const why = e.name === "AbortError" ? "超时" : (e.message || "网络错误");
+                showStatus("已切换本地故事（" + why + "）", 4000);
             }
         }
 
