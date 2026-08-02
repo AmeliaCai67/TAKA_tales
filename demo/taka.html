@@ -863,7 +863,7 @@
         const send = document.createElement("button");
         send.innerText = "✓";
         send.title = "提交";
-        const submit = () => {
+        const submit = async () => {
             const text = input.value.trim();
             if (!text) return;
             const settings = loadSettings();
@@ -873,9 +873,27 @@
                 return;
             }
             if (activeRec) { try { activeRec.abort(); } catch {} }
-            document.getElementById("choices").querySelectorAll("button, input").forEach(b => b.disabled = true);
-            // 默认主线 = 第一个选项的 next；自定义文本作为「孩子的选择」传给 AI（custom 标记触发“选择必须生效”规则）
-            renderScene(scene.choices[0].next, { prevText: currentText, choiceText: text, custom: true });
+            const box = document.getElementById("choices");
+            box.querySelectorAll("button, input").forEach(b => b.disabled = true);
+
+            // 自定义选择没有 fallback 文案可退（孩子的整活只有 AI 接得住）：
+            // 先在当前场景生成，成功才切场景；失败则恢复选项，孩子再选一次
+            const nextKey = scene.choices[0].next;
+            const nextScene = storyData[nextKey];
+            setFigureState("st-thinking");
+            showStatus("塔卡在想...");
+            try {
+                const genText = await generateSceneText(nextScene,
+                    { prevText: currentText, choiceText: text, custom: true }, settings);
+                showStatus("");
+                renderScene(nextKey, { prevText: currentText, choiceText: text, custom: true, generated: genText });
+            } catch (e) {
+                console.warn("自定义选择生成失败：", e);
+                const why = e.name === "AbortError" ? "超时" : (e.message || "网络错误");
+                showStatus("塔卡没听懂（" + why + "），再选一次吧", 4500);
+                setFigureState(scene.eyeState);
+                box.querySelectorAll("button, input").forEach(b => b.disabled = false);
+            }
         };
         send.onclick = submit;
         input.onkeydown = (e) => { if (e.key === "Enter") submit(); };
@@ -933,7 +951,9 @@
         // AI 生成：仅中段场景（scene.ai）；无 key / 开关关 / 失败均静默回退内置文案
         let text = scene.text;
         const settings = loadSettings();
-        if (scene.ai && settings.enabled && settings.apiKey) {
+        if (ctx && ctx.generated) {
+            text = ctx.generated; // 自定义选择：提交时已生成好，直接用（生成失败不会走到这里）
+        } else if (scene.ai && settings.enabled && settings.apiKey) {
             setFigureState("st-thinking"); // 思考态即 loading：眼睛闪三下
             showStatus("塔卡在想...");
             try {
