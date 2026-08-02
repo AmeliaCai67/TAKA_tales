@@ -104,7 +104,7 @@ check("选项朗读开关", 'id="sp-readchoices"' in HTML and "speakChoices" in 
 check("切场景打断旧语音", "stopSpeech" in HTML)
 check("长文本拆段朗读（防 Chrome 中断）", re.search(r'split\(/\\n\+/\)', HTML))
 check("朗读前剔除引号字符", "cleanForSpeech" in HTML and "「」" in HTML)
-check("角色声线配置", "CHAR_PROFILE" in HTML and "charVoiceMap" in HTML)
+check("角色声线配置（pitch/rate）", "CHAR_PROFILE" in HTML)
 check("台词解析（塔卡说）", "parseParagraph" in HTML and "DIALOG_RE" in HTML)
 
 # --- 竖屏降级 ---

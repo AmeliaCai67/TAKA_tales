@@ -572,15 +572,14 @@
     const speechSupported = "speechSynthesis" in window;
     let zhVoice = null;
 
-    /* 角色声线：叙述者 + 塔卡/海鸥/老机器 各自音调语速。
-       系统有足够中文声音时分配不同 voice；不够时靠 pitch/rate 差异区分 */
+    /* 角色声线：单一声音 + pitch/rate 区分（多语音包实测效果诡异，弃用）
+       叙述者 + 塔卡/海鸥/老机器 各自音调语速 */
     const CHAR_PROFILE = {
         narrator:   { rate: 0.95, pitch: 1.1  }, // 略慢略亮，给孩子留反应时间
         taka:       { rate: 0.88, pitch: 0.85 }, // 塔卡：沉稳、慢半拍的旧机器人
         seagull:    { rate: 1.05, pitch: 1.35 }, // 海鸥：亮、快、活
         oldmachine: { rate: 0.8,  pitch: 0.65 }  // 老机器：低沉迟缓
     };
-    const charVoiceMap = { narrator: null, taka: null, seagull: null, oldmachine: null };
     const SPEAKER_NAMES = { "塔卡": "taka", "海鸥": "seagull", "老机器": "oldmachine" };
     // 段内台词：角色名 + 最多 8 字引语（说/问/的信号很弱…）+ 冒号 + 台词
     const DIALOG_RE = /(塔卡|海鸥|老机器)([^：:]{0,8})[：:]["「]?([^"」]+?)["」]?\s*$/;
@@ -595,12 +594,6 @@
         const preferred = ["xiaoxiao", "xiaoyi", "xiaobing", "ting", "mei", "sinji", "lilian",
                            "晓晓", "小冰", "婷婷", "美佳"];
         zhVoice = pool.find(v => preferred.some(p => v.name.toLowerCase().includes(p))) || pool[0] || null;
-        // 声线分配：叙述者用首选声音，角色依次取不同 voice，不够则复用
-        const rest = pool.filter(v => v !== zhVoice);
-        charVoiceMap.narrator = zhVoice;
-        charVoiceMap.taka = rest[0] || zhVoice;
-        charVoiceMap.seagull = rest[1] || rest[0] || zhVoice;
-        charVoiceMap.oldmachine = rest[2] || rest[1] || rest[0] || zhVoice;
     }
     if (speechSupported) {
         pickVoice();
@@ -610,8 +603,7 @@
     function makeUtterance(text, who) {
         const prof = CHAR_PROFILE[who || "narrator"];
         const u = new SpeechSynthesisUtterance(text);
-        const v = charVoiceMap[who || "narrator"];
-        if (v) u.voice = v;
+        if (zhVoice) u.voice = zhVoice;
         u.lang = "zh-CN";
         u.rate = prof.rate;
         u.pitch = prof.pitch;
