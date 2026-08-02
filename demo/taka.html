@@ -48,6 +48,73 @@
             letter-spacing: 2px;
         }
 
+        /* 设置按钮：左上角，与右上 HUD 对称 */
+        .settings-btn {
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .settings-btn:hover { opacity: 1; }
+
+        .settings-panel {
+            position: absolute;
+            top: 36px;
+            left: 14px;
+            width: 260px;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            z-index: 30;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .settings-panel .sp-title { font-size: 12px; letter-spacing: 3px; margin-bottom: 10px; color: var(--text-primary); }
+        .settings-panel label { display: block; margin-bottom: 8px; letter-spacing: 1px; }
+        .settings-panel input[type="text"],
+        .settings-panel input[type="password"] {
+            display: block;
+            width: 100%;
+            margin-top: 4px;
+            padding: 6px 8px;
+            background: var(--choice-bg);
+            border: 1px solid var(--choice-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+        .sp-toggle { display: flex; align-items: center; gap: 6px; }
+        .sp-note { font-size: 11px; line-height: 1.7; opacity: .8; margin: 8px 0; }
+        .sp-actions { display: flex; gap: 8px; }
+        .sp-actions button {
+            flex: 1;
+            min-height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+        }
+
+        /* AI 状态提示：顶部居中，小字 */
+        .ai-status {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            z-index: 25;
+        }
+
         /* 立绘：偏左中 */
         .taka-figure {
             position: absolute;
@@ -86,15 +153,18 @@
             cursor: pointer;
         }
 
-        /* 选项：浮于对话框上方右侧（右手拇指热区） */
+        /* 选项：锚定对话框顶边浮起（右侧拇指热区）。
+           作为 .dialog 子元素 + bottom:calc(100%+12px)，无论文本多长
+           都浮在对话框上方，不会被对话框盖住（修复长文本场景选项不可点击） */
         .choices {
             position: absolute;
-            right: 32px;
-            bottom: 170px;
+            right: 12px;
+            bottom: calc(100% + 12px);
             display: flex;
             flex-direction: column;
             gap: 10px;
             min-width: 200px;
+            z-index: 10;
         }
 
         .choice-btn {
@@ -174,8 +244,11 @@
         .st-low .eyeGlow { fill: var(--low-orange); animation: low 2s infinite; }
         @keyframes low { 0%,100% { opacity: .3; } 50% { opacity: .65; } }
 
+        /* 关机（spec §5/§7）：缓缓进行——身体 1.2s 倾斜降透明，灯光 1.2s 渐灭 */
+        .takaBody { transition: transform 1.2s ease, opacity 1.2s ease; }
+        .eyeGlow, .eyeHi { transition: opacity 1.2s ease; }
         .st-off .takaBody { transform: rotate(-3deg); transform-box: fill-box; transform-origin: center; opacity: .75; }
-        .st-off .eyeGlow { display: none; }
+        .st-off .eyeGlow, .st-off .eyeHi { opacity: 0; }
 
         /* ===== 竖屏降级：上下堆叠，选项通栏（低频场景） ===== */
         @media (orientation: portrait) {
@@ -192,7 +265,8 @@
             .taka-figure { position: static; order: 1; margin-top: 8px; }
             .taka-figure svg { height: 220px; }
             .dialog { position: static; order: 2; width: 100%; margin-top: 12px; }
-            .choices { position: static; order: 3; width: 100%; min-width: 0; margin-top: 12px; }
+            /* 竖屏：选项收进对话框底部通栏（choices 是 dialog 子元素，static 即可） */
+            .choices { position: static; width: 100%; min-width: 0; margin-top: 12px; }
             .choice-btn { width: 100%; }
         }
     </style>
@@ -201,6 +275,27 @@
 
 <div id="stage">
     <div class="hud">ENERGY <span id="battery-text">100%</span></div>
+
+    <button class="settings-btn" id="settings-btn" title="AI 设置">⚙</button>
+    <div class="settings-panel" id="settings-panel" hidden>
+        <div class="sp-title">AI 设 置</div>
+        <label>Base URL
+            <input type="text" id="sp-baseurl" placeholder="https://api.openai.com/v1">
+        </label>
+        <label>API Key
+            <input type="password" id="sp-key" placeholder="sk-...">
+        </label>
+        <label>Model
+            <input type="text" id="sp-model" placeholder="gpt-4o-mini">
+        </label>
+        <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 启用 AI 场景生成</label>
+        <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
+        <div class="sp-actions">
+            <button id="sp-save">保存</button>
+            <button id="sp-close">关闭</button>
+        </div>
+    </div>
+    <div class="ai-status" id="ai-status"></div>
 
     <div class="taka-figure st-standby" id="taka-figure">
         <svg viewBox="0 0 220 210">
@@ -282,11 +377,9 @@
             </defs>
             <g class="takaBody"><use href="#takaBody"/></g>
             <circle class="eyeGlow" cx="110" cy="92" r="17" fill="url(#eyeGrad)"/>
-            <circle cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
+            <circle class="eyeHi" cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
         </svg>
     </div>
-
-    <div class="choices" id="choices"></div>
 
     <div class="dialog" id="dialog">
         <div class="speaker">塔 卡</div>
@@ -295,6 +388,7 @@
             <span>风声。呼呼。正在收听...</span>
             <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
+        <div class="choices" id="choices"></div>
     </div>
 </div>
 
@@ -302,6 +396,7 @@
     // 故事数据：文本与分支逻辑保持原样，仅增加 eyeState / endState 字段
     const storyData = {
         start: {
+            mode: "swim",
             text: "海底很亮。有很多光。\n\n塔卡每天清理珊瑚。光在动。\n\n他听到声音。呼呼。从上面来。\n\n老机器说：\"不要去。上面没有水。\"\n\n塔卡的灯闪了一下：\"我想知道。\"",
             battery: 100,
             eyeState: "st-standby",
@@ -311,6 +406,14 @@
             ]
         },
         clean_branch: {
+            mode: "swim",
+            ai: true,
+            beats: [
+                "塔卡选择留下，继续清理珊瑚",
+                "夜里他的灯一直亮着，睡不着",
+                "风声还在：呼呼",
+                "第二天，塔卡放下铲子，决定上去看看"
+            ],
             text: "塔卡留下来清理珊瑚。\n\n夜里，他的灯一直亮着。他睡不着。\n\n呼呼。声音还在。\n\n第二天，塔卡放下了手里的铲子。",
             battery: 95,
             eyeState: "st-thinking",
@@ -319,6 +422,14 @@
             ]
         },
         surface: {
+            mode: "swim",
+            ai: true,
+            beats: [
+                "塔卡浮出水面，第一次离开水，外壳很疼",
+                "但他听到了风声：呼呼",
+                "一只海鸥飞来警告：你会掉下去",
+                "塔卡说：我不知道在听什么，但我想听完"
+            ],
             text: "塔卡浮出水面。没有水。很疼。\n\n但他听到了。风声。呼呼。\n\n一只海鸥飞过来：\"你会掉下去。\"\n\n塔卡：\"我在听。\"\n\n海鸥：\"听什么？\"\n\n塔卡：\"我不知道。但我想听完。\"",
             battery: 60,
             eyeState: "st-standby",
@@ -328,6 +439,15 @@
             ]
         },
         ask_wind: {
+            mode: "swim",
+            ai: true,
+            beats: [
+                "塔卡问风：你从哪里来",
+                "海鸥说：从有云的地方来",
+                "塔卡问：云是什么",
+                "海鸥说：云是天上的海，只是它抓不住",
+                "太阳渐渐升起来了"
+            ],
             text: "塔卡问：\"你从哪里来？\"\n\n海鸥回答：\"我从有云的地方来。\"\n\n塔卡问：\"云是什么？\"\n\n海鸥说：\"云是天上的海，只是它抓不住。\"\n\n太阳渐渐升起来了。",
             battery: 45,
             eyeState: "st-standby",
@@ -336,6 +456,14 @@
             ]
         },
         just_listen: {
+            mode: "swim",
+            ai: true,
+            beats: [
+                "塔卡没有说话，只是听",
+                "他的灯光慢慢变亮",
+                "风声变得很清晰：呼呼，呼呼",
+                "没有问题。只有风"
+            ],
             text: "塔卡没有说话。他的灯光慢慢变亮。\n\n风声变得很清晰。呼呼。呼呼。\n\n没有问题。只有风。",
             battery: 40,
             eyeState: "st-listening",
@@ -343,6 +471,7 @@
             next: "climax"
         },
         climax: {
+            mode: "swim",
             text: "太阳出来了。塔卡的电池只剩 10%。\n\n老机器的信号很弱：\"回来。现在。\"\n\n塔卡看着海面。风声还在。\n\n海鸥说：\"你选。我不帮你选。\"\n\n塔卡的灯闪了三次。",
             battery: 10,
             eyeState: "st-low",
@@ -352,6 +481,7 @@
             ]
         },
         ending_a: {
+            mode: "swim",
             text: "塔卡沉入海底。他接上了充电线。\n\n他把风声录进了记忆库。\n\n第二天，他带着满电回来，放给老机器听。\n\n老机器的灯第一次闪了：\"原来是这样。\"\n\n（完 - 分享而非牺牲）",
             battery: 100,
             eyeState: "st-standby",
@@ -360,6 +490,7 @@
             ]
         },
         ending_b: {
+            mode: "swim",
             text: "塔卡没有动。一分钟。两分钟。\n\n他听到了完整的一首歌。\n\n咔哒。塔卡关机了。\n\n海鸥用巨大的翅膀，一点点把他推回了海面。\n\n他在日落时醒来。电池 0%。但记忆里有完整的风声。\n\n\"值了。\" 他身边坐着海鸥。\n\n（完 - 体验优先，有友兜底）",
             battery: 0,
             eyeState: "st-standby",
@@ -371,9 +502,115 @@
     };
 
     let typing = null; // 打字机 timer
+    let currentText = ""; // 当前场景实际展示的文本，作为下一场景的「前情」
+
+    /* ===== AI 设置（localStorage，key 不出本机） ===== */
+    const SETTINGS_KEY = "taka_ai_settings";
+    const DEFAULT_SETTINGS = {
+        baseUrl: "https://api.openai.com/v1",
+        apiKey: "",
+        model: "gpt-4o-mini",
+        enabled: false
+    };
+
+    function loadSettings() {
+        try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") }; }
+        catch { return { ...DEFAULT_SETTINGS }; }
+    }
+
+    function initSettingsPanel() {
+        const s = loadSettings();
+        document.getElementById("sp-baseurl").value = s.baseUrl;
+        document.getElementById("sp-key").value = s.apiKey;
+        document.getElementById("sp-model").value = s.model;
+        document.getElementById("sp-enabled").checked = s.enabled;
+        const panel = document.getElementById("settings-panel");
+        document.getElementById("settings-btn").onclick = () => { panel.hidden = !panel.hidden; };
+        document.getElementById("sp-save").onclick = () => {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+                baseUrl: document.getElementById("sp-baseurl").value.trim() || DEFAULT_SETTINGS.baseUrl,
+                apiKey: document.getElementById("sp-key").value.trim(),
+                model: document.getElementById("sp-model").value.trim() || DEFAULT_SETTINGS.model,
+                enabled: document.getElementById("sp-enabled").checked
+            }));
+            panel.hidden = true;
+            showStatus("设置已保存", 2000);
+        };
+        document.getElementById("sp-close").onclick = () => { panel.hidden = true; };
+    }
+
+    let statusTimer = null;
+    function showStatus(msg, ms) {
+        document.getElementById("ai-status").innerText = msg;
+        clearTimeout(statusTimer);
+        if (msg && ms) statusTimer = setTimeout(() => { document.getElementById("ai-status").innerText = ""; }, ms);
+    }
+
+    /* ===== AI 生成：白名单填空，红线注入（AGENTS.md §3.3 / §5.3） ===== */
+    const SYSTEM_PROMPT = `你在为 3-6 岁儿童互动故事《塔卡》撰写场景正文。
+塔卡是一个旧铁皮机器人：单眼、暖黄色的灯、话少、诚实、温暖。
+
+【文风要求】
+- 海明威式极简：短句，主谓宾，极少形容词
+- 每句不超过 15 字；用重复制造节奏（如"呼呼。"）
+- 全文不超过 120 字，段与段之间空一行（3-5 段）
+- 角色对话用中文引号
+- 只输出正文：不要标题、不要解释、不要给全文加引号
+
+【价值观红线】
+- 不评判孩子的选择，不说教
+- 不写牺牲自己救别人；写"一起想办法"
+- 不出现"听话才是好孩子"
+- 不用宗教词汇；用科幻词（能量、信号、记忆库）
+- 不恐吓，紧张感用环境描写表达`;
+
+    function buildUserPrompt(scene, ctx) {
+        const prev = (ctx && ctx.prevText) || "（故事开始）";
+        const choice = (ctx && ctx.choiceText) || "（无）";
+        const beats = (scene.beats || []).map(b => "- " + b).join("\n");
+        return `【故事前情】\n${prev}\n\n【孩子的选择】\n${choice}\n\n【本场景剧情要点】\n${beats}\n\n请严格按剧情要点写出本场景正文。`;
+    }
+
+    async function generateSceneText(scene, ctx, settings) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 15000); // 15s 超时
+        let res;
+        try {
+            res = await fetch(settings.baseUrl.replace(/\/+$/, "") + "/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + settings.apiKey
+                },
+                body: JSON.stringify({
+                    model: settings.model,
+                    messages: [
+                        { role: "system", content: SYSTEM_PROMPT },
+                        { role: "user", content: buildUserPrompt(scene, ctx) }
+                    ],
+                    temperature: 0.8,
+                    max_tokens: 300
+                }),
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timer);
+        }
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!text || !text.trim()) throw new Error("empty response");
+        return text.trim();
+    }
 
     function setFigureState(state) {
         document.getElementById("taka-figure").className = "taka-figure " + state;
+    }
+
+    // 双模式（spec §4.4）：水下 = 收腿悬浮（takaBodySwim），陆地 = 伸腿站立（takaBody）
+    function setFigureMode(mode) {
+        const use = document.querySelector("#taka-figure .takaBody use");
+        use.setAttribute("href", mode === "swim" ? "#takaBodySwim" : "#takaBody");
     }
 
     function typeText(text, onDone) {
@@ -398,7 +635,13 @@
             const btn = document.createElement("button");
             btn.className = "choice-btn";
             btn.innerText = c.text;
-            btn.onclick = () => renderScene(c.next);
+            // stopPropagation：choices 在 dialog 内，阻止冒泡触发打字机补完
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                // 立即禁用所有按钮，防双击产生重复生成请求
+                box.querySelectorAll("button").forEach(b => b.disabled = true);
+                renderScene(c.next, { prevText: currentText, choiceText: c.text });
+            };
             box.appendChild(btn);
         });
     }
@@ -414,23 +657,40 @@
             if (p >= 100) {
                 clearInterval(t);
                 document.getElementById("choices").innerHTML =
-                    `<button class="choice-btn" onclick="renderScene('${next}')">睁开眼睛，太阳升起来了...</button>`;
+                    `<button class="choice-btn" onclick="event.stopPropagation();this.disabled=true;renderScene('${next}', { prevText: currentText, choiceText: '静静听完风声' })">睁开眼睛，太阳升起来了...</button>`;
             }
         }, 80);
     }
 
-    function renderScene(key) {
+    async function renderScene(key, ctx) {
         const scene = storyData[key];
         if (!scene) return;
         document.getElementById("choices").innerHTML = "";
         document.getElementById("listen-bar").style.display = "none";
         document.getElementById("battery-text").innerText = scene.battery + "%";
+        setFigureMode(scene.mode || "land");
+
+        // AI 生成：仅中段场景（scene.ai）；无 key / 开关关 / 失败均静默回退内置文案
+        let text = scene.text;
+        const settings = loadSettings();
+        if (scene.ai && settings.enabled && settings.apiKey) {
+            setFigureState("st-thinking"); // 思考态即 loading：眼睛闪三下
+            showStatus("塔卡在想...");
+            try {
+                text = await generateSceneText(scene, ctx, settings);
+                showStatus("");
+            } catch (e) {
+                console.warn("AI 生成失败，回退本地文案：", e);
+                showStatus("已切换本地故事", 3000);
+            }
+        }
 
         // 打字机期间 standby 临时切 speaking（spec §7）；特殊状态不被打断
         const duringTyping = scene.eyeState === "st-standby" ? "st-speaking" : scene.eyeState;
         setFigureState(duringTyping);
 
-        typeText(scene.text, () => {
+        currentText = text;
+        typeText(text, () => {
             setFigureState(scene.endState || scene.eyeState);
             if (scene.isSpecialListen) {
                 runListenBar(scene.next);
@@ -445,6 +705,7 @@
         });
     }
 
+    initSettingsPanel();
     renderScene("start");
 </script>
 

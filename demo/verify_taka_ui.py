@@ -22,9 +22,29 @@ for frag in ['class="hud"', 'class="dialog"', 'class="choices"', 'class="speaker
 check('dom class="taka-figure"', re.search(r'class="taka-figure[ "]', HTML))
 
 # --- 触控约束 ---
-m = re.search(r"\.choices\s*\{[^}]*bottom:\s*(\d+)px", HTML)
-check("选项离底边 >=24px", m and int(m.group(1)) >= 24)
+# 选项锚定对话框顶边（bottom: calc(100%+12px)），且作为 dialog 子元素——
+# 文本变长时选项随对话框顶边上移，永不被对话框盖住；
+# 离底边 ≥24px 由对话框自身 bottom:24px 结构性保证。
+check("选项锚定对话框顶边", re.search(r"\.choices\s*\{[^}]*bottom:\s*calc\(100%", HTML))
 check("按钮最小高度 40px", re.search(r"min-height:\s*40px", HTML))
+
+# choices 必须嵌在 dialog 内（防遮挡修复的结构断言）
+from html.parser import HTMLParser
+class _Nest(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.stack = []
+        self.ok = False
+    def handle_starttag(self, tag, attrs):
+        d = dict(attrs)
+        if d.get("id") == "choices":
+            self.ok = any(a.get("id") == "dialog" for a in self.stack)
+        self.stack.append(d)
+    def handle_endtag(self, tag):
+        if self.stack:
+            self.stack.pop()
+_n = _Nest(); _n.feed(HTML)
+check("choices 嵌套在 dialog 内", _n.ok)
 
 # --- 暖黄面积约束：#ffb703 只允许出现在 eyeGrad / accent token / hover ---
 warm_uses = [m.start() for m in re.finditer(r"#ffb703", HTML, re.I)]
@@ -51,6 +71,28 @@ for s in scenes:
     check(f"scene {s} 有 eyeState", bool(m))
 # --- ending_b 有 endState st-off ---
 check("ending_b endState", re.search(r'ending_b:\s*\{[^}}]*?endState:\s*"st-off"', HTML, re.S))
+
+# --- 关机演出（spec §5/§7）：高光熄灭 + 缓缓过渡 ---
+check("高光点有 eyeHi class", 'class="eyeHi"' in HTML)
+check("关机态高光熄灭", re.search(r"\.st-off[^{]*\.eyeHi", HTML))
+check("关机切换有 1.2s 过渡", re.search(r"(^|\n)\s*\.takaBody\s*\{[^}]*transition", HTML))
+
+# --- 双模式（spec §4.4）：水下悬浮接入引擎 ---
+check("takaBodySwim 已定义", 'id="takaBodySwim"' in HTML)
+check("引擎支持 mode 切换", "setFigureMode" in HTML)
+check("8 场景均标注 swim（本故事全程水下/海面悬浮）", HTML.count('mode: "swim"') >= 8)
+
+# --- AI 场景生成（spec 2026-08-02）：设置面板 + 生成管线 + 降级 ---
+for frag in ['id="settings-btn"', 'id="settings-panel"', 'id="sp-baseurl"',
+             'id="sp-key"', 'id="sp-model"', 'id="sp-enabled"', 'id="ai-status"']:
+    check(f"ai dom {frag}", frag in HTML)
+check("设置存 localStorage", "taka_ai_settings" in HTML)
+check("OpenAI chat/completions 格式", "chat/completions" in HTML)
+check("15s 超时 AbortController", "AbortController" in HTML and "15000" in HTML)
+check("SYSTEM_PROMPT 注入红线", "SYSTEM_PROMPT" in HTML and "红线" in HTML)
+check("中段 4 场景有 beats", HTML.count("beats:") >= 4)
+check("中段 4 场景标记 ai", HTML.count("ai: true") >= 4)
+check("失败回退内置文案", "回退" in HTML)
 
 # --- 竖屏降级 ---
 check("竖屏 media query", "@media" in HTML and "portrait" in HTML)
