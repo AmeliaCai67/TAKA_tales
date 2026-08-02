@@ -742,7 +742,13 @@
         const prev = (ctx && ctx.prevText) || "（故事开始）";
         const choice = (ctx && ctx.choiceText) || "（无）";
         const beats = (scene.beats || []).map(b => "- " + b).join("\n");
-        return `【故事前情】\n${prev}\n\n【孩子的选择】\n${choice}\n\n【本场景剧情要点】\n${beats}\n\n请严格按剧情要点写出本场景正文。`;
+        let prompt = `【故事前情】\n${prev}\n\n【孩子的选择】\n${choice}${ctx && ctx.custom ? "（孩子自己输入的想法）" : ""}\n\n【本场景剧情要点】\n${beats}\n`;
+        if (ctx && ctx.custom) {
+            // 自定义选择必须生效：先接住（哪怕整活），再软引导回主线。不评判、不说教
+            prompt += `\n【重要】孩子的选择必须生效：\n1. 第一段先回应这个选择：接住它，哪怕它偏离主线（塔卡可以真的开始照做，或说出它的想法）\n2. 再用环境或角色自然过渡，把故事引回剧情要点\n3. 剧情走向和结局不变，不评判孩子的想法\n`;
+        }
+        prompt += "\n请按剧情要点写出本场景正文。";
+        return prompt;
     }
 
     async function generateSceneText(scene, ctx, settings) {
@@ -868,8 +874,8 @@
             }
             if (activeRec) { try { activeRec.abort(); } catch {} }
             document.getElementById("choices").querySelectorAll("button, input").forEach(b => b.disabled = true);
-            // 默认主线 = 第一个选项的 next；自定义文本作为「孩子的选择」传给 AI
-            renderScene(scene.choices[0].next, { prevText: currentText, choiceText: text });
+            // 默认主线 = 第一个选项的 next；自定义文本作为「孩子的选择」传给 AI（custom 标记触发“选择必须生效”规则）
+            renderScene(scene.choices[0].next, { prevText: currentText, choiceText: text, custom: true });
         };
         send.onclick = submit;
         input.onkeydown = (e) => { if (e.key === "Enter") submit(); };

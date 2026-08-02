@@ -101,6 +101,7 @@ check("3 个场景开启 freeInput（start/clean_branch/surface）", HTML.count(
 check("无 AI 时留在页面不 fallback", "塔卡还听不懂" in HTML)
 check("max_tokens 足够推理模型", re.search(r"max_tokens:\s*([5-9]\d\d|\d{4,})", HTML))
 check("选项朗读补自由输入提示", "说说你的想法" in HTML)
+check("自定义选择必须生效规则", "必须生效" in HTML)
 
 # --- 语音输出（spec 2026-08-02 voice）：speechSynthesis 零配置离线 ---
 check("语音开关按钮", 'id="speech-btn"' in HTML)
