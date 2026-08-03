@@ -105,6 +105,20 @@
             font-size: 12px;
         }
         .sp-toggle { display: flex; align-items: center; gap: 6px; }
+        .settings-panel input[type="range"] { width: 100%; margin-top: 6px; accent-color: var(--accent-dim); }
+        #sp-rate-val { float: right; color: var(--text-primary); }
+        #sp-preview {
+            width: 100%;
+            min-height: 28px;
+            margin: 4px 0 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        #sp-preview:hover { border-color: var(--accent-warm); }
         .sp-note { font-size: 11px; line-height: 1.7; opacity: .8; margin: 8px 0; }
         .sp-actions { display: flex; gap: 8px; }
         .sp-actions button {
@@ -356,6 +370,10 @@
         </label>
         <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 启用 AI 场景生成</label>
         <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> 朗读选项（家长代读 / 大孩子可关）</label>
+        <label>语速 <span id="sp-rate-val">0.95x</span>
+            <input type="range" id="sp-rate" min="0.5" max="1.5" step="0.05" value="0.95">
+        </label>
+        <button id="sp-preview">▶ 试听语速</button>
         <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com，模型 deepseek-v4-flash）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
         <div class="sp-actions">
             <button id="sp-save">保存</button>
@@ -634,6 +652,7 @@
                 enabled: document.getElementById("sp-enabled").checked
             }));
             speechPref.readChoices = document.getElementById("sp-readchoices").checked;
+            speechPref.rate = Number(document.getElementById("sp-rate").value);
             localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
             panel.hidden = true;
             showStatus("设置已保存", 2000);
@@ -650,19 +669,19 @@
 
     /* ===== 语音输出：浏览器 speechSynthesis，零配置、零网络、离线可跑 ===== */
     const SPEECH_KEY = "taka_speech";
-    let speechPref = { on: true, readChoices: true };
+    let speechPref = { on: true, readChoices: true, rate: 0.95 };
     try { speechPref = { ...speechPref, ...JSON.parse(localStorage.getItem(SPEECH_KEY) || "{}") }; } catch {}
 
     const speechSupported = "speechSynthesis" in window;
     let zhVoice = null;
 
-    /* 角色声线：单一声音 + pitch/rate 区分（多语音包实测效果诡异，弃用）
-       叙述者 + 塔卡/海鸥/老机器 各自音调语速 */
+    /* 角色声线：单一声音 + pitch/rate 区分（多语音包实测效果诡异，弃用）。
+       rate 为「角色系数」——最终语速 = 基础语速（家长可调）× 系数 */
     const CHAR_PROFILE = {
-        narrator:   { rate: 0.95, pitch: 1.1  }, // 略慢略亮，给孩子留反应时间
-        taka:       { rate: 0.88, pitch: 0.85 }, // 塔卡：沉稳、慢半拍的旧机器人
-        seagull:    { rate: 1.05, pitch: 1.35 }, // 海鸥：亮、快、活
-        oldmachine: { rate: 0.8,  pitch: 0.65 }  // 老机器：低沉迟缓
+        narrator:   { rate: 1.0,  pitch: 1.1  }, // 基准
+        taka:       { rate: 0.93, pitch: 0.85 }, // 塔卡：沉稳、慢半拍的旧机器人
+        seagull:    { rate: 1.1,  pitch: 1.35 }, // 海鸥：亮、快、活
+        oldmachine: { rate: 0.84, pitch: 0.65 }  // 老机器：低沉迟缓
     };
     const SPEAKER_NAMES = { "塔卡": "taka", "海鸥": "seagull", "老机器": "oldmachine" };
     // 段内台词：角色名 + 最多 8 字引语（说/问/的信号很弱…）+ 冒号 + 台词
@@ -684,12 +703,14 @@
         speechSynthesis.onvoiceschanged = pickVoice; // Chrome 异步加载声音列表
     }
 
-    function makeUtterance(text, who) {
+    function makeUtterance(text, who, rateOverride) {
         const prof = CHAR_PROFILE[who || "narrator"];
         const u = new SpeechSynthesisUtterance(text);
         if (zhVoice) u.voice = zhVoice;
         u.lang = "zh-CN";
-        u.rate = prof.rate;
+        // 最终语速 = 基础语速（设置面板滑块，默认 0.95）× 角色系数，限制在 [0.5, 2]
+        const base = rateOverride || speechPref.rate;
+        u.rate = Math.min(2, Math.max(0.5, base * prof.rate));
         u.pitch = prof.pitch;
         return u;
     }
@@ -707,12 +728,19 @@
         return segs;
     }
 
+    // 多音字修正表：发现一例加一例（key 替换为同音写法，仅影响朗读不改显示文本）。
+    // 注：Web Speech API 不支持 SSML（标签会被读出来或忽略），治本等 TTS 升级
+    const PRONUNCIATION_FIXES = {
+        // 例："数一数": "鼠一鼠"
+    };
+
     // 朗读前清洗：去掉（）内舞台说明（如“完 - 分享而非牺牲”）；
     // 去掉引号字符（中文语音会把 ASCII 直引号机械地念出来，角色对话靠语气自然区分）
     function cleanForSpeech(s) {
-        return s.replace(/（[^）]*）/g, "")
-                .replace(/["“”「」『』]/g, "")
-                .trim();
+        let t = s.replace(/（[^）]*）/g, "")
+                 .replace(/["“”「」『』]/g, "");
+        for (const [k, v] of Object.entries(PRONUNCIATION_FIXES)) t = t.split(k).join(v);
+        return t.trim();
     }
 
     // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）
@@ -744,6 +772,18 @@
         const sync = () => { btn.innerText = speechPref.on ? "🔊" : "🔇"; };
         sync();
         document.getElementById("sp-readchoices").checked = speechPref.readChoices;
+        // 语速滑块 + 试听
+        const slider = document.getElementById("sp-rate");
+        const rateVal = document.getElementById("sp-rate-val");
+        slider.value = speechPref.rate;
+        rateVal.innerText = Number(speechPref.rate).toFixed(2) + "x";
+        slider.oninput = () => { rateVal.innerText = Number(slider.value).toFixed(2) + "x"; };
+        document.getElementById("sp-preview").onclick = (e) => {
+            e.stopPropagation();
+            if (!speechSupported) return;
+            stopSpeech();
+            speechSynthesis.speak(makeUtterance("海底很亮。有很多光。塔卡的灯闪了一下。", "narrator", Number(slider.value)));
+        };
         btn.onclick = () => {
             speechPref.on = !speechPref.on;
             if (!speechPref.on) stopSpeech();
