@@ -462,6 +462,15 @@
 <script>
     // 故事数据：文本与分支逻辑保持原样，仅增加 eyeState / endState 字段
     const storyData = {
+        prologue: {
+            mode: "swim",
+            text: "这是塔卡。\n\n它住在海底。每天清理珊瑚，听老机器讲故事。\n\n塔卡是一只旧铁皮机器人，话少。\n\n今天，它第一次想去海面上看看。",
+            battery: 100,
+            eyeState: "st-standby",
+            choices: [
+                { text: "开始故事", next: "start" }
+            ]
+        },
         start: {
             mode: "swim",
             freeInput: true,
@@ -1001,7 +1010,7 @@
 
     initSettingsPanel();
     initSpeech();
-    renderScene("start");
+    renderScene("prologue");
 </script>
 
 </body>

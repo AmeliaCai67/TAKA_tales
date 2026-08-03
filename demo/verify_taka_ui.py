@@ -65,7 +65,7 @@ for st in ["st-standby", "st-speaking", "st-thinking",
 check("锈螺母唯一", HTML.count('id="rustNut"') == 1)
 
 # --- 8 个场景都有 eyeState ---
-scenes = ["start", "clean_branch", "surface", "ask_wind",
+scenes = ["prologue", "start", "clean_branch", "surface", "ask_wind",
           "just_listen", "climax", "ending_a", "ending_b"]
 for s in scenes:
     m = re.search(rf'\b{s}:\s*\{{[^}}]*?eyeState:\s*"(st-[a-z]+)"', HTML, re.S)
@@ -81,7 +81,7 @@ check("关机切换有 1.2s 过渡", re.search(r"(^|\n)\s*\.takaBody\s*\{[^}]*tr
 # --- 双模式（spec §4.4）：水下悬浮接入引擎 ---
 check("takaBodySwim 已定义", 'id="takaBodySwim"' in HTML)
 check("引擎支持 mode 切换", "setFigureMode" in HTML)
-check("8 场景均标注 swim（本故事全程水下/海面悬浮）", HTML.count('mode: "swim"') >= 8)
+check("8 场景均标注 swim（本故事全程水下/海面悬浮）", HTML.count('mode: "swim"') >= 9)
 
 # --- AI 场景生成（spec 2026-08-02）：设置面板 + 生成管线 + 降级 ---
 for frag in ['id="settings-btn"', 'id="settings-panel"', 'id="sp-baseurl"',
