@@ -65,7 +65,7 @@ for st in ["st-standby", "st-speaking", "st-thinking",
 check("锈螺母唯一", HTML.count('id="rustNut"') == 1)
 
 # --- 8 个场景都有 eyeState ---
-scenes = ["prologue", "start", "clean_branch", "surface", "ask_wind",
+scenes = ["prologue", "start", "clean_branch", "dream", "surface", "ask_wind",
           "just_listen", "climax", "ending_a", "ending_b"]
 for s in scenes:
     m = re.search(rf'\b{s}:\s*\{{[^}}]*?eyeState:\s*"(st-[a-z]+)"', HTML, re.S)
@@ -81,7 +81,7 @@ check("关机切换有 1.2s 过渡", re.search(r"(^|\n)\s*\.takaBody\s*\{[^}]*tr
 # --- 双模式（spec §4.4）：水下悬浮接入引擎 ---
 check("takaBodySwim 已定义", 'id="takaBodySwim"' in HTML)
 check("引擎支持 mode 切换", "setFigureMode" in HTML)
-check("8 场景均标注 swim（本故事全程水下/海面悬浮）", HTML.count('mode: "swim"') >= 9)
+check("场景均标注 swim（本故事全程水下/海面悬浮）", HTML.count('mode: "swim"') >= 10)
 
 # --- AI 场景生成（spec 2026-08-02）：设置面板 + 生成管线 + 降级 ---
 for frag in ['id="settings-btn"', 'id="settings-panel"', 'id="sp-baseurl"',
@@ -91,14 +91,14 @@ check("设置存 localStorage", "taka_ai_settings" in HTML)
 check("OpenAI chat/completions 格式", "chat/completions" in HTML)
 check("15s 超时 AbortController", "AbortController" in HTML and "15000" in HTML)
 check("SYSTEM_PROMPT 注入红线", "SYSTEM_PROMPT" in HTML and "红线" in HTML)
-check("中段 4 场景有 beats", HTML.count("beats:") >= 4)
-check("中段 4 场景标记 ai", HTML.count("ai: true") >= 4)
+check("中段场景有 beats", HTML.count("beats:") >= 5)
+check("中段场景标记 ai", HTML.count("ai: true") >= 5)
 check("失败回退内置文案", "回退" in HTML)
 
 # --- 自由输入选项 C（2026-08-02）：打字/语音，编织进骨架 ---
 check("选项 C 输入框 UI", '"choice-input"' in HTML and "你选" in HTML)
 check("语音输入 SpeechRecognition", "SpeechRecognition" in HTML)
-check("3 个场景开启 freeInput（start/clean_branch/surface）", HTML.count("freeInput: true") == 3)
+check("4 个场景开启 freeInput（start/clean_branch/dream/surface）", HTML.count("freeInput: true") == 4)
 check("无 AI 时留在页面不 fallback", "塔卡还听不懂" in HTML)
 check("自定义失败留在页面不 fallback", "再选一次" in HTML and "ctx.generated" in HTML)
 check("max_tokens 足够推理模型", re.search(r"max_tokens:\s*([5-9]\d\d|\d{4,})", HTML))
