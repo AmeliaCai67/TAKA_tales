@@ -328,7 +328,8 @@
             .hud { position: static; align-self: flex-end; order: 0; }
             .taka-figure { position: static; order: 1; margin-top: 8px; }
             .taka-figure svg { height: 220px; }
-            .dialog { position: static; order: 2; width: 100%; margin-top: 12px; }
+            .dialog { position: static; order: 2; width: 100%; margin-top: 12px; height: auto; /* 竖屏选项在对话框内部文档流，高度自适应 */ }
+            .story-text { flex: none; max-height: 34vh; /* 文本区单独限高，超长按需滚动 */ }
             /* 竖屏：选项收进对话框底部通栏（choices 是 dialog 子元素，static 即可） */
             .choices { position: static; width: 100%; min-width: 0; margin-top: 12px; }
             .choice-btn { width: 100%; }
