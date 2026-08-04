@@ -973,15 +973,30 @@
         return t.trim();
     }
 
+    const utteranceRefs = []; // 防 Chrome 把 utterance GC 掉（已知 bug：队列被回收→静默）
+    let speechGen = 0; // 朗读代际：stopSpeech/新朗读使旧的延迟队列失效
+
+    function queueSpeak(u) {
+        utteranceRefs.push(u);
+        if (utteranceRefs.length > 30) utteranceRefs.shift();
+        speechSynthesis.speak(u);
+    }
+
     // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）
     function speakStory(text) {
         if (!speechSupported || !speechPref.on) return;
+        const gen = ++speechGen;
         speechSynthesis.cancel();
-        text.split(/\n+/)
-            .map(cleanForSpeech)
-            .filter(Boolean)
-            .flatMap(parseParagraph)
-            .forEach(seg => speechSynthesis.speak(makeUtterance(seg.text, seg.who)));
+        // cancel 是异步的，立刻 speak 会被一起冲掉（Chrome 页面加载/刷新时高发）——延迟一个 tick
+        setTimeout(() => {
+            if (gen !== speechGen || !speechPref.on) return;
+            text.split(/\n+/)
+                .map(cleanForSpeech)
+                .filter(Boolean)
+                .flatMap(parseParagraph)
+                .forEach(seg => queueSpeak(makeUtterance(seg.text, seg.who)));
+            speechSynthesis.resume(); // 刷新后合成器可能卡在 paused，推一下
+        }, 100);
     }
 
     // 选项朗读：排队在正文之后，不打断；两个选项时前缀“你选。”（呼应海鸥台词）
@@ -990,10 +1005,11 @@
         if (!speechSupported || !speechPref.on || !speechPref.readChoices || !choices || !choices.length) return;
         const prefix = choices.length > 1 ? "你选。" : "";
         const suffix = hasFreeInput ? "或者，说说你的想法。" : "";
-        speechSynthesis.speak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix));
+        queueSpeak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix));
     }
 
     function stopSpeech() {
+        speechGen++; // 使排队中的延迟朗读失效
         if (speechSupported) speechSynthesis.cancel();
     }
 
@@ -1012,7 +1028,7 @@
             e.stopPropagation();
             if (!speechSupported) return;
             stopSpeech();
-            speechSynthesis.speak(makeUtterance("海底很亮。有很多光。塔卡的灯闪了一下。", "narrator", Number(slider.value)));
+            queueSpeak(makeUtterance("海底很亮。有很多光。塔卡的灯闪了一下。", "narrator", Number(slider.value)));
         };
         btn.onclick = () => {
             speechPref.on = !speechPref.on;
@@ -1327,6 +1343,16 @@
     initSpeech();
     initAchievements();
     renderScene("prologue");
+
+    // 首次交互补读：Safari 要求用户手势才能发声；Chrome 加载竞态漏读也能兜住。
+    // 已在朗读/排队则不动（避免重复）
+    document.addEventListener("pointerdown", function once() {
+        document.removeEventListener("pointerdown", once);
+        if (speechSupported && speechPref.on && currentText &&
+            !speechSynthesis.speaking && !speechSynthesis.pending) {
+            speakStory(currentText);
+        }
+    });
 </script>
 
 </body>
