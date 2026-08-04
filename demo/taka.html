@@ -93,8 +93,22 @@
         }
         .settings-btn:hover { opacity: 1; }
 
-        /* 语音开关：左上角，⚙ 右邻 */
+        /* 语音开关：左上角，🏅 右邻 */
         .speech-btn {
+            position: absolute;
+            top: 10px;
+            left: 74px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .speech-btn:hover { opacity: 1; }
+
+        /* 成就按钮：左上角，⚙ 与 🔊 之间 */
+        .ach-btn {
             position: absolute;
             top: 10px;
             left: 44px;
@@ -105,7 +119,35 @@
             opacity: .7;
             z-index: 30;
         }
-        .speech-btn:hover { opacity: 1; }
+        .ach-btn:hover { opacity: 1; }
+
+        /* 成就弹窗：遮罩 + 居中卡片，点遮罩关闭 */
+        .ach-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(4,8,12,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+        .ach-overlay[hidden] { display: none; }
+        .ach-modal {
+            width: 300px;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.5);
+        }
+        .am-title { font-size: 12px; letter-spacing: 4px; color: var(--text-primary); margin-bottom: 12px; }
+        .ach-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+        .ach-item:last-child { margin-bottom: 0; }
+        .ach-item .ach-icon { font-size: 18px; line-height: 1.4; }
+        .ach-item .ach-name { font-size: 14px; color: var(--text-primary); letter-spacing: 1px; }
+        .ach-item .ach-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .ach-item.locked { opacity: .35; }
+        .ach-item.locked .ach-icon { filter: grayscale(1); }
 
         .settings-panel {
             position: absolute;
@@ -172,6 +214,29 @@
             letter-spacing: 2px;
             z-index: 25;
         }
+
+        /* 成就 toast：顶部居中胶囊，解锁定弹出，附成就文案 */
+        .toast {
+            position: absolute;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: var(--bg-dialog);
+            border: 1px solid var(--accent-dim);
+            color: var(--accent-warm);
+            padding: 8px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-align: center;
+            line-height: 1.8;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .3s ease;
+            z-index: 25;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast .toast-desc { font-size: 11px; color: var(--text-secondary); letter-spacing: 1px; }
 
         /* 立绘：偏左中 */
         .taka-figure {
@@ -389,6 +454,7 @@
     </div>
 
     <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
+    <button class="ach-btn" id="ach-btn" title="成就">🏅</button>
     <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
     <div class="settings-panel" id="settings-panel" hidden>
         <div class="sp-title">设 置</div>
@@ -414,6 +480,14 @@
         </div>
     </div>
     <div class="ai-status" id="ai-status"></div>
+    <div class="toast" id="toast"></div>
+
+    <div class="ach-overlay" id="ach-overlay" hidden>
+        <div class="ach-modal">
+            <div class="am-title">成 就</div>
+            <div id="ach-list"></div>
+        </div>
+    </div>
 
     <div class="taka-figure st-standby" id="taka-figure">
         <svg viewBox="0 0 220 210">
@@ -620,7 +694,7 @@
         },
         climax: {
             mode: "swim",
-            text: "太阳出来了。塔卡的电池只剩 10%。\n\n老机器的信号很弱：\"回来。现在。\"\n\n塔卡看着海面。风声还在。\n\n海鸥说：\"你选。我不帮你选。\"\n\n塔卡的灯闪了三次。",
+            text: "太阳出来了。塔卡的电量不多了。\n\n老机器的信号很弱：\"回来。现在。\"\n\n塔卡看着海面。风声还在。\n\n海鸥说：\"你选。我不帮你选。\"\n\n塔卡的灯闪了三次。",
             cost: 25,
             eyeState: "st-low",
             choices: [
@@ -678,6 +752,97 @@
         return tier === "depleted" ? "st-off"
              : (tier === "low" && scene.eyeState === "st-standby") ? "st-low"
              : scene.eyeState;
+    }
+
+    // ===== 成就系统：进场景即解锁，幂等，localStorage 持久化 =====
+    const achievements = {
+        coral_cleaner: {
+            name: '珊瑚清理者',
+            icon: '🪸',
+            desc: '不需要潜水服吗？',
+            unlocked: false
+        },
+        inception: {
+            name: '盗梦空间',
+            icon: '💤',
+            desc: '在梦里听见风声',
+            unlocked: false
+        },
+        bond: {
+            name: '羁绊',
+            icon: '🔗',
+            desc: '这就是我们之间的羁绊！',
+            unlocked: false
+        },
+        homecoming: {
+            name: '游子总要归乡',
+            icon: '🏠',
+            desc: '别怪我，我总得回家',
+            unlocked: false
+        },
+        listen_to_wind: {
+            name: '且听风吟',
+            icon: '🌬️',
+            desc: 'The answer is blowing in the wind',
+            unlocked: false
+        }
+    };
+    const ACH_KEY = "taka_achievements";
+    // 场景 → 成就映射（覆盖 5 个分支目的地）
+    const SCENE_ACHIEVEMENTS = {
+        clean_branch: "coral_cleaner",
+        dream: "inception",
+        just_listen: "listen_to_wind",
+        ending_a: "homecoming",
+        ending_b: "bond"
+    };
+    // 读档：已解锁的 id 合并进定义
+    try {
+        JSON.parse(localStorage.getItem(ACH_KEY) || "[]").forEach(id => {
+            if (achievements[id]) achievements[id].unlocked = true;
+        });
+    } catch {}
+
+    function unlock(id) {
+        const a = achievements[id];
+        if (!a || a.unlocked) return false;
+        a.unlocked = true;
+        localStorage.setItem(ACH_KEY, JSON.stringify(
+            Object.keys(achievements).filter(k => achievements[k].unlocked)));
+        renderAchievements();
+        return true;
+    }
+
+    let toastTimer = null;
+    function showToast(html) {
+        const t = document.getElementById("toast");
+        t.innerHTML = html;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+    }
+
+    // 成就弹窗列表：未解锁置灰（名字不遮，demo 需要可见）
+    function renderAchievements() {
+        const box = document.getElementById("ach-list");
+        if (!box) return;
+        box.innerHTML = Object.values(achievements).map(a =>
+            `<div class="ach-item${a.unlocked ? "" : " locked"}">` +
+            `<span class="ach-icon">${a.icon}</span><div>` +
+            `<div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div>` +
+            `</div></div>`
+        ).join("");
+    }
+
+    function initAchievements() {
+        const overlay = document.getElementById("ach-overlay");
+        document.getElementById("ach-btn").onclick = () => {
+            renderAchievements();
+            overlay.hidden = !overlay.hidden;
+        };
+        overlay.onclick = () => { overlay.hidden = true; }; // 点遮罩关闭
+        overlay.querySelector(".ach-modal").onclick = (e) => e.stopPropagation();
+        renderAchievements();
     }
 
     let typing = null; // 打字机 timer
@@ -1105,6 +1270,13 @@
             return;
         }
 
+        // 成就：进场景即解锁（幂等，重开不重复弹；耗尽打断进 ending_b 也会解锁「羁绊」）
+        const achId = SCENE_ACHIEVEMENTS[key];
+        if (achId && unlock(achId)) {
+            const a = achievements[achId];
+            showToast(a.icon + " 解锁成就「" + a.name + "」<br><span class=\"toast-desc\">" + a.desc + "</span>");
+        }
+
         stopSpeech(); // 切场景打断上一段朗读
         if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
         document.getElementById("choices").innerHTML = "";
@@ -1153,6 +1325,7 @@
 
     initSettingsPanel();
     initSpeech();
+    initAchievements();
     renderScene("prologue");
 </script>
 

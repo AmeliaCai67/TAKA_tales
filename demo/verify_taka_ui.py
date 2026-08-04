@@ -123,6 +123,25 @@ check("朗读前剔除引号字符", "cleanForSpeech" in HTML and "「」" in HT
 check("角色声线配置（pitch/rate）", "CHAR_PROFILE" in HTML)
 check("台词解析（塔卡说）", "parseParagraph" in HTML and "DIALOG_RE" in HTML)
 
+# --- 电量状态机：场景只声明 cost，全局 let battery ---
+check("全局电量状态机", re.search(r"let battery\s*=\s*100", HTML))
+check("场景不再写死 battery 字段", "battery:" not in HTML)
+check("太阳回电 + 结局强制值", "sun:" in HTML and "setBattery" in HTML)
+check("耗尽强制被动结局", "ending_b" in HTML and "depleted" in HTML)
+check("电量档位修正灯光", "eyeOf" in HTML)
+check("电池图标 HUD", 'id="battery-fill"' in HTML and ".battery-icon" in HTML)
+
+# --- 成就系统：进场景解锁，幂等，localStorage 持久化 ---
+for name in ["珊瑚清理者", "盗梦空间", "羁绊", "游子总要归乡", "且听风吟"]:
+    check(f"成就 {name}", name in HTML)
+check("成就持久化", "taka_achievements" in HTML)
+check("成就触发映射 5 个分支", "SCENE_ACHIEVEMENTS" in HTML)
+check("成就 toast", 'id="toast"' in HTML and "showToast" in HTML)
+check("toast 带成就文案", "toast-desc" in HTML)
+check("成就按钮在 ⚙ 与 🔊 之间", 'id="ach-btn"' in HTML)
+check("成就独立弹窗（不在设置里）", 'id="ach-overlay"' in HTML and 'id="ach-list"' in HTML and "sp-achievements" not in HTML)
+check("成就列表渲染", "renderAchievements" in HTML)
+
 # --- 竖屏降级 ---
 check("竖屏 media query", "@media" in HTML and "portrait" in HTML)
 
