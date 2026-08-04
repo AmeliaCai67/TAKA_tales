@@ -1117,11 +1117,11 @@
     function typeText(text, onDone) {
         const el = document.getElementById("story-text");
         el.innerText = "";
+        el.scrollTop = 0; // 新场景从顶部开始；不做自动滚动（避免文字跑在语音前面）
         let i = 0;
         clearInterval(typing);
         typing = setInterval(() => {
             el.innerText = text.slice(0, ++i);
-            el.scrollTop = el.scrollHeight; // 打字机跟随滚动到底
             if (i >= text.length) { clearInterval(typing); typing = null; onDone(); }
         }, 45);
         // 点击对话框立即补完
