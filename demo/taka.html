@@ -215,6 +215,41 @@
             z-index: 25;
         }
 
+        /* 启动门：Chrome/Safari 都要求用户手势后才能发声，把第一次点击变成仪式 */
+        .start-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            cursor: pointer;
+        }
+        .gate-eye {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 45% 40%, #fff6d8 0%, var(--accent-warm) 55%, #9c7108 100%);
+            animation: breathe 3.2s infinite alternate ease-in-out;
+        }
+        .gate-title { font-size: 22px; letter-spacing: 12px; color: var(--text-primary); }
+        .gate-btn {
+            min-height: 48px;
+            padding: 14px 36px;
+            border-radius: 14px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 17px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            animation: choiceIn .3s ease;
+        }
+        .gate-btn:hover { border-color: var(--accent-warm); }
+
         /* 成就 toast：顶部居中胶囊，解锁定弹出，附成就文案 */
         .toast {
             position: absolute;
@@ -480,6 +515,12 @@
         </div>
     </div>
     <div class="ai-status" id="ai-status"></div>
+
+    <div class="start-gate" id="start-gate" hidden>
+        <div class="gate-eye"></div>
+        <div class="gate-title">塔 卡</div>
+        <button class="gate-btn" id="gate-btn">点一下，听风声</button>
+    </div>
     <div class="toast" id="toast"></div>
 
     <div class="ach-overlay" id="ach-overlay" hidden>
@@ -1339,10 +1380,34 @@
         });
     }
 
+    // 启动门：现代浏览器（Chrome/Safari 均）要求用户手势后才能 speechSynthesis，
+    // 刷新会重置激活状态。把第一次点击变成「开始」仪式：手势里解锁合成器，再进 prologue。
+    // 语音关闭/不支持时跳过门，直接开始。
+    function initStartGate() {
+        if (!speechSupported || !speechPref.on) {
+            renderScene("prologue");
+            return;
+        }
+        const gate = document.getElementById("start-gate");
+        gate.hidden = false;
+        const begin = () => {
+            try {
+                speechSynthesis.cancel(); // 清掉可能卡住的队列
+                const u = new SpeechSynthesisUtterance(" "); // 手势内热身教
+                u.volume = 0.01;
+                speechSynthesis.speak(u);
+            } catch {}
+            gate.remove();
+            renderScene("prologue");
+        };
+        document.getElementById("gate-btn").onclick = begin;
+        gate.onclick = begin;
+    }
+
     initSettingsPanel();
     initSpeech();
     initAchievements();
-    renderScene("prologue");
+    initStartGate();
 
     // 首次交互补读：Safari 要求用户手势才能发声；Chrome 加载竞态漏读也能兜住。
     // 已在朗读/排队则不动（避免重复）
