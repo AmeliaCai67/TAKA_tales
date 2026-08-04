@@ -316,6 +316,10 @@
         }
         .story-text::-webkit-scrollbar { width: 4px; }
         .story-text::-webkit-scrollbar-thumb { background: var(--choice-border); border-radius: 2px; }
+        /* iPad 横屏内嵌滚动的惯性支持 */
+        @supports (-webkit-overflow-scrolling: touch) {
+            .story-text { -webkit-overflow-scrolling: touch; }
+        }
 
         /* 选项：锚定对话框顶边浮起（右侧拇指热区）。
            作为 .dialog 子元素 + bottom:calc(100%+12px)，无论文本多长
@@ -473,7 +477,7 @@
             .taka-figure { position: static; order: 1; margin-top: 8px; }
             .taka-figure svg { height: 220px; }
             .dialog { position: static; order: 2; width: 100%; margin-top: 12px; height: auto; /* 竖屏选项在对话框内部文档流，高度自适应 */ }
-            .story-text { flex: none; max-height: 34vh; /* 文本区单独限高，超长按需滚动 */ }
+            .story-text { flex: none; max-height: none; overflow-y: visible; /* 竖屏全量显示，页面级滚动——iOS 嵌套滚动对低龄用户不可用 */ }
             /* 竖屏：选项收进对话框底部通栏（choices 是 dialog 子元素，static 即可） */
             .choices { position: static; width: 100%; min-width: 0; margin-top: 12px; }
             .choice-btn { width: 100%; }
