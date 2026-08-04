@@ -46,6 +46,36 @@
             font-size: 11px;
             color: var(--text-secondary);
             letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 电量条：小电池图标，填充随档位变色 */
+        .battery-icon {
+            width: 34px;
+            height: 13px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 3px;
+            position: relative;
+            padding: 1px;
+        }
+        .battery-icon::after {  /* 电池正极凸起 */
+            content: "";
+            position: absolute;
+            right: -4px;
+            top: 3px;
+            width: 3px;
+            height: 5px;
+            background: var(--text-secondary);
+            border-radius: 0 1px 1px 0;
+        }
+        .battery-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--ok-green);
+            border-radius: 1px;
+            transition: width .4s ease, background .4s ease;
         }
 
         /* 设置按钮：左上角，与右上 HUD 对称 */
@@ -353,7 +383,10 @@
 <body>
 
 <div id="stage">
-    <div class="hud">ENERGY <span id="battery-text">100%</span></div>
+    <div class="hud">
+        <div class="battery-icon"><div class="battery-fill" id="battery-fill"></div></div>
+        <span id="battery-text">100%</span>
+    </div>
 
     <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
     <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
@@ -478,12 +511,12 @@
 </div>
 
 <script>
-    // 故事数据：文本与分支逻辑保持原样，仅增加 eyeState / endState 字段
+    // 故事数据：文本与分支逻辑保持原样。电量不再写死——场景只声明 cost，状态机见下方
     const storyData = {
         prologue: {
             mode: "swim",
             text: "这是塔卡。\n\n它住在海底。每天清理珊瑚，听老机器讲故事。\n\n塔卡是一只旧铁皮机器人，话少。\n\n今天，它第一次想去海面上看看。",
-            battery: 100,
+            cost: 0,
             eyeState: "st-standby",
             choices: [
                 { text: "开始故事", next: "start" }
@@ -493,7 +526,7 @@
             mode: "swim",
             freeInput: true,
             text: "海底很亮。有很多光。\n\n塔卡每天清理珊瑚。光在动。\n\n它听到声音。呼呼。从上面来。\n\n老机器说：\"不要去。上面没有水。\"\n\n塔卡的灯闪了一下：\"我想知道。\"",
-            battery: 100,
+            cost: 0,
             eyeState: "st-standby",
             choices: [
                 { text: "A. 游上去看看", next: "surface" },
@@ -510,7 +543,7 @@
                 "风声还在：呼呼"
             ],
             text: "塔卡留下来清理珊瑚。\n\n夜里，它的灯一直亮着。它睡不着。\n\n呼呼。声音还在。",
-            battery: 95,
+            cost: 5,
             eyeState: "st-thinking",
             choices: [
                 { text: "A. 闭上眼睛睡觉", next: "dream" }
@@ -528,7 +561,7 @@
                 "塔卡看着珊瑚，又看了看上面"
             ],
             text: "塔卡睡着了。\n\n它梦到光。很亮。很亮。\n\n它梦到风。像海浪。呼呼。\n\n它梦到珊瑚。很大。不发光。\n\n老机器推它：\"该工作了。\"\n\n塔卡看着珊瑚。又看了看上面。",
-            battery: 90,
+            cost: 5,
             eyeState: "st-thinking",
             choices: [
                 { text: "上去看看", next: "surface" }
@@ -545,7 +578,7 @@
                 "塔卡说：我不知道在听什么，但我想听完"
             ],
             text: "塔卡浮出水面。没有水。很疼。\n\n但它听到了。风声。呼呼。\n\n一只海鸥飞过来：\"你会掉下去。\"\n\n塔卡：\"我在听。\"\n\n海鸥：\"听什么？\"\n\n塔卡：\"我不知道。但我想听完。\"",
-            battery: 60,
+            cost: 40,
             eyeState: "st-standby",
             choices: [
                 { text: "A. 问风声：\"你从哪里来？\"", next: "ask_wind" },
@@ -563,7 +596,8 @@
                 "太阳渐渐升起来了"
             ],
             text: "塔卡问：\"你从哪里来？\"\n\n海鸥回答：\"我从有云的地方来。\"\n\n塔卡问：\"云是什么？\"\n\n海鸥说：\"云是天上的海，只是它抓不住。\"\n\n太阳渐渐升起来了。",
-            battery: 45,
+            cost: 20,
+            sun: 5,
             eyeState: "st-standby",
             choices: [
                 { text: "继续", next: "climax" }
@@ -579,7 +613,7 @@
                 "没有问题。只有风"
             ],
             text: "塔卡没有说话。它的灯光慢慢变亮。\n\n风声变得很清晰。呼呼。呼呼。\n\n没有问题。只有风。",
-            battery: 40,
+            cost: 20,
             eyeState: "st-listening",
             isSpecialListen: true,
             next: "climax"
@@ -587,7 +621,7 @@
         climax: {
             mode: "swim",
             text: "太阳出来了。塔卡的电池只剩 10%。\n\n老机器的信号很弱：\"回来。现在。\"\n\n塔卡看着海面。风声还在。\n\n海鸥说：\"你选。我不帮你选。\"\n\n塔卡的灯闪了三次。",
-            battery: 10,
+            cost: 25,
             eyeState: "st-low",
             choices: [
                 { text: "A. 回海底充电（安全，但听不到风声了）", next: "ending_a" },
@@ -597,7 +631,8 @@
         ending_a: {
             mode: "swim",
             text: "塔卡沉入海底。它接上了充电线。\n\n它把风声录进了记忆库。\n\n第二天，它带着满电回来，放给老机器听。\n\n老机器的灯第一次闪了：\"原来是这样。\"\n\n（完 - 分享而非牺牲）",
-            battery: 100,
+            cost: 0,
+            setBattery: 100,
             eyeState: "st-standby",
             choices: [
                 { text: "重新开始故事", next: "start" }
@@ -606,7 +641,8 @@
         ending_b: {
             mode: "swim",
             text: "塔卡没有动。一分钟。两分钟。\n\n它听到了完整的一首歌。\n\n咔哒。塔卡关机了。\n\n海鸥用巨大的翅膀，一点点把它推回了海面。\n\n它在日落时醒来。电池 0%。但记忆里有完整的风声。\n\n\"值了。\" 它身边坐着海鸥。\n\n（完 - 体验优先，有友兜底）",
-            battery: 0,
+            cost: 0,
+            setBattery: 0,
             eyeState: "st-standby",
             endState: "st-off",
             choices: [
@@ -614,6 +650,35 @@
             ]
         }
     };
+
+    // ===== 电量状态机：全局真电量，场景只声明 cost（消耗量） =====
+    // 场景字段：
+    //   cost       进入本场景耗的电（缺省 10）
+    //   sun        太阳事件回电（先扣后回，且救不了已经耗尽的电量）
+    //   setBattery 结局场景强制值（ending_a 充满 / ending_b 关机归零）
+    let battery = 100; // 单个故事的局部状态；进 start 场景时回满
+
+    // 档位：耗尽(0) / 低(1-29) / 中(30-70 含) / 高(71-100)
+    const tierOf = b => b <= 0 ? "depleted" : b < 30 ? "low" : b <= 70 ? "mid" : "high";
+
+    function updateBatteryHUD() {
+        document.getElementById("battery-text").innerText = battery + "%";
+        const fill = document.getElementById("battery-fill");
+        fill.style.width = battery + "%";
+        fill.style.background = {
+            high: "var(--ok-green)", mid: "var(--accent-dim)",
+            low: "var(--low-orange)", depleted: "#7a4a12"
+        }[tierOf(battery)];
+    }
+
+    // 场景实际灯光 = 声明的 eyeState 经电量档位修正：
+    // 耗尽强制关灯；低电量把「待机」压成挣扎闪（场景显式指定的特殊状态不动）
+    function eyeOf(scene) {
+        const tier = tierOf(battery);
+        return tier === "depleted" ? "st-off"
+             : (tier === "low" && scene.eyeState === "st-standby") ? "st-low"
+             : scene.eyeState;
+    }
 
     let typing = null; // 打字机 timer
     let currentText = ""; // 当前场景实际展示的文本，作为下一场景的「前情」
@@ -975,7 +1040,7 @@
                 console.warn("自定义选择生成失败：", e);
                 const why = e.name === "AbortError" ? "超时" : (e.message || "网络错误");
                 showStatus("塔卡没听懂（" + why + "），再选一次吧", 4500);
-                setFigureState(scene.eyeState);
+                setFigureState(eyeOf(scene));
                 box.querySelectorAll("button, input").forEach(b => b.disabled = false);
             }
         };
@@ -1025,11 +1090,25 @@
     async function renderScene(key, ctx) {
         const scene = storyData[key];
         if (!scene) return;
+
+        // --- 电量结算：先扣后回，太阳救不了已经耗尽的电量 ---
+        if (key === "start") battery = 100;                     // 每个故事开始回满
+        battery = Math.max(0, battery - (scene.cost ?? 10));    // 推进剧情耗电
+        if (scene.sun && battery > 0)                           // 太阳回电
+            battery = Math.min(100, battery + scene.sun);
+        if (scene.setBattery != null) battery = scene.setBattery;
+        updateBatteryHUD();
+
+        // 非结局场景电量耗尽 → 系统级打断，强制被动结局（优先级高于任何选项）
+        if (battery === 0 && scene.setBattery == null) {
+            renderScene("ending_b", ctx);
+            return;
+        }
+
         stopSpeech(); // 切场景打断上一段朗读
         if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
         document.getElementById("choices").innerHTML = "";
         document.getElementById("listen-bar").style.display = "none";
-        document.getElementById("battery-text").innerText = scene.battery + "%";
         setFigureMode(scene.mode || "land");
 
         // AI 生成：仅中段场景（scene.ai）；无 key / 开关关 / 失败均静默回退内置文案
@@ -1051,18 +1130,19 @@
         }
 
         // 打字机期间 standby 临时切 speaking（spec §7）；特殊状态不被打断
-        const duringTyping = scene.eyeState === "st-standby" ? "st-speaking" : scene.eyeState;
+        const eye = eyeOf(scene); // 电量档位修正后的实际灯光
+        const duringTyping = eye === "st-standby" ? "st-speaking" : eye;
         setFigureState(duringTyping);
 
         currentText = text;
         speakStory(text); // 语音与打字机各自独立，同时开始
         typeText(text, () => {
-            setFigureState(scene.endState || scene.eyeState);
+            setFigureState(scene.endState || eye);
             if (scene.isSpecialListen) {
                 runListenBar(scene.next);
             } else if (scene.choices && !scene.endState) {
                 // 思考预告：闪三下（约 0.9s）再浮出选项
-                const prev = scene.eyeState;
+                const prev = eye;
                 setFigureState("st-thinking");
                 setTimeout(() => { setFigureState(prev); showChoices(scene); }, 900);
             } else {
