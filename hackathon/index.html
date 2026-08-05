@@ -227,7 +227,21 @@ p { color: var(--text-secondary); line-height: 1.7; }
 .rule3 .gap-card h3 { font-size: clamp(0.95rem, 2vw, 1.4rem); }
 @media (max-width: 700px) { .rule3 { grid-template-columns: 1fr; } }
 
-/* S5 灵魂案例：还原 demo 对话框 */
+/* S5 灵魂案例：真实生成截图（左引文 + 右手机实截） */
+.case2-wrap { display: flex; align-items: center; gap: clamp(1rem, 3vw, 3rem); }
+.case2-text { flex: 1; min-width: 0; }
+.case2-text h2 { margin-bottom: var(--content-gap); }
+.case2-quote { display: flex; flex-direction: column; gap: 0.7em; margin-bottom: var(--content-gap); }
+.case2-quote .line { font-family: var(--font-display); font-size: var(--h3-size); color: var(--text-primary); line-height: 1.6; }
+.case-shot {
+    height: min(64vh, 640px); width: auto !important; max-width: 40vw;
+    border: 1px solid var(--line-blue); border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+@media (max-width: 760px) {
+    .case2-wrap { flex-direction: column; }
+    .case-shot { height: min(38vh, 360px); max-width: 92vw; }
+}
 .case-dialog {
     max-width: min(92vw, 760px);
     border: 1px solid var(--line-blue);
@@ -483,17 +497,18 @@ p { color: var(--text-secondary); line-height: 1.7; }
 <section class="slide">
     <div class="slide-content">
         <div class="kicker reveal">FIELD TEST · 真实生成记录</div>
-        <h2 class="reveal">孩子输入：<span class="grad">「把海鸥吃掉」</span></h2>
-        <div class="case-dialog reveal">
-            <div class="name-tag">塔 卡</div>
-            <div class="line">塔卡举起链条手臂。<span class="warm">没有嘴。不能吃。</span></div>
-            <div class="line">海鸥飞高：「你在做什么？」</div>
-            <div class="line">塔卡：「我想尝尝风的味道。」</div>
-            <div class="line">海鸥：「风没有味道。」</div>
-            <div class="line">塔卡问风：「你从哪里来？」……故事继续走向云上。</div>
-            <div class="child">孩子的原话被接住了 → 角色自己长出了「没有嘴」的自觉 → 节拍一个不少</div>
+        <div class="case2-wrap">
+            <div class="case2-text">
+                <h2 class="reveal">孩子输入：<span class="grad">「把海鸥吃掉」</span></h2>
+                <div class="case2-quote reveal">
+                    <div class="line">它伸出链条。抓风。<span class="warm">风是空的。</span></div>
+                    <div class="line">海鸥不飞。塔卡的链条停在半空。<span class="warm">没有抓它。</span></div>
+                    <div class="line">「我不用吃。」塔卡说，「我只想听风说完。」</div>
+                </div>
+                <p class="case-note reveal" style="margin-top: 0;">不评判孩子的黑暗，<span class="grad">把黑暗变成诗。</span></p>
+            </div>
+            <img class="case-shot reveal" src="case-seagull.png" alt="孩子输入「把海鸥吃掉」后的真实生成记录" />
         </div>
-        <p class="case-note reveal">不评判孩子的黑暗，<span class="grad">把黑暗变成诗。</span></p>
     </div>
 </section>
 
