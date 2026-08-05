@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>塔卡 TAKA · AI 互动童话 · 黑客松</title>
+
+<!-- 字体：Noto Serif SC（诗意标题）+ Noto Sans SC（正文）+ JetBrains Mono（技术标签） -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+
+<style>
+/* ===========================================
+   主题：塔卡项目原生设计语言
+   深海蓝底 + 网格 + 暖黄（塔卡之眼，<5% 面积）+ 珊瑚渐变关键词
+   =========================================== */
+:root {
+    /* 颜色 —— 与 demo/taka.html 完全同源 */
+    --bg-deep: #050e1c;
+    --bg-sea: #0f2740;
+    --text-primary: #e8f4f8;
+    --text-secondary: #9ab8c8;
+    --accent-warm: #ffb703;
+    --accent-coral1: #ff6b6b;
+    --accent-coral2: #ff8e53;
+    --line-blue: rgba(100, 181, 246, 0.25);
+
+    /* 字体 */
+    --font-display: "Noto Serif SC", serif;
+    --font-body: "Noto Sans SC", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+
+    /* 动画 */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 0.7s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES (viewport-base.css 全文)
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+:root {
+    --title-size: clamp(1.5rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+    }
+}
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    }
+    .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+    }
+}
+@media (max-width: 600px) {
+    :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   全局氛围：深海渐变 + 网格（与 demo 舞台一致）
+   =========================================== */
+body {
+    background:
+        linear-gradient(rgba(100, 181, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100, 181, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+    background-size: 60px 60px, 60px 60px, 100% 100%;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: var(--body-size);
+}
+
+/* 珊瑚渐变关键词（与 demo 选项选中态同源） */
+.grad {
+    background: linear-gradient(135deg, var(--accent-coral1), var(--accent-coral2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.warm { color: var(--accent-warm); }
+
+/* 顶部 mono 眉题 */
+.kicker {
+    font-family: var(--font-mono);
+    font-size: var(--small-size);
+    letter-spacing: 4px;
+    color: var(--accent-warm);
+    margin-bottom: var(--element-gap);
+}
+.kicker::before { content: "// "; color: var(--text-secondary); }
+
+h1, h2 { font-family: var(--font-display); }
+h1 { font-size: var(--title-size); letter-spacing: clamp(2px, 1vw, 14px); }
+h2 { font-size: var(--h2-size); margin-bottom: var(--content-gap); }
+p { color: var(--text-secondary); line-height: 1.7; }
+
+/* ===========================================
+   入场动画：.visible 由 IntersectionObserver 添加
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: .1s; }
+.reveal:nth-child(2) { transition-delay: .22s; }
+.reveal:nth-child(3) { transition-delay: .34s; }
+.reveal:nth-child(4) { transition-delay: .46s; }
+.reveal:nth-child(5) { transition-delay: .58s; }
+.reveal:nth-child(6) { transition-delay: .7s; }
+
+/* ===========================================
+   塔卡 SVG：眼睛呼吸（demo 待机态同款）
+   =========================================== */
+@keyframes eyeBreathe {
+    from { opacity: 0.72; filter: drop-shadow(0 0 5px rgba(255, 183, 3, 0.55)); }
+    to   { opacity: 1;    filter: drop-shadow(0 0 10px rgba(255, 183, 3, 0.9)); }
+}
+@keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+.taka-hero svg { height: clamp(120px, 26vh, 240px); }
+.taka-hero .eyeGlow { animation: eyeBreathe 3.2s infinite alternate ease-in-out; }
+.taka-hero .takaBob { animation: bob 4.5s infinite ease-in-out; }
+
+/* ===========================================
+   幻灯片专属布局
+   =========================================== */
+
+/* S1 封面 */
+.title-slide .slide-content { align-items: center; text-align: center; gap: var(--element-gap); }
+.tagline { font-family: var(--font-display); font-size: var(--h3-size); color: var(--text-primary); }
+.mono-tags { font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-secondary); letter-spacing: 2px; }
+.mono-tags b { color: var(--accent-warm); font-weight: 600; }
+
+/* S2 洞察：三张断层卡 */
+.gap-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.6rem, 1.5vw, 1.2rem); max-width: min(92vw, 1100px); }
+.gap-card {
+    border: 1px solid var(--line-blue);
+    border-radius: 14px;
+    padding: clamp(0.8rem, 2vw, 1.6rem);
+    background: rgba(10, 20, 38, 0.65);
+}
+.gap-card .no { font-family: var(--font-mono); color: var(--accent-warm); font-size: var(--small-size); letter-spacing: 2px; }
+.gap-card h3 { font-size: var(--h3-size); margin: 0.4em 0; font-family: var(--font-display); }
+.gap-card p { font-size: var(--body-size); }
+@media (max-width: 700px) { .gap-cards { grid-template-columns: 1fr; } }
+
+/* S3 产品：左立绘右文案 */
+.product-wrap { display: flex; align-items: center; gap: clamp(1rem, 4vw, 4rem); max-width: min(92vw, 1050px); }
+.product-wrap .taka-hero svg { height: clamp(100px, 30vh, 260px); }
+.product-lines { list-style: none; display: flex; flex-direction: column; gap: clamp(0.4rem, 1.2vh, 0.9rem); }
+.product-lines li { font-size: var(--body-size); color: var(--text-secondary); line-height: 1.6; }
+.product-lines li b { color: var(--text-primary); font-weight: 500; }
+@media (max-width: 700px) { .product-wrap { flex-direction: column; text-align: center; } }
+
+/* S4 机制：流程图 + 三层规则 */
+.flow { display: flex; align-items: center; gap: clamp(0.4rem, 1vw, 1rem); flex-wrap: wrap; margin-bottom: var(--content-gap); }
+.flow .node {
+    font-family: var(--font-mono); font-size: var(--small-size);
+    border: 1px solid var(--line-blue); border-radius: 10px;
+    padding: 0.55em 1em; background: rgba(10, 20, 38, 0.65); color: var(--text-primary);
+}
+.flow .node.hot { border-color: var(--accent-warm); color: var(--accent-warm); }
+.flow .arrow { color: var(--text-secondary); font-family: var(--font-mono); }
+.rule3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.5rem, 1.2vw, 1rem); max-width: min(92vw, 1000px); }
+.rule3 .gap-card h3 { font-size: clamp(0.95rem, 2vw, 1.4rem); }
+@media (max-width: 700px) { .rule3 { grid-template-columns: 1fr; } }
+
+/* S5 灵魂案例：还原 demo 对话框 */
+.case-dialog {
+    max-width: min(92vw, 760px);
+    border: 1px solid var(--line-blue);
+    border-radius: 16px;
+    background: rgba(10, 20, 38, 0.75);
+    backdrop-filter: blur(8px);
+    padding: clamp(0.9rem, 2.5vw, 2rem);
+    position: relative;
+}
+.case-dialog .name-tag {
+    position: absolute; top: -0.9em; left: 1.2em;
+    font-size: var(--small-size); letter-spacing: 3px;
+    color: var(--accent-warm); background: var(--bg-deep);
+    border: 1px solid var(--line-blue); border-radius: 8px; padding: 0.2em 0.8em;
+}
+.case-dialog .line { font-size: var(--body-size); color: var(--text-primary); line-height: 1.9; }
+.case-dialog .child {
+    margin-top: var(--element-gap);
+    font-size: var(--body-size); color: var(--accent-warm);
+    border: 1px dashed rgba(255, 183, 3, 0.5); border-radius: 10px;
+    padding: 0.5em 1em; display: inline-block;
+}
+.case-note { margin-top: var(--content-gap); font-family: var(--font-display); font-size: var(--h3-size); }
+
+/* S6 技术网格 */
+.tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.5rem, 1.2vw, 1rem); max-width: min(92vw, 1000px); }
+.tech-card { border: 1px solid var(--line-blue); border-radius: 12px; padding: clamp(0.7rem, 1.6vw, 1.2rem); background: rgba(10, 20, 38, 0.65); }
+.tech-card .t { font-family: var(--font-mono); font-size: var(--small-size); color: var(--accent-warm); letter-spacing: 1px; margin-bottom: 0.4em; }
+.tech-card p { font-size: var(--body-size); line-height: 1.5; }
+@media (max-width: 700px) { .tech-grid { grid-template-columns: 1fr 1fr; } }
+
+/* S7 对比 */
+.vs-wrap { display: grid; grid-template-columns: 1fr auto 1fr; gap: clamp(0.8rem, 2vw, 2rem); align-items: stretch; max-width: min(92vw, 1000px); }
+.vs-col { border: 1px solid var(--line-blue); border-radius: 14px; padding: clamp(0.8rem, 2vw, 1.6rem); background: rgba(10, 20, 38, 0.65); }
+.vs-col.win { border-color: rgba(255, 183, 3, 0.55); }
+.vs-col h3 { font-family: var(--font-display); font-size: var(--h3-size); margin-bottom: 0.5em; }
+.vs-col.win h3 { color: var(--accent-warm); }
+.vs-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5em; }
+.vs-col li { font-size: var(--body-size); color: var(--text-secondary); }
+.vs-mark { align-self: center; font-family: var(--font-mono); color: var(--text-secondary); font-size: var(--h3-size); }
+.market-line { margin-top: var(--content-gap); font-size: var(--body-size); color: var(--text-secondary); }
+.market-line b { color: var(--text-primary); }
+@media (max-width: 700px) { .vs-wrap { grid-template-columns: 1fr; } .vs-mark { display: none; } }
+
+/* S8 结尾 */
+.end-slide .slide-content { align-items: center; text-align: center; gap: var(--content-gap); }
+.qr-box { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 1.6rem); }
+.qr-box img { width: clamp(90px, 16vh, 150px); height: auto; border-radius: 10px; }
+.qr-url { font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-secondary); text-align: left; line-height: 1.8; }
+.qr-url b { color: var(--accent-warm); font-weight: 600; }
+
+/* ===========================================
+   进度条 / 导航点 / 键盘提示
+   =========================================== */
+.progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0;
+    background: linear-gradient(90deg, var(--accent-coral1), var(--accent-coral2));
+    z-index: 1000; transition: width 0.3s ease;
+}
+.nav-dots { position: fixed; right: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+.nav-dots button {
+    width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--line-blue);
+    background: transparent; cursor: pointer; padding: 0; transition: all 0.3s;
+}
+.nav-dots button.active { background: var(--accent-warm); border-color: var(--accent-warm); box-shadow: 0 0 8px rgba(255, 183, 3, 0.7); }
+.keyboard-hint {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);
+    letter-spacing: 1px; opacity: 0.5; z-index: 1000;
+}
+.page-no {
+    position: fixed; bottom: 12px; right: 16px; z-index: 1000;
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots" aria-label="幻灯片导航"></nav>
+<div class="keyboard-hint">← → 翻页 · SPACE 下一页</div>
+<div class="page-no" id="pageNo">01 / 08</div>
+
+<!-- ================= S1 封面 ================= -->
+<section class="slide title-slide">
+    <div class="slide-content">
+        <div class="taka-hero reveal">
+            <!-- 塔卡立绘：与 demo 同一套 SVG（陆地模式） -->
+            <svg viewBox="0 0 220 210">
+                <defs>
+                    <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#b3bdc9"/><stop offset="0.55" stop-color="#7d8896"/><stop offset="1" stop-color="#5d6875"/>
+                    </linearGradient>
+                    <radialGradient id="eyeGrad" cx="0.5" cy="0.45" r="0.6">
+                        <stop offset="0" stop-color="#fff6d8"/><stop offset="0.55" stop-color="#ffb703"/><stop offset="1" stop-color="#9c7108"/>
+                    </radialGradient>
+                    <g id="nutRing" fill="#525d6b" stroke="#39424e">
+                        <polygon points="77.5,55 75.25,58.9 70.75,58.9 68.5,55 70.75,51.1 75.25,51.1"/>
+                        <polygon points="114.5,55 112.25,58.9 107.75,58.9 105.5,55 107.75,51.1 112.25,51.1"/>
+                        <polygon points="151.5,55 149.25,58.9 144.75,58.9 142.5,55 144.75,51.1 149.25,51.1"/>
+                        <polygon points="77.5,140 75.25,143.9 70.75,143.9 68.5,140 70.75,136.1 75.25,136.1"/>
+                        <polygon points="69.5,72 67.25,75.9 62.75,75.9 60.5,72 62.75,68.1 67.25,68.1"/>
+                        <polygon points="69.5,112 67.25,115.9 62.75,115.9 60.5,112 62.75,108.1 67.25,108.1"/>
+                        <polygon points="159.5,72 157.25,75.9 152.75,75.9 150.5,72 152.75,68.1 157.25,68.1"/>
+                        <polygon points="159.5,112 157.25,115.9 152.75,115.9 150.5,112 152.75,108.1 157.25,108.1"/>
+                    </g>
+                    <g id="rustNut" transform="rotate(20 147 140)">
+                        <polygon points="151.5,140 149.25,143.9 144.75,143.9 142.5,140 144.75,136.1 149.25,136.1" fill="#6b5335" stroke="#8a4b2a"/>
+                    </g>
+                    <g id="arms">
+                        <circle cx="50" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <circle cx="43" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <circle cx="39" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <path d="M37 139 L27 154 Q35 162 44 155 L40.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
+                        <circle cx="170" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <circle cx="177" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <circle cx="181" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
+                        <path d="M183 139 L193 154 Q185 162 176 155 L179.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
+                    </g>
+                    <g id="legs">
+                        <rect x="80" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
+                        <rect x="81.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
+                        <rect x="72" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
+                        <rect x="130" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
+                        <rect x="131.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
+                        <rect x="122" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
+                    </g>
+                    <g id="bodyShell">
+                        <rect x="60" y="50" width="100" height="95" rx="9" fill="url(#metalGrad)" stroke="#414b58" stroke-width="2"/>
+                        <use href="#nutRing"/><use href="#rustNut"/>
+                        <circle cx="110" cy="92" r="27" fill="#18212b" stroke="#39424e" stroke-width="3"/>
+                        <rect x="88" y="124" width="44" height="13" rx="4" fill="#414b58" opacity="0.65"/>
+                        <circle cx="97" cy="130.5" r="2" fill="#48bb78"/>
+                        <circle cx="106" cy="130.5" r="2" fill="#718096"/>
+                        <circle cx="115" cy="130.5" r="2" fill="#718096"/>
+                    </g>
+                    <g id="takaFull">
+                        <use href="#arms"/><use href="#legs"/><use href="#bodyShell"/>
+                        <ellipse cx="110" cy="198" rx="52" ry="6" fill="#000" opacity="0.28"/>
+                    </g>
+                </defs>
+                <g class="takaBob"><use href="#takaFull"/></g>
+                <circle class="eyeGlow" cx="110" cy="92" r="17" fill="url(#eyeGrad)"/>
+                <circle cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
+            </svg>
+        </div>
+        <div class="kicker reveal">HACKATHON 2026 · AI × 儿童内容</div>
+        <h1 class="reveal">塔 卡</h1>
+        <p class="tagline reveal">AI 互动童话 · 给 3-6 岁孩子的第一面<span class="grad">镜子</span></p>
+        <p class="reveal" style="font-family: var(--font-display);">我们不造神，我们造镜子。<span class="warm">镜子不会塌房。</span></p>
+        <div class="mono-tags reveal">VOICE <b>✓</b> · BRANCHING <b>✓</b> · AI-FILL <b>✓</b> · SINGLE-FILE <b>✓</b></div>
+    </div>
+</section>
+
+<!-- ================= S2 洞察 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">THE GAP · 三个断层</div>
+        <h2 class="reveal">孩子需要的不是<span class="grad">偶像</span>，是镜子</h2>
+        <div class="gap-cards">
+            <div class="gap-card reveal">
+                <div class="no">01 / 造神工业</div>
+                <h3>偶像会塌房</h3>
+                <p>虚拟陪伴靠「神格化角色 → 情感供养」运转。皮套论、塌房、社区战争——高消耗，不可持续。</p>
+            </div>
+            <div class="gap-card reveal">
+                <div class="no">02 / 儿童内容</div>
+                <h3>故事是单向的</h3>
+                <p>绘本和动画只能看。孩子没有选择权，自主性、好奇心无处安放。</p>
+            </div>
+            <div class="gap-card reveal">
+                <div class="no">03 / AI 焦虑</div>
+                <h3>家长不敢给</h3>
+                <p>自由生成的 AI 可能输出宗教、暴力、性别刻板。没有护栏的 AI，进不了儿童房。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= S3 产品 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">THE PRODUCT · 塔卡是谁</div>
+        <h2 class="reveal">一个旧铁皮机器人，<span class="grad">想去听听风声</span></h2>
+        <div class="product-wrap">
+            <div class="taka-hero reveal">
+                <svg viewBox="0 0 220 210">
+                    <use href="#takaFull"/>
+                    <circle class="eyeGlow" cx="110" cy="92" r="17" fill="url(#eyeGrad)"/>
+                    <circle cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
+                </svg>
+            </div>
+            <ul class="product-lines">
+                <li class="reveal"><b>即将报废的铁皮人</b>，获得新能源（LLM），在新时代寻找自己的位置——带着局限依然向前。</li>
+                <li class="reveal"><b>话少，诚实，旧但可靠。</b>保温杯大小，单眼摄像头，松动的螺母还在原位。</li>
+                <li class="reveal"><b>《第一次听见风声》</b>：从海底到海面的旅程。每个岔路口，孩子替它选。</li>
+                <li class="reveal"><b>双结局，都不惩罚。</b>「回去充电」是分享而非牺牲；「再听一分钟」关机了，有朋友兜底。</li>
+                <li class="reveal"><b>不聪明、不勇敢、不特别</b>——这些品质属于每一个使用它的孩子。</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ================= S4 核心机制 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">THE MECHANISM · 核心机制</div>
+        <h2 class="reveal">大纲是护栏，<span class="grad">选择是方向盘</span></h2>
+        <div class="flow reveal">
+            <span class="node hot">孩子的选择（点按 / 打字 / 说话）</span>
+            <span class="arrow">→</span>
+            <span class="node">AI 白名单填空（只写文笔）</span>
+            <span class="arrow">→</span>
+            <span class="node">骨架不变：分支 · 结局 · 电量</span>
+        </div>
+        <div class="rule3">
+            <div class="gap-card reveal">
+                <div class="no">第一层 · 身体</div>
+                <h3>角色设定</h3>
+                <p>塔卡没有嘴，水下靠螺旋桨。模型自己会说「没有嘴，不能吃」——设定从禁止项变成灵感源。</p>
+            </div>
+            <div class="gap-card reveal">
+                <div class="no">第二层 · 叙事</div>
+                <h3>节拍白名单</h3>
+                <p>每个 AI 场景带 beats 要点清单。剧情走向和结局写死，AI 只负责 100-150 字的文笔。</p>
+            </div>
+            <div class="gap-card reveal">
+                <div class="no">第三层 · 价值观</div>
+                <h3>红线注入</h3>
+                <p>每次调用注入：不牺牲、不刻板、不说教、「你决定」。宗教词替换为能量/信号/记忆库。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= S5 灵魂案例 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">FIELD TEST · 真实生成记录</div>
+        <h2 class="reveal">孩子输入：<span class="grad">「把海鸥吃掉」</span></h2>
+        <div class="case-dialog reveal">
+            <div class="name-tag">塔 卡</div>
+            <div class="line">塔卡举起链条手臂。<span class="warm">没有嘴。不能吃。</span></div>
+            <div class="line">海鸥飞高：「你在做什么？」</div>
+            <div class="line">塔卡：「我想尝尝风的味道。」</div>
+            <div class="line">海鸥：「风没有味道。」</div>
+            <div class="line">塔卡问风：「你从哪里来？」……故事继续走向云上。</div>
+            <div class="child">孩子的原话被接住了 → 角色自己长出了「没有嘴」的自觉 → 节拍一个不少</div>
+        </div>
+        <p class="case-note reveal">不评判孩子的黑暗，<span class="grad">把黑暗变成诗。</span></p>
+    </div>
+</section>
+
+<!-- ================= S6 技术与安全 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">THE STACK · 技术与安全</div>
+        <h2 class="reveal">单文件，零依赖，<span class="grad">开箱即跑</span></h2>
+        <div class="tech-grid">
+            <div class="tech-card reveal"><div class="t">SKELETON.json</div><p>故事骨架写死在文件里：分支、选项文案、电量、双结局——AI 碰不到。</p></div>
+            <div class="tech-card reveal"><div class="t">AI-FILL</div><p>DeepSeek 填空式生成中段场景，15s 超时 + 失败静默回退内置文案，断网可玩。</p></div>
+            <div class="tech-card reveal"><div class="t">VOICE</div><p>浏览器本地 TTS：角色声线差分（塔卡慢、海鸥快、老机器沉），家长可调基础语速。</p></div>
+            <div class="tech-card reveal"><div class="t">FREE-INPUT</div><p>选项 C：孩子打字或说话，「选择必须生效」——先接住，再把故事引回主线。</p></div>
+            <div class="tech-card reveal"><div class="t">RED-LINES</div><p>价值观红线 prompt 级注入，6 条禁令 + 替代方案，两轮回归测试零事故。</p></div>
+            <div class="tech-card reveal"><div class="t">PARENT-FIRST</div><p>基础语速滑块、语音总开关、对话记录可查看（愿景）——家长是决策层。</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= S7 为什么是我们 ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">WHY US · 定位</div>
+        <h2 class="reveal">镜子<span class="grad">不会塌房</span></h2>
+        <div class="vs-wrap">
+            <div class="vs-col reveal">
+                <h3>传统虚拟陪伴</h3>
+                <ul>
+                    <li>· 神格化偶像，用户供养</li>
+                    <li>· 单向投射，占有欲强</li>
+                    <li>· 皮套论、塌房、社区战争</li>
+                    <li>· 为爱供养（648 抽卡）</li>
+                </ul>
+            </div>
+            <div class="vs-mark reveal">VS</div>
+            <div class="vs-col win reveal">
+                <h3>塔卡</h3>
+                <ul>
+                    <li>· 人造镜子，用户即主角</li>
+                    <li>· 双向共创，自主性高</li>
+                    <li>· 免疫——本来就是人造物</li>
+                    <li>· 为工具价值订阅（教育/陪伴）</li>
+                </ul>
+            </div>
+        </div>
+        <p class="market-line reveal">市场：<b>3-6 岁中文启蒙 AI 内容入口</b>——大厂嫌慢嫌重的赛道；25-35 岁家长为「安全 + 教育价值」付费，决策链短。</p>
+    </div>
+</section>
+
+<!-- ================= S8 结尾 ================= -->
+<section class="slide end-slide">
+    <div class="slide-content">
+        <div class="taka-hero reveal">
+            <!-- 塔卡之眼（特写） -->
+            <svg viewBox="0 0 120 120" style="height: clamp(80px, 16vh, 140px);">
+                <defs>
+                    <radialGradient id="eyeGrad2" cx="0.5" cy="0.45" r="0.6">
+                        <stop offset="0" stop-color="#fff6d8"/><stop offset="0.55" stop-color="#ffb703"/><stop offset="1" stop-color="#9c7108"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="60" cy="60" r="52" fill="#18212b" stroke="#39424e" stroke-width="4"/>
+                <circle class="eyeGlow" cx="60" cy="60" r="34" fill="url(#eyeGrad2)"/>
+                <circle cx="47" cy="47" r="7" fill="#fff" opacity="0.85"/>
+            </svg>
+        </div>
+        <h1 class="reveal" style="font-size: clamp(1.5rem, 4vw, 3rem);">你亮，<span class="grad">它就亮。</span></h1>
+        <p class="reveal">塔卡只是那面镜子。所有的智慧、勇气和好奇心，都在孩子手里。</p>
+        <div class="qr-box reveal">
+            <img src="data:image/png;base64,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" alt="扫码体验塔卡" />
+            <div class="qr-url">
+                <b>现在就能体验 →</b><br/>
+                ameliacai67.github.io/TAKA_tales<br/>
+                手机 / iPad 打开，点一下，替塔卡听听风声。
+            </div>
+        </div>
+        <div class="mono-tags reveal">TAKA · 塔卡童话 · <b>THANK YOU</b></div>
+    </div>
+</section>
+
+<script>
+/* ===========================================
+   幻灯片控制器：键盘 / 滚轮 / 触摸 / 导航点 / 进度条
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = Array.from(document.querySelectorAll(".slide"));
+        this.current = 0;
+        this.wheelLock = false;
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupWheelNav();
+        this.setupTouchNav();
+        this.setupNavDots();
+        this.updateChrome(0);
+    }
+
+    /* 入场动画：进入视口的 slide 加 .visible */
+    setupIntersectionObserver() {
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(en => {
+                if (en.isIntersecting) {
+                    en.target.classList.add("visible");
+                    this.updateChrome(this.slides.indexOf(en.target));
+                }
+            });
+        }, { threshold: 0.55 });
+        this.slides.forEach(s => io.observe(s));
+    }
+
+    goTo(i) {
+        const idx = Math.max(0, Math.min(this.slides.length - 1, i));
+        this.slides[idx].scrollIntoView({ behavior: "smooth" });
+    }
+
+    setupKeyboardNav() {
+        document.addEventListener("keydown", e => {
+            const next = ["ArrowRight", "ArrowDown", "PageDown", " "];
+            const prev = ["ArrowLeft", "ArrowUp", "PageUp"];
+            if (next.includes(e.key)) { e.preventDefault(); this.goTo(this.current + 1); }
+            else if (prev.includes(e.key)) { e.preventDefault(); this.goTo(this.current - 1); }
+            else if (e.key === "Home") this.goTo(0);
+            else if (e.key === "End") this.goTo(this.slides.length - 1);
+        });
+    }
+
+    setupWheelNav() {
+        window.addEventListener("wheel", e => {
+            if (this.wheelLock) return;
+            this.wheelLock = true;
+            this.goTo(this.current + (e.deltaY > 0 ? 1 : -1));
+            setTimeout(() => (this.wheelLock = false), 700);
+        }, { passive: true });
+    }
+
+    setupTouchNav() {
+        let startY = null;
+        window.addEventListener("touchstart", e => (startY = e.touches[0].clientY), { passive: true });
+        window.addEventListener("touchend", e => {
+            if (startY === null) return;
+            const dy = startY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 48) this.goTo(this.current + (dy > 0 ? 1 : -1));
+            startY = null;
+        }, { passive: true });
+    }
+
+    setupNavDots() {
+        const nav = document.getElementById("navDots");
+        nav.innerHTML = ""; // 防重复渲染
+        this.dots = this.slides.map((_, i) => {
+            const b = document.createElement("button");
+            b.setAttribute("aria-label", "第 " + (i + 1) + " 页");
+            b.addEventListener("click", () => this.goTo(i));
+            nav.appendChild(b);
+            return b;
+        });
+    }
+
+    /* 进度条 + 页码 + 导航点高亮 */
+    updateChrome(i) {
+        this.current = i;
+        const pct = ((i + 1) / this.slides.length) * 100;
+        document.getElementById("progressBar").style.width = pct + "%";
+        document.getElementById("pageNo").textContent =
+            String(i + 1).padStart(2, "0") + " / " + String(this.slides.length).padStart(2, "0");
+        this.dots?.forEach((d, j) => d.classList.toggle("active", j === i));
+    }
+}
+
+new SlidePresentation();
+</script>
+</body>
+</html>
