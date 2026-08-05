@@ -1058,6 +1058,35 @@
         if (speechSupported) speechSynthesis.cancel();
     }
 
+    // ===== 风声 BGM：just_listen（且听风吟）场景专属 =====
+    // 🔊 开关兼作总音量；启动门已提供用户手势，play() 不会被自动播放策略拦截
+    const windAudio = new Audio("assets/风声.mp3");
+    windAudio.loop = true;
+    windAudio.volume = 0;
+    let windFade = null;
+
+    function windTo(target, ms = 800) { // 音量渐变，避免硬切
+        clearInterval(windFade);
+        const from = windAudio.volume, steps = 16;
+        let i = 0;
+        windFade = setInterval(() => {
+            windAudio.volume = Math.max(0, Math.min(1, from + (target - from) * (++i / steps)));
+            if (i >= steps) {
+                clearInterval(windFade);
+                if (target === 0) { windAudio.pause(); windAudio.currentTime = 0; }
+            }
+        }, ms / steps);
+    }
+
+    function startWind() {
+        if (!speechPref.on) return;
+        windAudio.play().then(() => windTo(0.35)).catch(() => {});
+    }
+
+    function stopWind() {
+        if (!windAudio.paused) windTo(0, 500);
+    }
+
     function initSpeech() {
         const btn = document.getElementById("speech-btn");
         const sync = () => { btn.innerText = speechPref.on ? "🔊" : "🔇"; };
@@ -1077,7 +1106,7 @@
         };
         btn.onclick = () => {
             speechPref.on = !speechPref.on;
-            if (!speechPref.on) stopSpeech();
+            if (!speechPref.on) { stopSpeech(); stopWind(); } // 静音=全部静音
             localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
             sync();
         };
@@ -1339,6 +1368,8 @@
         }
 
         stopSpeech(); // 切场景打断上一段朗读
+        stopWind();   // 风声只属于且听风吟场景
+        if (scene.isSpecialListen) startWind(); // 风声起：这 4 秒，风是主角
         if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
         document.getElementById("choices").innerHTML = "";
         document.getElementById("listen-bar").style.display = "none";
