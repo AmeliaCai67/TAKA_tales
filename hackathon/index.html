@@ -272,6 +272,22 @@ p { color: var(--text-secondary); line-height: 1.7; }
 .market-line b { color: var(--text-primary); }
 @media (max-width: 700px) { .vs-wrap { grid-template-columns: 1fr; } .vs-mark { display: none; } }
 
+/* S7B 故事宇宙 Roadmap：三章纵向卡 */
+.rm-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.5rem, 1.2vw, 1rem); max-width: min(94vw, 1150px); }
+.rm-card { display: flex; flex-direction: column; gap: 0.35em; }
+.rm-status { font-family: var(--font-mono); font-size: var(--small-size); letter-spacing: 2px; }
+.rm-status .dot { display: inline-block; width: 0.7em; height: 0.7em; border-radius: 50%; margin-right: 0.4em; }
+.rm-status .dot.live { background: #48bb78; box-shadow: 0 0 6px rgba(72, 187, 120, 0.8); }
+.rm-status .dot.lock { background: var(--accent-warm); box-shadow: 0 0 6px rgba(255, 183, 3, 0.7); }
+.rm-card h3 { margin: 0.1em 0 0.2em; }
+.rm-theme { font-family: var(--font-mono); font-size: var(--small-size); color: var(--accent-warm); letter-spacing: 1px; margin-bottom: 0.3em; }
+.rm-list { list-style: none; display: flex; flex-direction: column; gap: 0.35em; }
+.rm-list li { font-size: var(--small-size); color: var(--text-secondary); line-height: 1.55; }
+.rm-list li b { color: var(--text-primary); font-weight: 500; }
+.rm-footer { margin-top: var(--content-gap); font-size: var(--body-size); color: var(--text-secondary); }
+.rm-footer b { color: var(--text-primary); }
+@media (max-width: 760px) { .rm-cards { grid-template-columns: 1fr; } }
+
 /* S8 结尾 */
 .end-slide .slide-content { align-items: center; text-align: center; gap: var(--content-gap); }
 .qr-box { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 1.6rem); }
@@ -524,6 +540,47 @@ p { color: var(--text-secondary); line-height: 1.7; }
             </div>
         </div>
         <p class="market-line reveal">市场：<b>3-6 岁中文启蒙 AI 内容入口</b>——大厂嫌慢嫌重的赛道；25-35 岁家长为「安全 + 教育价值」付费，决策链短。</p>
+    </div>
+</section>
+
+<!-- ================= S7B 故事宇宙 Roadmap ================= -->
+<section class="slide">
+    <div class="slide-content">
+        <div class="kicker reveal">STORY UNIVERSE · 故事宇宙</div>
+        <h2 class="reveal">相遇 → 互助 → <span class="grad">反思</span></h2>
+        <div class="rm-cards">
+            <div class="gap-card rm-card reveal">
+                <div class="rm-status"><span class="dot live"></span>第一章 · DEMO 可玩</div>
+                <h3>海床初遇</h3>
+                <div class="rm-theme">主题：相遇与倾听</div>
+                <ul class="rm-list">
+                    <li>· 核心机制：<b>语音输入 → AI 语义理解 → 分支叙事</b></li>
+                    <li>· 系统验证：电量消耗、成就解锁、TTS 语音驱动</li>
+                    <li>· 状态：已部署，移动端适配完成</li>
+                </ul>
+            </div>
+            <div class="gap-card rm-card reveal">
+                <div class="rm-status"><span class="dot lock"></span>第二章 · 概念锁定</div>
+                <h3>鲸落彩虹</h3>
+                <div class="rm-theme">主题：团结与修复</div>
+                <ul class="rm-list">
+                    <li>· 高光：被沉船所伤的抹香鲸，塔卡与伙伴协力救助</li>
+                    <li>· 情感锚点：鲸喷映出彩虹，<b>TTS 语速随剧情起伏</b>（虚弱→恢复）</li>
+                    <li>· 暗线：致敬「穿透阳光、给出答案」的瞬间</li>
+                </ul>
+            </div>
+            <div class="gap-card rm-card reveal">
+                <div class="rm-status"><span class="dot lock"></span>第三章 · 概念锁定</div>
+                <h3>锈钉寓言</h3>
+                <div class="rm-theme">主题：反思与边界</div>
+                <ul class="rm-list">
+                    <li>· Boss「铆钉」：被设定为「必须不断造螺丝」的失控机器人</li>
+                    <li>· <b>嘴遁战斗</b>：A 唤醒情感（照片）/ B 解构指令（停工）/ C 重构目标（造船）</li>
+                    <li>· 叙事内核：<b>Agent 对齐，从娃娃抓起</b></li>
+                </ul>
+            </div>
+        </div>
+        <p class="rm-footer reveal">开发节奏：<b>单章 3–5 天</b>，语音输入 + 状态机 + TTS 技术栈全复用</p>
     </div>
 </section>
 
