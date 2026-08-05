@@ -978,7 +978,7 @@
         speechSynthesis.onvoiceschanged = pickVoice; // Chrome 异步加载声音列表
     }
 
-    function makeUtterance(text, who, rateOverride) {
+    function makeUtterance(text, who, rateOverride, volume) {
         const prof = CHAR_PROFILE[who || "narrator"];
         const u = new SpeechSynthesisUtterance(text);
         if (zhVoice) u.voice = zhVoice;
@@ -987,6 +987,7 @@
         const base = rateOverride || speechPref.rate;
         u.rate = Math.min(2, Math.max(0.5, base * prof.rate));
         u.pitch = prof.pitch;
+        u.volume = volume === undefined ? 1 : volume; // 场景可 duck（如风声场景）
         return u;
     }
 
@@ -1028,7 +1029,7 @@
     }
 
     // 正文朗读：按段拆成多条 utterance（规避 Chrome 长文本 ~15s 中断 bug）
-    function speakStory(text) {
+    function speakStory(text, volume) {
         if (!speechSupported || !speechPref.on) return;
         const gen = ++speechGen;
         speechSynthesis.cancel();
@@ -1039,7 +1040,7 @@
                 .map(cleanForSpeech)
                 .filter(Boolean)
                 .flatMap(parseParagraph)
-                .forEach(seg => queueSpeak(makeUtterance(seg.text, seg.who)));
+                .forEach(seg => queueSpeak(makeUtterance(seg.text, seg.who, undefined, volume)));
             speechSynthesis.resume(); // 刷新后合成器可能卡在 paused，推一下
         }, 100);
     }
@@ -1080,7 +1081,7 @@
 
     function startWind() {
         if (!speechPref.on) return;
-        windAudio.play().then(() => windTo(0.35)).catch(() => {});
+        windAudio.play().then(() => windTo(0.55)).catch(() => {});
     }
 
     function stopWind() {
@@ -1399,7 +1400,8 @@
         setFigureState(duringTyping);
 
         currentText = text;
-        speakStory(text); // 语音与打字机各自独立，同时开始
+        // 且听风吟：语音音量 duck 到 0.55，风声与人声平起平坐——这 4 秒风才是主角
+        speakStory(text, scene.isSpecialListen ? 0.55 : undefined); // 语音与打字机各自独立，同时开始
         typeText(text, () => {
             setFigureState(scene.endState || eye);
             if (scene.isSpecialListen) {
