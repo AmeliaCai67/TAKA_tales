@@ -1048,7 +1048,8 @@
     // 选项朗读：排队在正文之后，不打断；两个选项时前缀“你选。”（呼应海鸥台词）
     // 有自由输入选项时，末尾补一句“或者，说说你的想法”
     function speakChoices(choices, hasFreeInput) {
-        if (!speechSupported || !speechPref.on || !speechPref.readChoices || !choices || !choices.length) return;
+        // mp3ChoicesQueued：选项朗读已在音频包里；mp3Active 但无选项音频（listen-bar 动态按钮）仍走 TTS
+        if (!speechSupported || !speechPref.on || !speechPref.readChoices || mp3ChoicesQueued || !choices || !choices.length) return;
         const prefix = choices.length > 1 ? "你选。" : "";
         const suffix = hasFreeInput ? "或者，说说你的想法。" : "";
         queueSpeak(makeUtterance(prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix));
@@ -1057,6 +1058,7 @@
     function stopSpeech() {
         speechGen++; // 使排队中的延迟朗读失效
         if (speechSupported) speechSynthesis.cancel();
+        stopSceneAudio();
     }
 
     // ===== 风声 BGM：just_listen（且听风吟）场景专属 =====
@@ -1088,6 +1090,49 @@
         if (!windAudio.paused) windTo(0, 500);
     }
 
+    // ===== 预渲染语音包（edge-tts）：固定场景播 mp3，AI 生成场景回退浏览器 TTS =====
+    // manifest 加载失败（file:// 协议/资源缺失）时 audioManifest 为 null，全程走浏览器 TTS
+    let audioManifest = null;
+    let mp3Active = false;        // 当前场景是否在用 mp3（影响补读兜底/开关）
+    let mp3ChoicesQueued = false; // choices.mp3 是否已排进播放列表（决定选项是否还要 TTS 念）
+    const scenePlayer = new Audio();
+    let scenePlaylist = [], scenePlayIdx = 0;
+
+    fetch("assets/audio/manifest.json")
+        .then(r => r.json())
+        .then(m => { audioManifest = m; })
+        .catch(() => {});
+
+    function playSceneAudio(key, duck) {
+        if (!audioManifest || !audioManifest[key] || !speechPref.on) return false;
+        stopSpeech(); // 停旧队列（也会停旧 mp3），拿到新 speechGen
+        const entry = audioManifest[key];
+        scenePlaylist = entry.segments.map(s => "assets/audio/" + s.file);
+        mp3ChoicesQueued = !!(entry.choices && speechPref.readChoices);
+        if (mp3ChoicesQueued) scenePlaylist.push("assets/audio/" + entry.choices.file);
+        scenePlayIdx = 0;
+        scenePlayer.volume = duck ? 0.55 : 1;        // 且听风吟：人声 duck 给风声
+        scenePlayer.playbackRate = speechPref.rate || 1; // 家长语速滑块同样生效
+        const gen = speechGen;
+        const playNext = () => {
+            if (gen !== speechGen || scenePlayIdx >= scenePlaylist.length) return;
+            scenePlayer.src = scenePlaylist[scenePlayIdx++];
+            scenePlayer.play().catch(() => {});
+        };
+        scenePlayer.onended = playNext;
+        mp3Active = true;
+        playNext();
+        return true;
+    }
+
+    function stopSceneAudio() {
+        scenePlayer.pause();
+        scenePlayer.onended = null;
+        scenePlaylist = [];
+        mp3Active = false;
+        mp3ChoicesQueued = false;
+    }
+
     function initSpeech() {
         const btn = document.getElementById("speech-btn");
         const sync = () => { btn.innerText = speechPref.on ? "🔊" : "🔇"; };
@@ -1107,7 +1152,7 @@
         };
         btn.onclick = () => {
             speechPref.on = !speechPref.on;
-            if (!speechPref.on) { stopSpeech(); stopWind(); } // 静音=全部静音
+            if (!speechPref.on) { stopSpeech(); stopWind(); } // 静音=全部静音（stopSpeech 内含 stopSceneAudio）
             localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
             sync();
         };
@@ -1377,15 +1422,17 @@
         setFigureMode(scene.mode || "land");
 
         // AI 生成：仅中段场景（scene.ai）；无 key / 开关关 / 失败均静默回退内置文案
-        let text = scene.text;
+        let text = scene.text, usedAI = false;
         const settings = loadSettings();
         if (ctx && ctx.generated) {
             text = ctx.generated; // 自定义选择：提交时已生成好，直接用（生成失败不会走到这里）
+            usedAI = true;
         } else if (scene.ai && settings.enabled && settings.apiKey) {
             setFigureState("st-thinking"); // 思考态即 loading：眼睛闪三下
             showStatus("塔卡在想...");
             try {
                 text = await generateSceneText(scene, ctx, settings);
+                usedAI = true;
                 showStatus("");
             } catch (e) {
                 console.warn("AI 生成失败，回退本地文案：", e);
@@ -1400,8 +1447,10 @@
         setFigureState(duringTyping);
 
         currentText = text;
-        // 且听风吟：语音音量 duck 到 0.55，风声与人声平起平坐——这 4 秒风才是主角
-        speakStory(text, scene.isSpecialListen ? 0.55 : undefined); // 语音与打字机各自独立，同时开始
+        // 语音双轨：固定文本 → 预渲染 mp3 包（定稿声线）；AI 生成 → 浏览器 TTS 实时念
+        // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐
+        const played = !usedAI && playSceneAudio(key, scene.isSpecialListen);
+        if (!played) speakStory(text, scene.isSpecialListen ? 0.55 : undefined);
         typeText(text, () => {
             setFigureState(scene.endState || eye);
             if (scene.isSpecialListen) {
@@ -1451,7 +1500,7 @@
     document.addEventListener("pointerdown", function once() {
         document.removeEventListener("pointerdown", once);
         if (speechSupported && speechPref.on && currentText &&
-            !speechSynthesis.speaking && !speechSynthesis.pending) {
+            !speechSynthesis.speaking && !speechSynthesis.pending && scenePlayer.paused) {
             speakStory(currentText);
         }
     });
