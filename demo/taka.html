@@ -1100,7 +1100,7 @@
     const scenePlayer = new Audio();
     let scenePlaylist = [], scenePlayIdx = 0;
 
-    fetch("assets/audio/manifest.json")
+    fetch("assets/audio/manifest.json?v=" + Date.now()) // 防浏览器缓存旧清单（文件重渲后段数会变）
         .then(r => r.json())
         .then(m => { audioManifest = m; })
         .catch(() => {});
@@ -1122,6 +1122,7 @@
             scenePlayer.play().catch(() => {});
         };
         scenePlayer.onended = playNext;
+        scenePlayer.onerror = playNext; // 单个文件加载失败跳过，不让整条链哑掉
         mp3Active = true;
         playNext();
         return true;
@@ -1478,7 +1479,9 @@
         }
         const gate = document.getElementById("start-gate");
         gate.hidden = false;
+        let begun = false;
         const begin = () => {
+            if (begun) return; begun = true; // 按钮点击会冒泡到 gate，防 begin 双触发
             try {
                 speechSynthesis.cancel(); // 清掉可能卡住的队列
                 const u = new SpeechSynthesisUtterance(" "); // 手势内热身教
