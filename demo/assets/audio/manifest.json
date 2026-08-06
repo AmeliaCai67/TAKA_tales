@@ -381,7 +381,17 @@
       {
         "file": "ending_b/06_narrator.mp3",
         "who": "narrator",
-        "text": "值了。 它身边坐着海鸥。"
+        "text": "塔卡说"
+      },
+      {
+        "file": "ending_b/07_taka.mp3",
+        "who": "taka",
+        "text": "值了。"
+      },
+      {
+        "file": "ending_b/08_narrator.mp3",
+        "who": "narrator",
+        "text": "它身边坐着海鸥。"
       }
     ],
     "choices": {

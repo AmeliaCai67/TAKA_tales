@@ -759,7 +759,7 @@
         },
         ending_b: {
             mode: "swim",
-            text: "塔卡没有动。一分钟。两分钟。\n\n它听到了完整的一首歌。\n\n咔哒。塔卡关机了。\n\n海鸥用巨大的翅膀，一点点把它推回了海面。\n\n它在日落时醒来。电池 0%。但记忆里有完整的风声。\n\n\"值了。\" 它身边坐着海鸥。\n\n（完 - 体验优先，有友兜底）",
+            text: "塔卡没有动。一分钟。两分钟。\n\n它听到了完整的一首歌。\n\n咔哒。塔卡关机了。\n\n海鸥用巨大的翅膀，一点点把它推回了海面。\n\n它在日落时醒来。电池 0%。但记忆里有完整的风声。\n\n塔卡说：\"值了。\"它身边坐着海鸥。\n\n（完 - 体验优先，有友兜底）",
             cost: 0,
             setBattery: 0,
             eyeState: "st-standby",
@@ -960,7 +960,7 @@
     };
     const SPEAKER_NAMES = { "塔卡": "taka", "海鸥": "seagull", "老机器": "oldmachine" };
     // 段内台词：角色名 + 最多 8 字引语（说/问/的信号很弱…）+ 冒号 + 台词
-    const DIALOG_RE = /(塔卡|海鸥|老机器)([^：:]{0,8})[：:]["「]?([^"」]+?)["」]?\s*$/;
+    const DIALOG_RE = /(塔卡|海鸥|老机器)([^：:]{0,8})[：:]["「“『]([^"」”』]+?)["」”』]/; // 闭引号必需：先解析后清洗，引号负责定界
 
     function pickVoice() {
         if (!speechSupported) return;
@@ -998,9 +998,11 @@
         if (!m) return [{ who: "narrator", text: p }];
         let intro = (p.slice(0, m.index) + m[1] + m[2]).trim();
         if (intro === m[1]) intro = m[1] + "说";
+        const outro = p.slice(m.index + m[0].length).trim(); // 引语后的旁白（如「它身边坐着海鸥」）
         const segs = [];
         if (intro) segs.push({ who: "narrator", text: intro });
         segs.push({ who: SPEAKER_NAMES[m[1]], text: m[3] });
+        if (outro) segs.push({ who: "narrator", text: outro });
         return segs;
     }
 
@@ -1037,9 +1039,9 @@
         setTimeout(() => {
             if (gen !== speechGen || !speechPref.on) return;
             text.split(/\n+/)
-                .map(cleanForSpeech)
-                .filter(Boolean)
-                .flatMap(parseParagraph)
+                .flatMap(parseParagraph) // 先在原文上归属角色（引号还在，定界精确）
+                .map(seg => ({ who: seg.who, text: cleanForSpeech(seg.text) })) // 再按段清洗
+                .filter(seg => seg.text)
                 .forEach(seg => queueSpeak(makeUtterance(seg.text, seg.who, undefined, volume)));
             speechSynthesis.resume(); // 刷新后合成器可能卡在 paused，推一下
         }, 100);
