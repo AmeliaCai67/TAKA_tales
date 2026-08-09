@@ -40,17 +40,22 @@ CURRENT=$(git branch --show-current)
 [ -z "$(git status --porcelain)" ] || { echo "main 有未提交改动，先提交"; exit 1; }
 
 git checkout -q opensource
-trap 'git checkout -q main' EXIT   # 任何退出路径都切回 main
+trap 'git checkout -q -f main' EXIT   # 任何退出路径都强制切回 main
 
 # 路径级同步：只把白名单路径从 main 取过来
 git checkout main -- "${ALLOWED[@]}"
 
-# 漂移检查：本次改动不得落在白名单之外
-DRIFT=$(git status --porcelain | awk '{print $2}' | grep -vE "$PATTERN" || true)
+# 反向清理：opensource 上已不在白名单内的历史文件（如后来下架的路径）一律移除
+# ——白名单是双向强制的，公开库 = 白名单的精确镜像
+# core.quotepath=false：ls-files 默认把中文名转义成八进制，既破坏白名单匹配也让 git rm 找不到文件
+git -c core.quotepath=false ls-files | grep -vE "$PATTERN" | while read -r f; do git rm -q -- "$f"; done
+
+# 漂移检查：新增/修改不得落在白名单之外（删除不管——反向清理产生的删除是合法的）
+DRIFT=$(git status --porcelain | awk '$1 !~ /D/ {print $2}' | grep -vE "$PATTERN" || true)
 if [ -n "$DRIFT" ]; then
     echo "✗ 检测到白名单外的改动，中止发布："
     echo "$DRIFT"
-    git checkout -- . && git clean -fdq
+    git reset -q --hard && git clean -fdq
     exit 1
 fi
 
@@ -62,7 +67,7 @@ fi
 echo "=== 将公开发布的改动 ==="
 git status --short
 read -r -p "确认推送到公开库？[y/N] " ok
-[ "$ok" = "y" ] || { git checkout -- . && git clean -fdq; echo "已取消"; exit 0; }
+[ "$ok" = "y" ] || { git reset -q --hard && git clean -fdq; echo "已取消"; exit 0; }
 
 git commit -q -m "$MSG"
 git push public opensource:main
