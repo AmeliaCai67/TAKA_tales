@@ -43,3 +43,8 @@ data/*.json
 .idea/
 .obsidian/
 *.swp
+
+# M1 monorepo（apps/player 构建产物与依赖；故事包同步副本）
+node_modules/
+dist/
+/apps/player/public/stories/

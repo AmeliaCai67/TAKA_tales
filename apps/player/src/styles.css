@@ -1,0 +1,478 @@
+:root {
+            --bg-deep: #0a141f;
+            --bg-sea: #13283a;
+            --bg-dialog: rgba(8,14,20,.88);
+            --border: #2d3a4a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #8d99a8;
+            --accent-warm: #ffb703;
+            --accent-dim: #cca025;
+            --choice-bg: #182432;
+            --choice-border: #3d4c5e;
+            --ok-green: #48bb78;
+            --low-orange: #c77b1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #stage {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* HUD：右上角，极小，不抢眼 */
+        .hud {
+            position: absolute;
+            top: 14px;
+            right: 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 电量条：小电池图标，填充随档位变色 */
+        .battery-icon {
+            width: 34px;
+            height: 13px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 3px;
+            position: relative;
+            padding: 1px;
+        }
+        .battery-icon::after {  /* 电池正极凸起 */
+            content: "";
+            position: absolute;
+            right: -4px;
+            top: 3px;
+            width: 3px;
+            height: 5px;
+            background: var(--text-secondary);
+            border-radius: 0 1px 1px 0;
+        }
+        .battery-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--ok-green);
+            border-radius: 1px;
+            transition: width .4s ease, background .4s ease;
+        }
+
+        /* 设置按钮：左上角，与右上 HUD 对称 */
+        .settings-btn {
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .settings-btn:hover { opacity: 1; }
+
+        /* 语音开关：左上角，🏅 右邻 */
+        .speech-btn {
+            position: absolute;
+            top: 10px;
+            left: 74px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .speech-btn:hover { opacity: 1; }
+
+        /* 成就按钮：左上角，⚙ 与 🔊 之间 */
+        .ach-btn {
+            position: absolute;
+            top: 10px;
+            left: 44px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .ach-btn:hover { opacity: 1; }
+
+        /* 成就弹窗：遮罩 + 居中卡片，点遮罩关闭 */
+        .ach-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(4,8,12,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+        .ach-overlay[hidden] { display: none; }
+        .ach-modal {
+            width: 300px;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.5);
+        }
+        .am-title { font-size: 12px; letter-spacing: 4px; color: var(--text-primary); margin-bottom: 12px; }
+        .ach-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+        .ach-item:last-child { margin-bottom: 0; }
+        .ach-item .ach-icon { font-size: 18px; line-height: 1.4; }
+        .ach-item .ach-name { font-size: 14px; color: var(--text-primary); letter-spacing: 1px; }
+        .ach-item .ach-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .ach-item.locked { opacity: .35; }
+        .ach-item.locked .ach-icon { filter: grayscale(1); }
+
+        .settings-panel {
+            position: absolute;
+            top: 36px;
+            left: 14px;
+            width: 260px;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            z-index: 30;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .settings-panel .sp-title { font-size: 12px; letter-spacing: 3px; margin-bottom: 10px; color: var(--text-primary); }
+        .settings-panel label { display: block; margin-bottom: 8px; letter-spacing: 1px; }
+        .settings-panel input[type="text"],
+        .settings-panel input[type="password"] {
+            display: block;
+            width: 100%;
+            margin-top: 4px;
+            padding: 6px 8px;
+            background: var(--choice-bg);
+            border: 1px solid var(--choice-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+        .sp-toggle { display: flex; align-items: center; gap: 6px; }
+        .settings-panel input[type="range"] { width: 100%; margin-top: 6px; accent-color: var(--accent-dim); }
+        #sp-rate-val { float: right; color: var(--text-primary); }
+        #sp-preview {
+            width: 100%;
+            min-height: 28px;
+            margin: 4px 0 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        #sp-preview:hover { border-color: var(--accent-warm); }
+        .sp-note { font-size: 11px; line-height: 1.7; opacity: .8; margin: 8px 0; }
+        .sp-actions { display: flex; gap: 8px; }
+        .sp-actions button {
+            flex: 1;
+            min-height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+        }
+
+        /* AI 状态提示：顶部居中，小字 */
+        .ai-status {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            z-index: 25;
+        }
+
+        /* 启动门：Chrome/Safari 都要求用户手势后才能发声，把第一次点击变成仪式 */
+        .start-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            cursor: pointer;
+        }
+        .start-gate[hidden] { display: none; }
+        .gate-eye {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 45% 40%, #fff6d8 0%, var(--accent-warm) 55%, #9c7108 100%);
+            animation: breathe 3.2s infinite alternate ease-in-out;
+        }
+        .gate-title { font-size: 22px; letter-spacing: 12px; color: var(--text-primary); }
+        .gate-btn {
+            min-height: 48px;
+            padding: 14px 36px;
+            border-radius: 14px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 17px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            animation: choiceIn .3s ease;
+        }
+        .gate-btn:hover { border-color: var(--accent-warm); }
+
+        /* 成就 toast：顶部居中胶囊，解锁定弹出，附成就文案 */
+        .toast {
+            position: absolute;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: var(--bg-dialog);
+            border: 1px solid var(--accent-dim);
+            color: var(--accent-warm);
+            padding: 8px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-align: center;
+            line-height: 1.8;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .3s ease;
+            z-index: 25;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast .toast-desc { font-size: 11px; color: var(--text-secondary); letter-spacing: 1px; }
+
+        /* 立绘：偏左中 */
+        .taka-figure {
+            position: absolute;
+            left: 12%;
+            top: 10%;
+        }
+        .taka-figure svg { height: 300px; display: block; }
+
+        /* 对话框：纯文本。固定高度——文本再长也不顶跑选项，内部滚动 */
+        .dialog {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+        }
+
+        .speaker {
+            font-size: 11px;
+            color: var(--accent-dim);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .story-text {
+            font-size: 17px;
+            line-height: 2;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            white-space: pre-line;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto; /* 长文本内部滚动 */
+            cursor: pointer;
+        }
+        .story-text::-webkit-scrollbar { width: 4px; }
+        .story-text::-webkit-scrollbar-thumb { background: var(--choice-border); border-radius: 2px; }
+        /* iPad 横屏内嵌滚动的惯性支持 */
+        @supports (-webkit-overflow-scrolling: touch) {
+            .story-text { -webkit-overflow-scrolling: touch; }
+        }
+
+        /* 选项：锚定对话框顶边浮起（右侧拇指热区）。
+           作为 .dialog 子元素 + bottom:calc(100%+12px)，无论文本多长
+           都浮在对话框上方，不会被对话框盖住（修复长文本场景选项不可点击） */
+        .choices {
+            position: absolute;
+            right: 12px;
+            bottom: calc(100% + 12px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+            z-index: 10;
+        }
+
+        .choice-btn {
+            min-height: 40px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,.4);
+            transition: all .15s ease;
+            animation: choiceIn .3s ease;
+        }
+        .choice-btn:hover {
+            border-color: var(--accent-warm);
+            transform: translateY(-2px);
+        }
+        @keyframes choiceIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 自由输入选项 C：虚线框区别于固定选项 */
+        .choice-input {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 4px 6px 4px 14px;
+            border: 1px dashed var(--choice-border);
+            border-radius: 12px;
+            background: var(--choice-bg);
+            box-shadow: 0 4px 12px rgba(0,0,0,.4);
+            animation: choiceIn .3s ease;
+        }
+        .choice-input input {
+            flex: 1;
+            min-width: 0;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+        .choice-input input::placeholder {
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+        .choice-input button {
+            min-width: 32px;
+            min-height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--choice-border);
+            background: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .choice-input button:hover { border-color: var(--accent-warm); }
+        .choice-input button.recording {
+            color: var(--accent-warm);
+            border-color: var(--accent-warm);
+            animation: micPulse 1.2s infinite;
+        }
+        @keyframes micPulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+
+        /* 聆听分支进度条 */
+        .listen-bar {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .listen-bar span {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+        }
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: var(--choice-bg);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-dim);
+        }
+
+        /* ===== 塔卡 6 态灯光（动画只作用在眼睛的光上） ===== */
+        .eyeGlow { transform-box: fill-box; transform-origin: center; }
+
+        .st-standby .eyeGlow { animation: breathe 3.2s infinite alternate ease-in-out; }
+        @keyframes breathe {
+            from { opacity: .55; filter: drop-shadow(0 0 2px rgba(255,183,3,.4)); }
+            to   { opacity: 1;   filter: drop-shadow(0 0 7px rgba(255,183,3,.8)); }
+        }
+
+        .st-speaking .eyeGlow { opacity: 1; filter: drop-shadow(0 0 9px rgba(255,183,3,.95)); }
+        .st-speaking .takaBody { animation: bob 1.6s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
+        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        .st-thinking .eyeGlow { animation: think 2.4s infinite; }
+        @keyframes think {
+            0% { opacity: 1; } 6% { opacity: .15; } 12% { opacity: 1; }
+            18% { opacity: .15; } 24% { opacity: 1; } 30% { opacity: .15; }
+            36% { opacity: 1; } 100% { opacity: 1; }
+        }
+
+        .st-listening .eyeGlow { animation: listen 4.5s infinite ease-in-out; }
+        @keyframes listen {
+            0%,100% { opacity: .35; filter: drop-shadow(0 0 1px rgba(255,183,3,.3)); }
+            50%     { opacity: .8;  filter: drop-shadow(0 0 5px rgba(255,183,3,.6)); }
+        }
+
+        .st-low .eyeGlow { fill: var(--low-orange); animation: low 2s infinite; }
+        @keyframes low { 0%,100% { opacity: .3; } 50% { opacity: .65; } }
+
+        /* 关机（spec §5/§7）：缓缓进行——身体 1.2s 倾斜降透明，灯光 1.2s 渐灭 */
+        .takaBody { transition: transform 1.2s ease, opacity 1.2s ease; }
+        .eyeGlow, .eyeHi { transition: opacity 1.2s ease; }
+        .st-off .takaBody { transform: rotate(-3deg); transform-box: fill-box; transform-origin: center; opacity: .75; }
+        .st-off .eyeGlow, .st-off .eyeHi { opacity: 0; }
+
+        /* ===== 竖屏降级：上下堆叠，选项通栏（低频场景） ===== */
+        @media (orientation: portrait) {
+            body { overflow: auto; }
+            #stage {
+                height: auto;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 16px;
+            }
+            .hud { position: static; align-self: flex-end; order: 0; }
+            .taka-figure { position: static; order: 1; margin-top: 8px; }
+            .taka-figure svg { height: 220px; }
+            .dialog { position: static; order: 2; width: 100%; margin-top: 12px; height: auto; /* 竖屏选项在对话框内部文档流，高度自适应 */ }
+            .story-text { flex: none; max-height: none; overflow-y: visible; /* 竖屏全量显示，页面级滚动——iOS 嵌套滚动对低龄用户不可用 */ }
+            /* 竖屏：选项收进对话框底部通栏（choices 是 dialog 子元素，static 即可） */
+            .choices { position: static; width: 100%; min-width: 0; margin-top: 12px; }
+            .choice-btn { width: 100%; }
+        }

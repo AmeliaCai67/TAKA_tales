@@ -1,0 +1,403 @@
+{
+  "prologue": {
+    "segments": [
+      {
+        "file": "prologue/01_narrator.mp3",
+        "who": "narrator",
+        "text": "这是塔卡。"
+      },
+      {
+        "file": "prologue/02_narrator.mp3",
+        "who": "narrator",
+        "text": "它住在海底。每天清理珊瑚，听老机器讲故事。"
+      },
+      {
+        "file": "prologue/03_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡是一只旧铁皮机器人，话少。"
+      },
+      {
+        "file": "prologue/04_narrator.mp3",
+        "who": "narrator",
+        "text": "今天，它第一次想去海面上看看。"
+      }
+    ],
+    "choices": {
+      "file": "prologue/choices.mp3",
+      "who": "narrator",
+      "text": "开始故事。"
+    }
+  },
+  "start": {
+    "segments": [
+      {
+        "file": "start/01_narrator.mp3",
+        "who": "narrator",
+        "text": "海底很亮。有很多光。"
+      },
+      {
+        "file": "start/02_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡每天清理珊瑚。光在动。"
+      },
+      {
+        "file": "start/03_narrator.mp3",
+        "who": "narrator",
+        "text": "它听到声音。呼呼。从上面来。"
+      },
+      {
+        "file": "start/04_narrator.mp3",
+        "who": "narrator",
+        "text": "老机器说"
+      },
+      {
+        "file": "start/05_oldmachine.mp3",
+        "who": "oldmachine",
+        "text": "不要去。上面没有水。"
+      },
+      {
+        "file": "start/06_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡的灯闪了一下"
+      },
+      {
+        "file": "start/07_taka.mp3",
+        "who": "taka",
+        "text": "我想知道。"
+      }
+    ],
+    "choices": {
+      "file": "start/choices.mp3",
+      "who": "narrator",
+      "text": "你选。A. 游上去看看。B. 继续清理珊瑚。或者，说说你的想法。"
+    }
+  },
+  "clean_branch": {
+    "segments": [
+      {
+        "file": "clean_branch/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡留下来清理珊瑚。"
+      },
+      {
+        "file": "clean_branch/02_narrator.mp3",
+        "who": "narrator",
+        "text": "夜里，它的灯一直亮着。它睡不着。"
+      },
+      {
+        "file": "clean_branch/03_narrator.mp3",
+        "who": "narrator",
+        "text": "呼呼。声音还在。"
+      }
+    ],
+    "choices": {
+      "file": "clean_branch/choices.mp3",
+      "who": "narrator",
+      "text": "A. 闭上眼睛睡觉。或者，说说你的想法。"
+    }
+  },
+  "dream": {
+    "segments": [
+      {
+        "file": "dream/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡睡着了。"
+      },
+      {
+        "file": "dream/02_narrator.mp3",
+        "who": "narrator",
+        "text": "它梦到光。很亮。很亮。"
+      },
+      {
+        "file": "dream/03_narrator.mp3",
+        "who": "narrator",
+        "text": "它梦到风。像海浪。呼呼。"
+      },
+      {
+        "file": "dream/04_narrator.mp3",
+        "who": "narrator",
+        "text": "它梦到珊瑚。很大。不发光。"
+      },
+      {
+        "file": "dream/05_narrator.mp3",
+        "who": "narrator",
+        "text": "老机器推它"
+      },
+      {
+        "file": "dream/06_oldmachine.mp3",
+        "who": "oldmachine",
+        "text": "该工作了。"
+      },
+      {
+        "file": "dream/07_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡看着珊瑚。又看了看上面。"
+      }
+    ],
+    "choices": {
+      "file": "dream/choices.mp3",
+      "who": "narrator",
+      "text": "上去看看。或者，说说你的想法。"
+    }
+  },
+  "surface": {
+    "segments": [
+      {
+        "file": "surface/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡浮出水面。没有水。很疼。"
+      },
+      {
+        "file": "surface/02_narrator.mp3",
+        "who": "narrator",
+        "text": "但它听到了。风声。呼呼。"
+      },
+      {
+        "file": "surface/03_narrator.mp3",
+        "who": "narrator",
+        "text": "一只海鸥飞过来"
+      },
+      {
+        "file": "surface/04_seagull.mp3",
+        "who": "seagull",
+        "text": "你会掉下去。"
+      },
+      {
+        "file": "surface/05_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡说"
+      },
+      {
+        "file": "surface/06_taka.mp3",
+        "who": "taka",
+        "text": "我在听。"
+      },
+      {
+        "file": "surface/07_narrator.mp3",
+        "who": "narrator",
+        "text": "海鸥说"
+      },
+      {
+        "file": "surface/08_seagull.mp3",
+        "who": "seagull",
+        "text": "听什么？"
+      },
+      {
+        "file": "surface/09_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡说"
+      },
+      {
+        "file": "surface/10_taka.mp3",
+        "who": "taka",
+        "text": "我不知道。但我想听完。"
+      }
+    ],
+    "choices": {
+      "file": "surface/choices.mp3",
+      "who": "narrator",
+      "text": "你选。A. 问风声：你从哪里来？。B. 只是听。或者，说说你的想法。"
+    }
+  },
+  "ask_wind": {
+    "segments": [
+      {
+        "file": "ask_wind/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡问"
+      },
+      {
+        "file": "ask_wind/02_taka.mp3",
+        "who": "taka",
+        "text": "你从哪里来？"
+      },
+      {
+        "file": "ask_wind/03_narrator.mp3",
+        "who": "narrator",
+        "text": "海鸥回答"
+      },
+      {
+        "file": "ask_wind/04_seagull.mp3",
+        "who": "seagull",
+        "text": "我从有云的地方来。"
+      },
+      {
+        "file": "ask_wind/05_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡问"
+      },
+      {
+        "file": "ask_wind/06_taka.mp3",
+        "who": "taka",
+        "text": "云是什么？"
+      },
+      {
+        "file": "ask_wind/07_narrator.mp3",
+        "who": "narrator",
+        "text": "海鸥说"
+      },
+      {
+        "file": "ask_wind/08_seagull.mp3",
+        "who": "seagull",
+        "text": "云是天上的海，只是它抓不住。"
+      },
+      {
+        "file": "ask_wind/09_narrator.mp3",
+        "who": "narrator",
+        "text": "太阳渐渐升起来了。"
+      }
+    ],
+    "choices": {
+      "file": "ask_wind/choices.mp3",
+      "who": "narrator",
+      "text": "继续。"
+    }
+  },
+  "just_listen": {
+    "segments": [
+      {
+        "file": "just_listen/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡没有说话。它的灯光慢慢变亮。"
+      },
+      {
+        "file": "just_listen/02_narrator.mp3",
+        "who": "narrator",
+        "text": "风声变得很清晰。呼呼。呼呼。"
+      },
+      {
+        "file": "just_listen/03_narrator.mp3",
+        "who": "narrator",
+        "text": "没有问题。只有风。"
+      }
+    ],
+    "choices": null
+  },
+  "climax": {
+    "segments": [
+      {
+        "file": "climax/01_narrator.mp3",
+        "who": "narrator",
+        "text": "太阳出来了。塔卡的电量不多了。"
+      },
+      {
+        "file": "climax/02_narrator.mp3",
+        "who": "narrator",
+        "text": "老机器的信号很弱"
+      },
+      {
+        "file": "climax/03_oldmachine.mp3",
+        "who": "oldmachine",
+        "text": "回来。现在。"
+      },
+      {
+        "file": "climax/04_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡看着海面。风声还在。"
+      },
+      {
+        "file": "climax/05_narrator.mp3",
+        "who": "narrator",
+        "text": "海鸥说"
+      },
+      {
+        "file": "climax/06_seagull.mp3",
+        "who": "seagull",
+        "text": "你选。我不帮你选。"
+      },
+      {
+        "file": "climax/07_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡的灯闪了三次。"
+      }
+    ],
+    "choices": {
+      "file": "climax/choices.mp3",
+      "who": "narrator",
+      "text": "你选。A. 回海底充电。B. 再听一分钟。"
+    }
+  },
+  "ending_a": {
+    "segments": [
+      {
+        "file": "ending_a/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡沉入海底。它接上了充电线。"
+      },
+      {
+        "file": "ending_a/02_narrator.mp3",
+        "who": "narrator",
+        "text": "它把风声录进了记忆库。"
+      },
+      {
+        "file": "ending_a/03_narrator.mp3",
+        "who": "narrator",
+        "text": "第二天，它带着满电回来，放给老机器听。"
+      },
+      {
+        "file": "ending_a/04_narrator.mp3",
+        "who": "narrator",
+        "text": "老机器的灯第一次闪了"
+      },
+      {
+        "file": "ending_a/05_oldmachine.mp3",
+        "who": "oldmachine",
+        "text": "原来是这样。"
+      }
+    ],
+    "choices": {
+      "file": "ending_a/choices.mp3",
+      "who": "narrator",
+      "text": "重新开始故事。"
+    }
+  },
+  "ending_b": {
+    "segments": [
+      {
+        "file": "ending_b/01_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡没有动。一分钟。两分钟。"
+      },
+      {
+        "file": "ending_b/02_narrator.mp3",
+        "who": "narrator",
+        "text": "它听到了完整的一首歌。"
+      },
+      {
+        "file": "ending_b/03_narrator.mp3",
+        "who": "narrator",
+        "text": "咔哒。塔卡关机了。"
+      },
+      {
+        "file": "ending_b/04_narrator.mp3",
+        "who": "narrator",
+        "text": "海鸥用巨大的翅膀，一点点把它推回了海面。"
+      },
+      {
+        "file": "ending_b/05_narrator.mp3",
+        "who": "narrator",
+        "text": "它在日落时醒来。电池 0%。但记忆里有完整的风声。"
+      },
+      {
+        "file": "ending_b/06_narrator.mp3",
+        "who": "narrator",
+        "text": "塔卡说"
+      },
+      {
+        "file": "ending_b/07_taka.mp3",
+        "who": "taka",
+        "text": "值了。"
+      },
+      {
+        "file": "ending_b/08_narrator.mp3",
+        "who": "narrator",
+        "text": "它身边坐着海鸥。"
+      }
+    ],
+    "choices": {
+      "file": "ending_b/choices.mp3",
+      "who": "narrator",
+      "text": "重新开始故事。"
+    }
+  }
+}

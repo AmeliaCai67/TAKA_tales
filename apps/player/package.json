@@ -1,0 +1,19 @@
+{
+  "name": "taka-player",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "塔卡播放器引擎：与故事内容解耦，加载故事包（story.json + 音频包）渲染",
+  "scripts": {
+    "predev": "node scripts/sync-content.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/sync-content.mjs",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  }
+}
