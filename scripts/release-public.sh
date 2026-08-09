@@ -48,7 +48,11 @@ git checkout main -- "${ALLOWED[@]}"
 # 反向清理：opensource 上已不在白名单内的历史文件（如后来下架的路径）一律移除
 # ——白名单是双向强制的，公开库 = 白名单的精确镜像
 # core.quotepath=false：ls-files 默认把中文名转义成八进制，既破坏白名单匹配也让 git rm 找不到文件
-git -c core.quotepath=false ls-files | grep -vE "$PATTERN" | while read -r f; do git rm -q -- "$f"; done
+# 注意 set -e + pipefail 下 grep 无匹配会返回 1 杀死脚本，必须兜 `|| true`
+OUT=$(git -c core.quotepath=false ls-files | grep -vE "$PATTERN" || true)
+if [ -n "$OUT" ]; then
+    echo "$OUT" | while read -r f; do git rm -q -- "$f"; done
+fi
 
 # 漂移检查：新增/修改不得落在白名单之外（删除不管——反向清理产生的删除是合法的）
 DRIFT=$(git status --porcelain | awk '$1 !~ /D/ {print $2}' | grep -vE "$PATTERN" || true)
