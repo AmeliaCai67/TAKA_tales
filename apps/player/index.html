@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="./favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./favicon-192.png">
     <title>塔卡 (TAKA)</title>
 </head>
 <body>
@@ -16,24 +19,22 @@
     <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
     <button class="ach-btn" id="ach-btn" title="成就">🏅</button>
     <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
+    <button class="parent-btn" id="parent-btn" title="家长入口">👤</button>
+    <div class="parent-overlay" id="parent-overlay" hidden>
+        <div class="ach-modal parent-modal">
+            <div class="am-title">家 长</div>
+            <div id="parent-body"></div>
+        </div>
+    </div>
     <div class="settings-panel" id="settings-panel" hidden>
         <div class="sp-title">设 置</div>
-        <label>Base URL
-            <input type="text" id="sp-baseurl" placeholder="https://api.openai.com/v1">
-        </label>
-        <label>API Key
-            <input type="password" id="sp-key" placeholder="sk-...">
-        </label>
-        <label>Model
-            <input type="text" id="sp-model" placeholder="gpt-4o-mini">
-        </label>
-        <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 启用 AI 场景生成</label>
+        <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 允许孩子自由发挥（需登录）</label>
         <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> 朗读选项（家长代读 / 大孩子可关）</label>
         <label>语速 <span id="sp-rate-val">0.95x</span>
             <input type="range" id="sp-rate" min="0.5" max="1.5" step="0.05" value="0.95">
         </label>
         <button id="sp-preview">▶ 试听语速</button>
-        <div class="sp-note">仅保存在本地浏览器。兼容 OpenAI 格式：DeepSeek（api.deepseek.com，模型 deepseek-v4-flash）/ Kimi（api.moonshot.cn）均可。开场、高潮与结局为固定文案，AI 只生成中段场景。</div>
+        <div class="sp-note">AI 生成在服务端完成，经过内容安全校验；每个账号每日限 50 次。开场、高潮与结局为定稿文本，AI 只承接孩子的自由想法。</div>
         <div class="sp-actions">
             <button id="sp-save">保存</button>
             <button id="sp-close">关闭</button>
@@ -45,6 +46,7 @@
         <div class="gate-eye"></div>
         <div class="gate-title">塔 卡</div>
         <button class="gate-btn" id="gate-btn">点一下，听风声</button>
+        <button class="gate-parent" id="gate-parent">家长入口</button>
     </div>
     <div class="toast" id="toast"></div>
 

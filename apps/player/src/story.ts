@@ -17,6 +17,7 @@ export interface Scene {
     beats?: string[];
     freeInput?: boolean;
     isSpecialListen?: boolean;
+    listenLabel?: string; // isSpecialListen 场景聆听条结束按钮文案（不含省略号，展示时引擎补）
     next?: string;
     choices?: Choice[];
 }

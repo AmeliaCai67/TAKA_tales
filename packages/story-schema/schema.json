@@ -56,6 +56,7 @@
         },
         "freeInput": { "type": "boolean", "description": "是否提供选项 C 自由输入" },
         "isSpecialListen": { "type": "boolean", "description": "且听风吟场景：风声 BGM + 聆听进度条" },
+        "listenLabel": { "type": "string", "description": "isSpecialListen 场景聆听条结束按钮文案（不含省略号，引擎展示时补）；渲染为该场景的选项音频" },
         "next": { "type": "string", "description": "无选项场景（聆听条结束）的后续场景" },
         "choices": {
           "type": "array",

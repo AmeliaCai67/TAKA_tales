@@ -1,27 +1,17 @@
-// 设置：AI 连接（过渡态，M4 服务端化后移除 key）+ 语音偏好，均只存本机 localStorage
+// 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
 
 export interface AiSettings {
-    baseUrl: string;
-    apiKey: string;
-    model: string;
-    enabled: boolean;
+    enabled: boolean; // 允许选项 C 调服务端生成（游客不显示选项 C，开关只控制已登录状态）
 }
 
 const SETTINGS_KEY = "taka_ai_settings";
-const DEFAULT_SETTINGS: AiSettings = {
-    baseUrl: "https://api.openai.com/v1",
-    apiKey: "",
-    model: "gpt-4o-mini",
-    enabled: false
-};
+const DEFAULT_SETTINGS: AiSettings = { enabled: true };
 
 export function loadSettings(): AiSettings {
-    let s: AiSettings;
-    try { s = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") }; }
-    catch { s = { ...DEFAULT_SETTINGS }; }
-    // 历史默认值修正：DeepSeek 端点 + gpt 默认模型 → 自动换成 deepseek-v4-flash
-    if (/deepseek/i.test(s.baseUrl) && s.model === "gpt-4o-mini") s.model = "deepseek-v4-flash";
-    return s;
+    try {
+        const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+        return { enabled: raw.enabled !== false }; // 历史遗留的 baseUrl/apiKey 字段直接忽略
+    } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
 /* ===== 语音偏好（开关兼总音量 / 是否朗读选项 / 基础语速） ===== */
@@ -59,17 +49,11 @@ export function showStatus(msg: string, ms?: number): void {
 /* ===== 设置面板 DOM 接线 ===== */
 export function initSettingsPanel(): void {
     const s = loadSettings();
-    (document.getElementById("sp-baseurl") as HTMLInputElement).value = s.baseUrl;
-    (document.getElementById("sp-key") as HTMLInputElement).value = s.apiKey;
-    (document.getElementById("sp-model") as HTMLInputElement).value = s.model;
     (document.getElementById("sp-enabled") as HTMLInputElement).checked = s.enabled;
     const panel = document.getElementById("settings-panel")!;
     document.getElementById("settings-btn")!.onclick = () => { panel.hidden = !panel.hidden; };
     document.getElementById("sp-save")!.onclick = () => {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-            baseUrl: (document.getElementById("sp-baseurl") as HTMLInputElement).value.trim() || DEFAULT_SETTINGS.baseUrl,
-            apiKey: (document.getElementById("sp-key") as HTMLInputElement).value.trim(),
-            model: (document.getElementById("sp-model") as HTMLInputElement).value.trim() || DEFAULT_SETTINGS.model,
             enabled: (document.getElementById("sp-enabled") as HTMLInputElement).checked
         } satisfies AiSettings));
         speechPref.readChoices = (document.getElementById("sp-readchoices") as HTMLInputElement).checked;

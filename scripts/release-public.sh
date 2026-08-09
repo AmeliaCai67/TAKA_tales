@@ -1,0 +1,69 @@
+#!/bin/bash
+# 公开发布：把 main 上「允许公开」的路径同步到 opensource 分支并推送 public 库。
+#
+# 模型：
+#   origin (TAKA_tales_deploy, 私有)  ← git push origin main      日常开发全量推这里
+#   public (TAKA_tales, 开源)         ← 仅经本脚本发布 opensource 分支
+#
+# 私有边界（永远不在下方允许清单里）：
+#   content/stories/ch02-* 及以后的故事包（核心内容资产）
+#   packages/prompts/（生成约束、红线词库——M4 起在此沉淀）
+#   任何内测数据 / 密钥（本来也不入库）
+#
+# 用法：scripts/release-public.sh "发布说明"
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+MSG="${1:-Release: sync from main}"
+
+# 允许公开的路径白名单（新增公开内容时在此登记）
+# 注意：apps/api 与 apps/parent 均整体私有（2026-08-09 决策）——
+# 生成控制逻辑与家长数据面板都是核心资产
+ALLOWED=(
+    "apps/player"
+    "packages/story-schema"
+    "content/stories/ch01-wind"
+    "demo"
+    "hackathon"
+    "scripts"
+    "index.html"
+    "README.md"
+    ".gitignore"
+    ".nojekyll"
+)
+
+# 构造白名单正则（用于漂移检查）
+PATTERN="^($(printf '%s|' "${ALLOWED[@]}" | sed 's/|$//' | sed 's/\./\\./g'))"
+
+CURRENT=$(git branch --show-current)
+[ "$CURRENT" = "main" ] || { echo "请先在 main 分支上运行"; exit 1; }
+[ -z "$(git status --porcelain)" ] || { echo "main 有未提交改动，先提交"; exit 1; }
+
+git checkout -q opensource
+trap 'git checkout -q main' EXIT   # 任何退出路径都切回 main
+
+# 路径级同步：只把白名单路径从 main 取过来
+git checkout main -- "${ALLOWED[@]}"
+
+# 漂移检查：本次改动不得落在白名单之外
+DRIFT=$(git status --porcelain | awk '{print $2}' | grep -vE "$PATTERN" || true)
+if [ -n "$DRIFT" ]; then
+    echo "✗ 检测到白名单外的改动，中止发布："
+    echo "$DRIFT"
+    git checkout -- . && git clean -fdq
+    exit 1
+fi
+
+if [ -z "$(git status --porcelain)" ]; then
+    echo "✓ 白名单路径与 main 无差异，无需发布"
+    exit 0
+fi
+
+echo "=== 将公开发布的改动 ==="
+git status --short
+read -r -p "确认推送到公开库？[y/N] " ok
+[ "$ok" = "y" ] || { git checkout -- . && git clean -fdq; echo "已取消"; exit 0; }
+
+git commit -q -m "$MSG"
+git push public opensource:main
+echo "✓ 已发布到公开库 public/main"

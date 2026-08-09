@@ -121,6 +121,7 @@
       "cost": 20,
       "eyeState": "st-listening",
       "isSpecialListen": true,
+      "listenLabel": "睁开眼睛，太阳升起来了",
       "next": "climax"
     },
     "climax": {

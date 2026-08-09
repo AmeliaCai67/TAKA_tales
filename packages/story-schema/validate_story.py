@@ -59,6 +59,8 @@ def validate(pack_dir: str) -> list[str]:
                 errors.append(f"{sid}: isSpecialListen 场景缺少 next")
             if sc.get("choices"):
                 errors.append(f"{sid}: isSpecialListen 场景不应有 choices（聆听条结束后走 next）")
+            if not sc.get("listenLabel"):
+                warn.append(f"{sid}: isSpecialListen 场景缺少 listenLabel（聆听条按钮将用引擎默认文案且无预渲染语音）")
         for c in sc.get("choices", []):
             if c.get("next") not in scenes:
                 errors.append(f"{sid}: 选项「{c.get('text')}」指向不存在的场景 {c.get('next')}")

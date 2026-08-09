@@ -116,7 +116,7 @@
 
         /* 成就弹窗：遮罩 + 居中卡片，点遮罩关闭 */
         .ach-overlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
             background: rgba(4,8,12,.6);
             display: flex;
@@ -141,6 +141,87 @@
         .ach-item .ach-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
         .ach-item.locked { opacity: .35; }
         .ach-item.locked .ach-icon { filter: grayscale(1); }
+
+        /* 家长入口：左上角，🔊 右邻 */
+        .parent-btn {
+            position: absolute;
+            top: 10px;
+            left: 104px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 30;
+        }
+        .parent-btn:hover { opacity: 1; }
+
+        .parent-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4,8,12,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 110; /* 高过启动门（100）：门上也能打开家长入口 */
+        }
+        .parent-overlay[hidden] { display: none; }
+        .parent-modal { width: 320px; }
+        .parent-modal .pm-note { font-size: 11px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+        .parent-modal .pm-label { font-size: 12px; letter-spacing: 3px; color: var(--text-primary); margin: 8px 0; }
+        .parent-modal input, .parent-modal select {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            background: var(--choice-bg);
+            border: 1px solid var(--choice-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        .parent-modal .pm-row { display: flex; gap: 8px; }
+        .parent-modal .pm-row input { flex: 1; min-width: 0; }
+        .parent-modal .pm-row select { width: 84px; }
+        .parent-modal .pm-row button {
+            min-width: 84px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        .parent-modal .pm-row button:hover { border-color: var(--accent-warm); }
+        .parent-modal .pm-hint { font-size: 11px; color: var(--accent-dim); min-height: 16px; margin-bottom: 6px; }
+        .parent-modal .pm-main {
+            width: 100%;
+            min-height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .parent-modal .pm-main:hover { border-color: var(--accent-warm); }
+        .parent-modal .pm-logout { margin-top: 10px; color: var(--text-secondary); }
+        .parent-modal .pm-children { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .parent-modal .pm-child {
+            min-height: 44px;
+            border-radius: 10px;
+            border: 1px solid var(--choice-border);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+        }
+        .parent-modal .pm-child.active { border-color: var(--accent-warm); }
+        .parent-modal .pm-child .pm-band { font-size: 11px; color: var(--text-secondary); }
 
         .settings-panel {
             position: absolute;
@@ -243,6 +324,21 @@
             animation: choiceIn .3s ease;
         }
         .gate-btn:hover { border-color: var(--accent-warm); }
+
+        /* 门上的家长入口：家长先登录再递给孩子，无需先进故事 */
+        .gate-parent {
+            position: absolute;
+            bottom: 22px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            opacity: .6;
+        }
+        .gate-parent:hover { opacity: 1; }
 
         /* 成就 toast：顶部居中胶囊，解锁定弹出，附成就文案 */
         .toast {

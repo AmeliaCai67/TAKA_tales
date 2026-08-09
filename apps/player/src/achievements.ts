@@ -2,6 +2,8 @@
 // 成就定义与场景绑定均在故事包内（story.json achievements[].unlockScene）
 import { pack } from "./pack";
 import type { AchievementDef } from "./story";
+import { api } from "./api";
+import { session } from "./session";
 
 type AchievementState = AchievementDef & { unlocked: boolean };
 
@@ -32,7 +34,29 @@ export function unlock(id: string): AchievementState | null {
     localStorage.setItem(ACH_KEY, JSON.stringify(
         Object.keys(achievements).filter(k => achievements[k].unlocked)));
     renderAchievements();
+    // 云端同步（登录且选了孩子才发；失败静默，本地已是真源）
+    if (session.token && session.childId) {
+        api.unlockAchievement(session.childId, id).catch(() => {});
+    }
     return a;
+}
+
+/** 选中孩子后拉服务端成就合并进本地（不回弹 toast） */
+export async function syncFromServer(): Promise<void> {
+    if (!session.token || !session.childId) return;
+    try {
+        const r = await api.listAchievements(session.childId);
+        let changed = false;
+        for (const { id } of r.achievements) {
+            const a = achievements[id];
+            if (a && !a.unlocked) { a.unlocked = true; changed = true; }
+        }
+        if (changed) {
+            localStorage.setItem(ACH_KEY, JSON.stringify(
+                Object.keys(achievements).filter(k => achievements[k].unlocked)));
+            renderAchievements();
+        }
+    } catch {}
 }
 
 /** 引擎进场景时调用：该场景绑定了成就则解锁，返回解锁的成就（未解锁过才非 null） */

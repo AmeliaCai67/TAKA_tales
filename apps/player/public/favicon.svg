@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- ===== 塔卡 TAKA · 应用图标 ===== -->
+  <!-- 识别三要素：方形铁皮 / 单眼暖光 / 右下角生锈螺母 -->
+  <!-- 小尺寸可读性优先：省略链条手臂与伸缩腿 -->
+
+  <defs>
+    <!-- 深海底 -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#071527"/>
+      <stop offset="1" stop-color="#0f2740"/>
+    </linearGradient>
+    <!-- 铁皮身体 -->
+    <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b3bdc9"/>
+      <stop offset="0.55" stop-color="#7d8896"/>
+      <stop offset="1" stop-color="#5d6875"/>
+    </linearGradient>
+    <!-- 眼睛 -->
+    <radialGradient id="eyeGrad" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#fff6d8"/>
+      <stop offset="0.55" stop-color="#ffb703"/>
+      <stop offset="1" stop-color="#9c7108"/>
+    </radialGradient>
+    <!-- 眼睛光晕 -->
+    <radialGradient id="haloGrad" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffb703" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#ffb703" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffb703" stop-opacity="0"/>
+    </radialGradient>
+    <!-- 六角螺母（健康） -->
+    <g id="nut">
+      <polygon points="0,-13 11.3,-6.5 11.3,6.5 0,13 -11.3,6.5 -11.3,-6.5" fill="#525d6b" stroke="#39424e" stroke-width="3"/>
+    </g>
+  </defs>
+
+  <!-- 底板：圆角深海 -->
+  <rect x="0" y="0" width="512" height="512" rx="104" fill="url(#bgGrad)"/>
+  <!-- 极淡网格（图标缩小时自动消失，只在大尺寸增加质感） -->
+  <g stroke="rgba(100,181,246,0.07)" stroke-width="2">
+    <path d="M0 128 H512 M0 256 H512 M0 384 H512 M128 0 V512 M256 0 V512 M384 0 V512"/>
+  </g>
+
+  <!-- 塔卡身体（居中，约占 62% 画幅） -->
+  <g>
+    <!-- 身体投影 -->
+    <ellipse cx="256" cy="436" rx="130" ry="16" fill="#000" opacity="0.3"/>
+    <!-- 铁盒 -->
+    <rect x="121" y="96" width="270" height="330" rx="26" fill="url(#metalGrad)" stroke="#414b58" stroke-width="6"/>
+
+    <!-- 螺钉 8 颗：上 3、两侧各 2、下左 1（右下留给锈螺母，与立绘同布局） -->
+    <use href="#nut" x="176" y="146"/>
+    <use href="#nut" x="256" y="146"/>
+    <use href="#nut" x="336" y="146"/>
+    <use href="#nut" x="152" y="228"/>
+    <use href="#nut" x="360" y="228"/>
+    <use href="#nut" x="152" y="330"/>
+    <use href="#nut" x="360" y="330"/>
+    <use href="#nut" x="176" y="392"/>
+
+    <!-- 松动带锈的一颗：右下角，旋转 20° -->
+    <g transform="rotate(20 336 392)">
+      <polygon points="336,379 347.3,385.5 347.3,398.5 336,405 324.7,398.5 324.7,385.5"
+               fill="#6b5335" stroke="#8a4b2a" stroke-width="3"/>
+    </g>
+
+    <!-- 眼睛光晕（铁皮之上的暖光，图标的灵魂） -->
+    <circle cx="256" cy="248" r="120" fill="url(#haloGrad)"/>
+
+    <!-- 眼睛外环（摄像头圈） -->
+    <circle cx="256" cy="248" r="76" fill="#18212b" stroke="#39424e" stroke-width="8"/>
+    <!-- 眼珠 -->
+    <circle cx="256" cy="248" r="46" fill="url(#eyeGrad)"/>
+    <!-- 高光 -->
+    <circle cx="238" cy="230" r="10" fill="#fff" opacity="0.85"/>
+
+    <!-- 胸口面板：三颗状态灯（一绿两灰，与立绘一致） -->
+    <rect x="196" y="336" width="120" height="34" rx="10" fill="#414b58" opacity="0.65"/>
+    <circle cx="220" cy="353" r="5.5" fill="#48bb78"/>
+    <circle cx="244" cy="353" r="5.5" fill="#718096"/>
+    <circle cx="268" cy="353" r="5.5" fill="#718096"/>
+  </g>
+</svg>

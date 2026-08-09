@@ -1152,7 +1152,12 @@
             e.stopPropagation();
             if (!speechSupported) return;
             stopSpeech();
-            queueSpeak(makeUtterance("海底很亮。有很多光。塔卡的灯闪了一下。", "narrator", Number(slider.value)));
+            // cancel 是异步的，立刻 speak 会被一起冲掉（Chrome 已知 bug）——与 speakStory 一样延迟一个 tick
+            const gen = speechGen;
+            setTimeout(() => {
+                if (gen !== speechGen || !speechPref.on) return;
+                queueSpeak(makeUtterance("海底很亮。有很多光。塔卡的灯闪了一下。", "narrator", Number(slider.value)));
+            }, 100);
         };
         btn.onclick = () => {
             speechPref.on = !speechPref.on;

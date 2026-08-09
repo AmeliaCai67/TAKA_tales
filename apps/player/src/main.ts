@@ -4,19 +4,20 @@ import { loadStoryPack } from "./story";
 import { setPack, pack } from "./pack";
 import { initSettingsPanel, speechPref, showStatus } from "./settings";
 import {
-    initAudioAssets, initSpeech, speakStory, speechSupported, sceneAudioIdle, warmUpSynth
+    initAudioAssets, initSpeech, speakStory, sceneAudioIdle
 } from "./speech";
 import { initAchievementData, initAchievements } from "./achievements";
+import { initAuth } from "./auth";
 import { renderScene, getCurrentText } from "./engine";
 
 // 故事包路径（相对 player 根；public/stories 由 scripts/sync-content.mjs 从 content/ 同步）
 const PACK_URL = "stories/ch01-wind/";
 
-// 启动门：现代浏览器（Chrome/Safari 均）要求用户手势后才能 speechSynthesis，
-// 刷新会重置激活状态。把第一次点击变成「开始」仪式：手势里解锁合成器，再进开场。
-// 语音关闭/不支持时跳过门，直接开始。
+// 启动门：浏览器要求用户手势后才能播放音频（Audio 元素同样受自动播放策略约束）。
+// 把第一次点击变成「开始」仪式：手势里直接开播开场场景。
+// 语音关闭时跳过门，直接开始。
 function initStartGate(): void {
-    if (!speechSupported || !speechPref.on) {
+    if (!speechPref.on) {
         renderScene(pack().startScene);
         return;
     }
@@ -25,9 +26,8 @@ function initStartGate(): void {
     let begun = false;
     const begin = () => {
         if (begun) return; begun = true; // 按钮点击会冒泡到 gate，防 begin 双触发
-        warmUpSynth();
         gate.remove();
-        renderScene(pack().startScene);
+        renderScene(pack().startScene); // playSceneAudio 在点击处理器内同步触发 play()
     };
     document.getElementById("gate-btn")!.onclick = begin;
     gate.onclick = begin;
@@ -42,19 +42,22 @@ async function boot(): Promise<void> {
     }
     document.title = "塔卡 (TAKA) - " + pack().title;
 
-    initAudioAssets();       // 定位音频资产 + 拉取 manifest（异步，不阻塞启动）
+    // manifest 先就位（3s 超时容忍），保证启动门点击时 prologue 的 mp3 能同步起播
+    await Promise.race([
+        initAudioAssets(),
+        new Promise(r => setTimeout(r, 3000))
+    ]);
     initSettingsPanel();
     initSpeech();
     initAchievementData();   // 成就表来自故事包
     initAchievements();
+    await initAuth();        // 静默恢复登录态；选中孩子则拉断点与成就
     initStartGate();
 
-    // 首次交互补读：Safari 要求用户手势才能发声；Chrome 加载竞态漏读也能兜住。
-    // 已在朗读/排队则不动（避免重复）
+    // 首次交互补读：起播竞态漏读时兜住（播放链空闲才补，避免重复）
     document.addEventListener("pointerdown", function once() {
         document.removeEventListener("pointerdown", once);
-        if (speechSupported && speechPref.on && getCurrentText() &&
-            !speechSynthesis.speaking && !speechSynthesis.pending && sceneAudioIdle()) {
+        if (speechPref.on && getCurrentText() && sceneAudioIdle()) {
             speakStory(getCurrentText());
         }
     });
