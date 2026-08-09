@@ -1115,11 +1115,11 @@
         if (mp3ChoicesQueued) scenePlaylist.push("assets/audio/" + entry.choices.file);
         scenePlayIdx = 0;
         scenePlayer.volume = duck ? 0.55 : 1;        // 且听风吟：人声 duck 给风声
-        scenePlayer.playbackRate = speechPref.rate || 1; // 家长语速滑块同样生效
         const gen = speechGen;
         const playNext = () => {
             if (gen !== speechGen || scenePlayIdx >= scenePlaylist.length) return;
             scenePlayer.src = scenePlaylist[scenePlayIdx++];
+            scenePlayer.playbackRate = speechPref.rate || 1; // load() 会把 rate 重置为 1，必须在 src 之后、逐段设置
             scenePlayer.play().catch(() => {});
         };
         scenePlayer.onended = playNext;
@@ -1147,7 +1147,13 @@
         const rateVal = document.getElementById("sp-rate-val");
         slider.value = speechPref.rate;
         rateVal.innerText = Number(speechPref.rate).toFixed(2) + "x";
-        slider.oninput = () => { rateVal.innerText = Number(slider.value).toFixed(2) + "x"; };
+        slider.oninput = () => {
+            const v = Number(slider.value);
+            rateVal.innerText = v.toFixed(2) + "x";
+            speechPref.rate = v;
+            localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref)); // 即调即存
+            scenePlayer.playbackRate = v; // 正在播放的 mp3 链也立即变速
+        };
         document.getElementById("sp-preview").onclick = (e) => {
             e.stopPropagation();
             if (!speechSupported) return;
