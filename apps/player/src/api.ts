@@ -12,8 +12,8 @@ export class ApiError extends Error {
     }
 }
 
-async function req<T>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<T> {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+async function req<T>(path: string, opts: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
+    const headers: Record<string, string> = { "Content-Type": "application/json", ...(opts.headers || {}) };
     if (session.token) headers["Authorization"] = "Bearer " + session.token;
     const res = await fetch(API_BASE + path, {
         method: opts.method || "GET",
@@ -56,9 +56,18 @@ export const api = {
     listAchievements: (childId: number) =>
         req<{ achievements: { id: string }[] }>(`/api/achievements?child_id=${childId}`),
     /** M4：选项 C 现场生成（服务端受控流水线；401 未登录 / 429 配额 / 503 生成失败） */
-    generate: (childId: number, storyId: string, sceneKey: string, prevText: string, choiceText: string) =>
-        req<{ text: string; retried: boolean }>("/api/generate", {
+    generate: (childId: number, storyId: string, sceneKey: string, prevText: string, choiceText: string, currentSceneKey: string) =>
+        req<{ type: "advance" | "stay" | "ignore"; text: string; retried: boolean }>("/api/generate", {
             method: "POST",
-            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText }
+            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText, current_scene_key: currentSceneKey }
+        }),
+    /** 游客匿名（2026-08-18）：注册设备 ID / 上报事件流，均无需登录（无 token 时才用） */
+    anonRegister: () =>
+        req<{ anon_id: string }>("/api/anon/register", { method: "POST", body: {} }),
+    anonEvents: (anonId: string, events: { story_id?: string; type: string; scene_key?: string; payload?: Record<string, unknown> }[]) =>
+        req("/api/anon/events", {
+            method: "POST",
+            body: { events },
+            headers: { "X-Anon-ID": anonId },
         })
 };

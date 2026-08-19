@@ -74,7 +74,7 @@
         /* 设置按钮：左上角，与右上 HUD 对称 */
         .settings-btn {
             position: absolute;
-            top: 10px;
+            top: 8px;
             left: 14px;
             background: none;
             border: none;
@@ -82,35 +82,45 @@
             font-size: 15px;
             cursor: pointer;
             opacity: .7;
-            z-index: 30;
+            z-index: 70;
         }
         .settings-btn:hover { opacity: 1; }
+        /* 自定义 SVG 图标：跟随 currentColor，统一 17px；
+           四个按钮统一设色（emoji 时代只有 .settings-btn 设了 color，其余继承成黑色看不见） */
+        .settings-btn, .ach-btn, .speech-btn, .parent-btn { color: var(--text-secondary); }
+        .settings-btn svg, .ach-btn svg, .speech-btn svg, .parent-btn svg {
+            width: 26px; height: 26px; display: block;
+        }
+        .sc-fish svg { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+        /* 语音输入 🎤 与保存回书架图标 */
+        .choice-input button svg { width: 20px; height: 20px; display: block; }
+        .sp-shelf-ico svg { width: 15px; height: 15px; vertical-align: -3px; margin-right: 5px; }
 
         /* 语音开关：左上角，🏅 右邻 */
         .speech-btn {
             position: absolute;
-            top: 10px;
-            left: 74px;
+            top: 8px;
+            left: 98px;
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
             opacity: .7;
-            z-index: 30;
+            z-index: 70;
         }
         .speech-btn:hover { opacity: 1; }
 
         /* 成就按钮：左上角，⚙ 与 🔊 之间 */
         .ach-btn {
             position: absolute;
-            top: 10px;
-            left: 44px;
+            top: 8px;
+            left: 56px;
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
             opacity: .7;
-            z-index: 30;
+            z-index: 70;
         }
         .ach-btn:hover { opacity: 1; }
 
@@ -122,10 +132,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 40;
+            z-index: 80;
         }
         .ach-overlay[hidden] { display: none; }
         .ach-modal {
+            position: relative;
             width: 300px;
             background: var(--bg-dialog);
             border: 1px solid var(--border);
@@ -142,17 +153,52 @@
         .ach-item.locked { opacity: .35; }
         .ach-item.locked .ach-icon { filter: grayscale(1); }
 
+        /* 成就墙：整页覆盖，按故事分节 */
+        .ach-wall {
+            position: fixed; inset: 0; z-index: 90;
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            overflow-y: auto; padding: 40px 20px 60px;
+        }
+        .ach-wall[hidden] { display: none; }
+        .ach-wall-panel { position: relative; max-width: 560px; margin: 0 auto; }
+        .aw-close {
+            position: absolute; top: 0; right: 0;
+            border: none; background: none; color: var(--text-secondary);
+            font-size: 16px; cursor: pointer; padding: 6px 10px;
+        }
+        .aw-close:hover { color: var(--text-primary); }
+        .aw-heading {
+            text-align: center; color: var(--accent-warm);
+            font-size: 15px; letter-spacing: 8px; margin-bottom: 28px;
+        }
+        .ach-wall-loading { text-align: center; color: var(--text-secondary); font-size: 13px; }
+        .aw-story { margin-bottom: 30px; }
+        .aw-story-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+            border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px;
+        }
+        .aw-title { color: var(--text-primary); font-size: 15px; letter-spacing: 2px; }
+        .aw-count { color: var(--accent-warm); font-size: 12px; }
+        .aw-item { display: flex; gap: 12px; align-items: flex-start; padding: 8px 2px; }
+        .aw-icon { font-size: 20px; line-height: 1.4; }
+        .aw-text { flex: 1; display: flex; flex-direction: column; }
+        .aw-name { color: var(--text-primary); font-size: 14px; letter-spacing: 1px; }
+        .aw-desc { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+        .aw-state { color: var(--ok-green); font-size: 14px; }
+        .aw-item.locked { opacity: .35; }
+        .aw-item.locked .aw-icon { filter: grayscale(1); }
+
         /* 家长入口：左上角，🔊 右邻 */
         .parent-btn {
             position: absolute;
-            top: 10px;
-            left: 104px;
+            top: 8px;
+            left: 140px;
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
             opacity: .7;
-            z-index: 30;
+            z-index: 70;
         }
         .parent-btn:hover { opacity: 1; }
 
@@ -206,6 +252,19 @@
         }
         .parent-modal .pm-main:hover { border-color: var(--accent-warm); }
         .parent-modal .pm-logout { margin-top: 10px; color: var(--text-secondary); }
+        .parent-modal .pm-close {
+            position: absolute; top: 10px; right: 12px;
+            border: none; background: none; color: var(--text-secondary);
+            font-size: 16px; cursor: pointer; padding: 4px 8px;
+        }
+        .parent-modal .pm-close:hover { color: var(--text-primary); }
+        .parent-modal .pm-guest {
+            width: 100%; margin-top: 8px; padding: 8px 0;
+            border: none; background: none; color: var(--text-secondary);
+            font-size: 12px; cursor: pointer; text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .parent-modal .pm-guest:hover { color: var(--accent-warm); }
         .parent-modal .pm-children { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
         .parent-modal .pm-child {
             min-height: 44px;
@@ -232,7 +291,7 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 14px 16px;
-            z-index: 30;
+            z-index: 70;
             font-size: 12px;
             color: var(--text-secondary);
         }
@@ -477,6 +536,10 @@
         .choice-input button {
             min-width: 32px;
             min-height: 32px;
+            display: flex;              /* 居中 SVG（按钮 UA 样式下 block 子元素会贴左） */
+            align-items: center;
+            justify-content: center;
+            padding: 0;
             border-radius: 8px;
             border: 1px solid var(--choice-border);
             background: none;
@@ -572,3 +635,186 @@
             .choices { position: static; width: 100%; min-width: 0; margin-top: 12px; }
             .choice-btn { width: 100%; }
         }
+
+        /* ===== 故事书架 ===== */
+        .shelf-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 60; /* 压过舞台内容（≤40），让位于顶栏按钮（70）与弹窗（80+） */
+            overflow-y: auto;
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
+            padding: 60px 20px 40px;
+        }
+        .shelf-screen[hidden] { display: none; }
+
+        /* 书架模式：emoji 工具组收起，换成 iBooks 风文字顶栏（讲故事时 emoji 保持原样） */
+        body.on-shelf .settings-btn,
+        body.on-shelf .ach-btn,
+        body.on-shelf .speech-btn,
+        body.on-shelf .parent-btn { display: none; }
+        .shelf-topbar {
+            max-width: 880px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .st-logo {
+            font-size: 13px;
+            letter-spacing: 5px;
+            color: var(--accent-warm);
+            opacity: .9;
+        }
+        .st-actions { display: flex; gap: 22px; }
+        .st-actions button {
+            background: none;
+            border: none;
+            padding: 4px 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .st-actions button:hover { color: var(--text-primary); }
+        .shelf-topbar .shelf-child {
+            position: static;
+            padding: 2px 0;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+        .shelf-topbar .shelf-child:hover { color: var(--text-primary); }
+        @media (max-width: 560px) {
+            .st-actions { gap: 14px; }
+            .st-actions button { font-size: 11px; letter-spacing: 1px; }
+        }
+        .shelf-inner { max-width: 880px; margin: 0 auto; }
+        .shelf-title {
+            text-align: center;
+            color: var(--text-primary);
+            font-size: 22px;
+            letter-spacing: 6px;
+            margin: 4px 0 26px;
+        }
+        .shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 18px;
+        }
+        .shelf-card {
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0;
+            text-align: left;
+            transition: border-color .2s, transform .2s;
+            font-family: inherit;
+        }
+        .shelf-card:hover { border-color: var(--accent-warm); transform: translateY(-2px); }
+        .sc-cover {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            display: block;
+        }
+        .sc-cover-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-dim);
+            letter-spacing: 8px;
+            font-size: 20px;
+            background: var(--bg-deep);
+        }
+        .sc-body { padding: 12px 14px 14px; }
+        .sc-title { color: var(--text-primary); font-size: 15px; letter-spacing: 1px; }
+        .sc-summary {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 6px;
+            line-height: 1.6;
+            min-height: 2.4em;
+        }
+        .sc-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .sc-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+        }
+        .sc-badge.new { color: var(--accent-warm); border-color: var(--accent-dim); }
+        .sc-badge.going { color: #8ecae6; border-color: #3a5a70; }
+        .sc-badge.done { color: var(--ok-green); border-color: #2f5a3a; }
+        .sc-ach { font-size: 11px; color: var(--text-secondary); }
+        /* 孩子切换：右上角（HUD 在书架下被遮住，位置让出来了） */
+        .shelf-child {
+            position: fixed;
+            top: 12px;
+            right: 14px;
+            z-index: 70;
+            background: var(--bg-dialog);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .shelf-child-menu {
+            position: fixed;
+            z-index: 75;
+            background: var(--bg-dialog);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 140px;
+        }
+        .shelf-child-menu button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            padding: 8px 10px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .shelf-child-menu button:hover { background: rgba(255,255,255,.05); }
+        .shelf-child-menu button.active { color: var(--accent-warm); }
+        .shelf-child-menu .scm-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 2px;
+        }
+        .shelf-child-menu .scm-add { color: var(--ok-green); }
+        .shelf-child-menu .scm-dash { color: var(--accent-warm); }
+
+        /* 设置面板：保存并返回书架（导航类操作，与设置项分隔） */
+        .sp-nav { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .sp-nav button {
+            width: 100%;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            padding: 7px 0;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .sp-nav button:hover { color: var(--accent-warm); border-color: var(--accent-dim); }

@@ -3,24 +3,29 @@
 //   动态文本（选项 C 现场生成 / manifest 缺失补读）→ 服务端 /api/tts 实时渲染
 // 两者共用同一条 Audio 播放链；🔊 开关兼作总音量；家长语速滑块 = playbackRate。
 import { pack } from "./pack";
+import { ICON_SOUND_ON, ICON_SOUND_OFF } from "./icons";
 import { speechPref, saveSpeechPref } from "./settings";
 import { TTS_ENDPOINT } from "./config";
 
 /* ===== 台词归属（与 packages/tts-pipeline/tts_pipeline/segments.py 严格镜像） ===== */
-// 角色名 + 最多 8 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗，引语后允许跟旁白
+// 角色名 + 最多 16 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗，引语后允许跟旁白
+// 2026-08-18 修复：正则必须随故事包 speakers 重建——旧缓存只认 ch01 的角色（塔卡/海鸥/老机器），
+// 切到 ch02/ch03 后抹香鲸/757/铆钉 全部识别失败 → 声线 fallback 到 narrator（线上实测复现）
 let dialogRe: RegExp | null = null;
+let dialogNames = "";
 
 function getDialogRe(): RegExp {
-    if (!dialogRe) {
-        const names = Object.keys(pack().speakers).join("|");
-        dialogRe = new RegExp("(" + names + ")([^：:]{0,8})[：:][\"「“『]([^\"」”』]+?)[\"」”』]");
+    const names = Object.keys(pack().speakers).join("|");
+    if (!dialogRe || dialogNames !== names) {
+        dialogNames = names;
+        dialogRe = new RegExp("(" + names + ")([^：:]{0,16})[：:][\"「“『]([^\"」”』]+?)[\"」”』]");
     }
     return dialogRe;
 }
 
 interface Seg { who: string; text: string; }
 
-function parseParagraph(p: string): Seg[] {
+function parseParagraph(p: string, overrides?: Record<string, string>): Seg[] {
     const m = p.match(getDialogRe());
     if (!m) return [{ who: "narrator", text: p }];
     let intro = (p.slice(0, m.index) + m[1] + m[2]).trim();
@@ -28,7 +33,9 @@ function parseParagraph(p: string): Seg[] {
     const outro = p.slice(m.index! + m[0].length).trim(); // 引语后的旁白（如「它身边坐着海鸥」）
     const segs: Seg[] = [];
     if (intro) segs.push({ who: "narrator", text: intro });
-    segs.push({ who: pack().speakers[m[1]] || "narrator", text: m[3] });
+    // 场景级声线覆盖（voiceOverrides）：显示文本不动，只换朗读者
+    const who = pack().speakers[m[1]] || "narrator";
+    segs.push({ who: (overrides && overrides[m[1]]) || who, text: m[3] });
     if (outro) segs.push({ who: "narrator", text: outro });
     return segs;
 }
@@ -40,8 +47,18 @@ function cleanForSpeech(s: string): string {
             .trim();
 }
 
+/** 读音别名（story.json ttsAliases）：显示文本不动，只改喂给 TTS 的文案（757 → 七五七）
+ *  注入在 ttsUrl：所有动态朗读路径（正文/选项/选项 C 生成文本）统一经过这里。 */
+function aliasForSpeech(t: string): string {
+    const aliases = pack().ttsAliases;
+    if (!aliases) return t;
+    let out = t;
+    for (const k of Object.keys(aliases)) out = out.split(k).join(aliases[k]);
+    return out;
+}
+
 function ttsUrl(text: string, who: string): string {
-    return TTS_ENDPOINT + "?text=" + encodeURIComponent(text) + "&who=" + encodeURIComponent(who);
+    return TTS_ENDPOINT + "?text=" + encodeURIComponent(aliasForSpeech(text)) + "&who=" + encodeURIComponent(who);
 }
 
 /* ===== 统一播放链：mp3 包与动态 TTS 共用 ===== */
@@ -95,10 +112,10 @@ export function sceneAudioIdle(): boolean {
 }
 
 /* ===== 动态文本朗读（服务端 TTS） ===== */
-export function speakStory(text: string, volume?: number): void {
+export function speakStory(text: string, volume?: number, overrides?: Record<string, string>): void {
     if (!speechPref.on) return;
     const urls = text.split(/\n+/)
-        .flatMap(parseParagraph) // 先在原文上归属角色（引号还在，定界精确）
+        .flatMap(p => parseParagraph(p, overrides)) // 先在原文上归属角色（引号还在，定界精确）
         .map(seg => ({ who: seg.who, text: cleanForSpeech(seg.text) })) // 再按段清洗
         .filter(seg => seg.text)
         .map(seg => ttsUrl(seg.text, seg.who));
@@ -153,7 +170,10 @@ let audioManifest: Record<string, ManifestEntry> | null = null;
 
 /** 故事包加载后调用：定位音频资产 + 拉取 manifest（版本参数防缓存错位）。返回 Promise 供启动门等待 */
 export function initAudioAssets(): Promise<void> {
-    windAudio.src = pack().baseUrl + "audio/" + encodeURIComponent("风声") + ".mp3";
+    // 只有含 isSpecialListen 场景的故事才有风声资产，避免无风声包白 404
+    if (Object.values(pack().scenes).some(s => s.isSpecialListen)) {
+        windAudio.src = pack().baseUrl + "audio/" + encodeURIComponent("风声") + ".mp3";
+    }
     return fetch(pack().baseUrl + "audio/manifest.json?v=" + Date.now())
         .then(r => r.json())
         .then(m => { audioManifest = m; })
@@ -165,9 +185,12 @@ export function playSceneAudio(key: string, duck?: boolean): boolean {
     const entry = audioManifest[key];
     const base = pack().baseUrl + "audio/";
     const urls = entry.segments.map(s => base + s.file);
-    choicesQueued = !!(entry.choices && speechPref.readChoices);
-    if (choicesQueued) urls.push(base + entry.choices!.file);
+    const willQueueChoices = !!(entry.choices && speechPref.readChoices);
+    if (willQueueChoices) urls.push(base + entry.choices!.file);
     startChain(urls, duck);
+    // startChain→stopSpeech 会把 choicesQueued 重置为 false，必须在其后再赋值，
+    // 否则 speakChoices 不认为选项已读，会在 mp3 之后再动态 TTS 一遍（选项双读 bug）
+    choicesQueued = willQueueChoices;
     return true;
 }
 
@@ -176,7 +199,7 @@ const previewAudio = new Audio();
 
 export function initSpeech(): void {
     const btn = document.getElementById("speech-btn")!;
-    const sync = () => { btn.innerText = speechPref.on ? "🔊" : "🔇"; };
+    const sync = () => { btn.innerHTML = speechPref.on ? ICON_SOUND_ON : ICON_SOUND_OFF; };
     sync();
     (document.getElementById("sp-readchoices") as HTMLInputElement).checked = speechPref.readChoices;
     // 语速滑块：即调即生效（含正在播放的链），无需点保存

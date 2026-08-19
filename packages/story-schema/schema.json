@@ -3,71 +3,219 @@
   "title": "TAKA Story Pack",
   "description": "塔卡故事包格式 v1：播放器引擎与内容解耦的契约。story.json 必须满足本 schema；此外 validate_story.py 做结构性检查（分支闭合、可达性、音频覆盖）。",
   "type": "object",
-  "required": ["id", "title", "version", "startScene", "restartScene", "depletedScene", "speakers", "achievements", "scenes"],
+  "required": [
+    "id",
+    "title",
+    "version",
+    "startScene",
+    "restartScene",
+    "depletedScene",
+    "speakers",
+    "achievements",
+    "scenes"
+  ],
   "properties": {
-    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-    "title": { "type": "string" },
-    "version": { "type": "integer", "minimum": 1 },
-    "startScene": { "type": "string", "description": "首次进入的场景（通常是 prologue）" },
-    "restartScene": { "type": "string", "description": "「重新开始故事」的目标场景；进入时电量回满" },
-    "depletedScene": { "type": "string", "description": "非结局场景电量耗尽时的被动结局（通常 setBattery=0 的场景）" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "startScene": {
+      "type": "string",
+      "description": "首次进入的场景（通常是 prologue）"
+    },
+    "restartScene": {
+      "type": "string",
+      "description": "「重新开始故事」的目标场景；进入时电量回满"
+    },
+    "depletedScene": {
+      "type": "string",
+      "description": "非结局场景电量耗尽时的被动结局（通常 setBattery=0 的场景）"
+    },
     "speakers": {
       "type": "object",
       "description": "台词归属表：角色中文名 → 声线 id（tts 管线与浏览器 TTS 共用）",
-      "additionalProperties": { "type": "string" }
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "achievements": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "icon", "desc", "unlockScene"],
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "desc",
+          "unlockScene"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "icon": { "type": "string" },
-          "desc": { "type": "string" },
-          "unlockScene": { "type": "string", "description": "进入该场景即幂等解锁" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "unlockScene": {
+            "type": "string",
+            "description": "进入该场景即幂等解锁"
+          }
         }
       }
     },
     "scenes": {
       "type": "object",
       "minProperties": 1,
-      "additionalProperties": { "$ref": "#/definitions/scene" }
+      "additionalProperties": {
+        "$ref": "#/definitions/scene"
+      }
+    },
+    "cover": {
+      "type": "string",
+      "description": "书架封面图（相对故事包根，可选）"
+    },
+    "summary": {
+      "type": "string",
+      "description": "书架一句话简介（可选）"
+    },
+    "ttsAliases": {
+      "type": "object",
+      "description": "读音别名（可选）：显示文本不动，只改喂给 TTS 的文案，如 {\"757\": \"七五七\"}"
     }
   },
   "definitions": {
     "scene": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "properties": {
-        "mode": { "enum": ["swim", "land"], "description": "立绘模式：水下收腿悬浮 / 陆地伸腿站立" },
-        "text": { "type": "string", "description": "内置定稿正文；ai 场景作为回退文案" },
-        "cost": { "type": "integer", "minimum": 0, "description": "进入本场景耗电量（缺省引擎按 10 计）" },
-        "sun": { "type": "integer", "minimum": 0, "description": "太阳事件回电（先扣后回，救不了已耗尽）" },
-        "setBattery": { "type": "integer", "minimum": 0, "maximum": 100, "description": "结局场景强制电量；非结局场景耗尽会强制结局" },
-        "eyeState": { "enum": ["st-standby", "st-thinking", "st-listening", "st-low", "st-off"] },
-        "endState": { "enum": ["st-off"], "description": "正文播完后的终态（如结局 B 关机）" },
-        "ai": { "type": "boolean", "description": "中段场景标记：自由输入时允许现场生成（v1 内置路径不调 LLM）" },
+        "mode": {
+          "enum": [
+            "swim",
+            "land"
+          ],
+          "description": "立绘模式：水下收腿悬浮 / 陆地伸腿站立"
+        },
+        "text": {
+          "type": "string",
+          "description": "内置定稿正文；ai 场景作为回退文案"
+        },
+        "cost": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "进入本场景耗电量（缺省引擎按 10 计）"
+        },
+        "sun": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "太阳事件回电（先扣后回，救不了已耗尽）"
+        },
+        "setBattery": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "结局场景强制电量；非结局场景耗尽会强制结局"
+        },
+        "eyeState": {
+          "enum": [
+            "st-standby",
+            "st-thinking",
+            "st-listening",
+            "st-low",
+            "st-off"
+          ]
+        },
+        "endState": {
+          "enum": [
+            "st-off"
+          ],
+          "description": "正文播完后的终态（如结局 B 关机）"
+        },
+        "ai": {
+          "type": "boolean",
+          "description": "中段场景标记：自由输入时允许现场生成（v1 内置路径不调 LLM）"
+        },
         "beats": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "AI 填空的剧情要点；ai=true 时必填"
         },
-        "freeInput": { "type": "boolean", "description": "是否提供选项 C 自由输入" },
-        "isSpecialListen": { "type": "boolean", "description": "且听风吟场景：风声 BGM + 聆听进度条" },
-        "listenLabel": { "type": "string", "description": "isSpecialListen 场景聆听条结束按钮文案（不含省略号，引擎展示时补）；渲染为该场景的选项音频" },
-        "next": { "type": "string", "description": "无选项场景（聆听条结束）的后续场景" },
+        "freeInput": {
+          "type": "boolean",
+          "description": "是否提供选项 C 自由输入"
+        },
+        "isSpecialListen": {
+          "type": "boolean",
+          "description": "且听风吟场景：风声 BGM + 聆听进度条"
+        },
+        "listenLabel": {
+          "type": "string",
+          "description": "isSpecialListen 场景聆听条结束按钮文案（不含省略号，引擎展示时补）；渲染为该场景的选项音频"
+        },
+        "next": {
+          "type": "string",
+          "description": "无选项场景（聆听条结束）的后续场景"
+        },
         "choices": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["text", "next"],
+            "required": [
+              "text",
+              "next"
+            ],
             "properties": {
-              "text": { "type": "string" },
-              "next": { "type": "string" }
+              "text": {
+                "type": "string"
+              },
+              "next": {
+                "type": "string"
+              }
             }
           }
+        },
+        "ending": {
+          "type": "boolean",
+          "description": "结局标记（不动电量版）：会话收尾 + 回到书架；setBattery 场景天然是结局"
+        },
+        "voiceOverrides": {
+          "type": "object",
+          "description": "场景级声线覆盖：{角色名: 声线id}，只改朗读者不改显示文本（如结局声音转变 {\"铆钉\": \"rivet-calm\"}）"
+        },
+        "freeInputMaxLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500,
+          "description": "该场景自由输入（选项 C）的字数上限，默认 300；个别场景可收紧"
+        },
+        "stayFallback": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "nonsense 原地停留的内置等待文案（轮换用，可选；缺省用服务端全局文案）。连续 nonsense 第 3 次起不再调 LLM，直接从这里取"
+        },
+        "outputMaxLength": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 800,
+          "description": "该场景 AI 生成正文的字数硬上限（默认取 redlines.max_length=300）；对话密集型场景可放宽，如 ask-rivet=450"
         }
       }
     }

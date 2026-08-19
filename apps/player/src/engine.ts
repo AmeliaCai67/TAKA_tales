@@ -1,6 +1,7 @@
 // 播放引擎：场景渲染 / 打字机 / 选项 / 自由输入 / 电量状态机 / 聆听条
 // 与内容完全解耦——所有故事数据来自 pack()（story.json），本模块只负责“怎么播”
 import { pack } from "./pack";
+import { ICON_MIC } from "./icons";
 import type { Scene } from "./story";
 import { loadSettings, showStatus } from "./settings";
 import { unlockForScene, showToast } from "./achievements";
@@ -8,7 +9,9 @@ import {
     speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio
 } from "./speech";
 import { api, ApiError } from "./api";
-import { session, selectedChild } from "./session";
+import { session, selectedChild, clearSession } from "./session";
+import { saveLocalProgress } from "./progress";
+import { reportAnonEvent } from "./anon";
 
 /** 选项 C 生成上下文（生成在服务端完成，玩家端只传参） */
 export interface GenCtx {
@@ -50,6 +53,8 @@ function eyeOf(scene: Scene): string {
 
 let typing: ReturnType<typeof setInterval> | null = null; // 打字机 timer
 let currentText = ""; // 当前场景实际展示的文本，作为下一场景的「前情」
+let currentSceneKey = ""; // 当前场景 key（「保存并返回」冲刷云保存用）
+let listenTimer: ReturnType<typeof setInterval> | null = null; // 聆听条 timer
 
 // ===== 云端同步（M3）：登录且选了孩子才生效；所有同步失败静默（离线/未登录照玩） =====
 let runPath: string[] = [];       // 本轮选择路径（进 restartScene 重置）
@@ -63,19 +68,43 @@ export function setResumePoint(p: { sceneKey: string; battery: number; path: str
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+// 「玩一半被删」降级（spec §6 核心场景）：家长在别处删了当前孩子档案 → 云端保存 404。
+// 不打断当前故事（本地状态机本来就完整），回落游客态继续播放，仅提示一次。
+let fellBackToGuest = false;
+function fallbackToGuest(): void {
+    if (!session.token || fellBackToGuest) return;
+    fellBackToGuest = true;
+    clearSession();
+    showStatus("孩子档案有变动，进度将只保存在这台设备上", 4500);
+}
+
 function scheduleProgressSave(sceneKey: string): void {
-    if (!session.token || !session.childId) return;
+    // 本地镜像无条件写（书架角标 + 游客断点；按「故事 × 孩子」隔离）
+    saveLocalProgress(pack().id, { sceneKey, battery, path: runPath.slice() });
+    if (!session.token || !session.childId) {
+        // 游客：静默上报进度事件（匿名记录，失败不阻塞；登录后由云端 800ms 防抖接管）
+        reportAnonEvent({ story_id: pack().id, type: "progress", scene_key: sceneKey,
+                          payload: { battery, path: runPath.slice() } });
+        return;
+    }
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-        api.saveProgress(session.childId!, pack().id, sceneKey, battery, runPath).catch(() => {});
+        api.saveProgress(session.childId!, pack().id, sceneKey, battery, runPath).catch((e) => {
+            if (e instanceof ApiError && e.status === 404) fallbackToGuest();
+        });
     }, 800); // 防抖：连续跳场景只落最后一次
 }
 
 function syncSessionStart(): void {
-    if (!session.token || !session.childId) return;
-    api.startSession(session.childId, pack().id)
-        .then(r => { sessionId = r.session_id; })
-        .catch(() => {});
+    if (session.token && session.childId) {
+        api.startSession(session.childId, pack().id)
+            .then(r => { sessionId = r.session_id; })
+            .catch(() => {});
+        return;
+    }
+    // 游客：会话开始事件（匿名记录）
+    reportAnonEvent({ story_id: pack().id, type: "session_start", scene_key: pack().restartScene });
 }
 
 function syncSessionFinish(ending: string): void {
@@ -87,7 +116,12 @@ function syncSessionFinish(ending: string): void {
     // 进度归位到故事开头：下次「继续上次的故事」不会落在结局页
     if (session.token && session.childId) {
         api.saveProgress(session.childId, pack().id, pack().restartScene, 100, []).catch(() => {});
+    } else {
+        // 游客：会话结束事件（带完整路径与结局，匿名记录）
+        reportAnonEvent({ story_id: pack().id, type: "session_end", scene_key: ending,
+                          payload: { path: runPath.slice(), ending } });
     }
+    saveLocalProgress(pack().id, { sceneKey: pack().restartScene, battery: 100, path: [], lastEnding: ending });
     resumePoint = null;
 }
 
@@ -122,7 +156,14 @@ function typeText(text: string, onDone: () => void): void {
     };
 }
 
+/** 结局判定：setBattery（强制电量）或 ending:true（不动电量）——两者都触发会话收尾与「回到书架」 */
+const isEnding = (scene: Scene): boolean => scene.setBattery != null || scene.ending === true;
+
 let activeRec: { abort(): void; stop(): void } | null = null; // 进行中的语音识别（切场景时打断）
+
+// 结局场景的「回到书架」按钮：由 main.ts 注入（书架是壳层概念，引擎只留钩子）
+let shelfReturn: (() => void) | null = null;
+export function setShelfReturn(fn: (() => void) | null): void { shelfReturn = fn; }
 
 // 自由输入选项 C：打字 / 语音，提交后编织进骨架（走默认主线 + 自定义文本传给 AI）
 function buildFreeInput(scene: Scene): HTMLDivElement {
@@ -132,7 +173,7 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
 
     const input = document.createElement("input");
     input.type = "text";
-    input.maxLength = 50;
+    input.maxLength = scene.freeInputMaxLength ?? 300;
     input.placeholder = "你选……";
     row.appendChild(input);
 
@@ -140,7 +181,7 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SR) {
         const mic = document.createElement("button");
-        mic.innerText = "🎤";
+        mic.innerHTML = ICON_MIC;
         mic.title = "语音输入";
         const rec = new SR();
         rec.lang = "zh-CN";
@@ -157,7 +198,7 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
                 "audio-capture": "没找到麦克风",
                 "no-speech": "没听清，再试一次"
             } as Record<string, string>)[e.error as string] || e.error;
-            showStatus("🎤 " + why, 3500);
+            showStatus(why, 3500);
         };
         mic.onclick = () => {
             if (activeRec === rec) { rec.stop(); return; }
@@ -194,9 +235,18 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
         setFigureState("st-thinking");
         showStatus("塔卡在想...");
         try {
-            const r = await api.generate(session.childId!, pack().id, nextKey, currentText, text);
+            const r = await api.generate(session.childId!, pack().id, nextKey, currentText, text, currentSceneKey);
             showStatus("");
-            renderScene(nextKey, { prevText: currentText, choiceText: text, custom: true, generated: r.text });
+            if (r.type === "stay") {
+                // nonsense：原地停留——重渲当前场景（微调文案），不耗电、不计路径、可再输入
+                skipCostOnce = true;
+                renderScene(currentSceneKey, { custom: true, generated: r.text });
+            } else if (r.type === "ignore") {
+                // 脏话：零反馈——不回应、不记录路径，直接走默认主线的定稿文本
+                renderScene(nextKey);
+            } else {
+                renderScene(nextKey, { prevText: currentText, choiceText: text, custom: true, generated: r.text });
+            }
         } catch (e: any) {
             const status = e instanceof ApiError ? e.status : 0;
             const why = status === 401 ? "需要家长登录后，塔卡才能听懂你"
@@ -249,10 +299,35 @@ function showChoices(scene: Scene, sceneKey: string): void {
         };
         box.appendChild(btn);
     });
+    // 线性场景（有 next 无 choices）：「继续」导航按钮——属界面导航，不是剧情选择，不进语音、不计路径
+    if (scene.next && !(scene.choices && scene.choices.length)) {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.innerText = "继续 ▶";
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            btn.disabled = true;
+            renderScene(scene.next!, { prevText: currentText });
+        };
+        box.appendChild(btn);
+    }
     // 选项 C 渲染条件：登录 + 选了孩子 + 本机开关开 + 家长后台未关该孩子的自由发挥（游客不显示）
     const childOff = selectedChild()?.prefs?.ai_enabled === false;
     if (scene.freeInput && session.token && session.childId && loadSettings().enabled && !childOff) {
         box.appendChild(buildFreeInput(scene));
+    }
+    // 结局场景：追加「回到书架」
+    if (isEnding(scene) && shelfReturn) {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.innerText = "回到书架";
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            stopSpeech();
+            stopWind();
+            shelfReturn!();
+        };
+        box.appendChild(btn);
     }
     speakChoices(scene.choices, scene.freeInput); // 排队在正文朗读之后
 }
@@ -263,10 +338,11 @@ function runListenBar(scene: Scene): void {
     bar.style.display = "flex";
     fill.style.width = "0%";
     let p = 0;
-    const t = setInterval(() => {
+    listenTimer = setInterval(() => {
         fill.style.width = (p += 2) + "%";
         if (p >= 100) {
-            clearInterval(t);
+            if (listenTimer) clearInterval(listenTimer);
+            listenTimer = null;
             const label = scene.listenLabel || "睁开眼睛，太阳升起来了";
             const btn = document.createElement("button");
             btn.className = "choice-btn";
@@ -284,9 +360,26 @@ function runListenBar(scene: Scene): void {
     }, 80);
 }
 
+/** 设置面板「保存并返回书架」：冲刷云端防抖 + 清理语音/计时器 + 回书架。
+ *  进度本来就连场景即存（本地即时 / 云端 800ms 防抖），这里补的是最后一哩的确定性。 */
+export function exitToShelf(): void {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    if (session.token && session.childId && currentSceneKey) {
+        api.saveProgress(session.childId, pack().id, currentSceneKey, battery, runPath).catch(() => {});
+    }
+    if (typing) { clearInterval(typing); typing = null; }
+    if (listenTimer) { clearInterval(listenTimer); listenTimer = null; }
+    stopSpeech();
+    stopWind();
+    if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
+    if (shelfReturn) shelfReturn();
+}
+
 export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const scene = pack().scenes[key];
     if (!scene) return;
+    currentSceneKey = key;
+    if (listenTimer) { clearInterval(listenTimer); listenTimer = null; }
 
     // --- 电量结算：先扣后回，太阳救不了已经耗尽的电量；续玩跳场跳过 ---
     if (key === pack().restartScene) { // 每个故事开始回满、开新会话、清空路径
@@ -306,7 +399,7 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     scheduleProgressSave(key);
 
     // 非结局场景电量耗尽 → 系统级打断，强制被动结局（优先级高于任何选项）
-    if (battery === 0 && scene.setBattery == null) {
+    if (battery === 0 && !isEnding(scene)) {
         renderScene(pack().depletedScene, ctx);
         return;
     }
@@ -318,7 +411,7 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     }
 
     stopSpeech(); // 切场景打断上一段朗读
-    if (scene.setBattery != null) syncSessionFinish(key); // 结局：会话收尾（路径+结局上报）
+    if (isEnding(scene)) syncSessionFinish(key); // 结局：会话收尾（路径+结局上报）
     stopWind();   // 风声只属于且听风吟场景
     if (scene.isSpecialListen) startWind(); // 风声起：这 4 秒，风是主角
     if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
@@ -339,7 +432,7 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     // 语音双轨：固定文本 → 预渲染 mp3 包（定稿声线）；AI 生成 → 浏览器 TTS 实时念
     // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐
     const played = !usedAI && playSceneAudio(key, scene.isSpecialListen);
-    if (!played) speakStory(text, scene.isSpecialListen ? 0.55 : undefined);
+    if (!played) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
     typeText(text, () => {
         setFigureState(scene.endState || eye);
         if (scene.isSpecialListen) {

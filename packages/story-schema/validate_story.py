@@ -6,8 +6,8 @@
 检查项（schema.json 管字段形状，本脚本管结构完整性）：
   1. story.json 可解析、必填字段齐全、枚举值合法
   2. 分支闭合：所有 choices[].next / scene.next 指向存在的场景
-  3. 可达性：从 startScene 出发能到达所有场景；至少一条路径到达结局（setBattery 场景）
-  4. ai 场景必须有 beats；isSpecialListen 场景必须有 next 且无 choices
+  3. 可达性：从 startScene 出发能到达所有场景；至少一条路径到达结局（setBattery 或 ending:true 场景）
+  4. freeInput 场景必须有 beats（服务端按 beats 判断能否生成，ai 字段已废弃）
   5. 成就 unlockScene 指向存在的场景；speakers 非空
   6. 音频覆盖：audio/manifest.json 存在；其场景键与 story.json 场景一致；
      manifest 引用的每个 mp3 文件存在于磁盘
@@ -50,10 +50,13 @@ def validate(pack_dir: str) -> list[str]:
             errors.append(f"{sid}: eyeState 非法: {sc['eyeState']}")
         if "endState" in sc and sc["endState"] not in EYE_STATES:
             errors.append(f"{sid}: endState 非法: {sc['endState']}")
-        if sc.get("ai") and not sc.get("beats"):
-            errors.append(f"{sid}: ai=true 但缺少 beats")
-        if not sc.get("ai") and sc.get("beats"):
-            warn.append(f"{sid}: 有 beats 但 ai 未标记（beats 不会生效）")
+        if sc.get("freeInput") and not sc.get("beats"):
+            errors.append(f"{sid}: freeInput=true 但缺少 beats（选项 C 会被服务端 400）")
+        for ov in (sc.get("voiceOverrides") or {}):
+            if ov not in pack.get("speakers", {}):
+                warn.append(f"{sid}: voiceOverrides 的角色「{ov}」不在 speakers 表（不会生效）")
+        if sc.get("ai") is not None:
+            warn.append(f"{sid}: ai 字段已废弃（无任何代码读取），请删除；选项 C 由 freeInput+beats 决定")
         if sc.get("isSpecialListen"):
             if not sc.get("next"):
                 errors.append(f"{sid}: isSpecialListen 场景缺少 next")
@@ -82,11 +85,12 @@ def validate(pack_dir: str) -> list[str]:
             queue.extend(c["next"] for c in sc.get("choices", []) if c.get("next") in scenes)
             if sc.get("next") in scenes:
                 queue.append(sc["next"])
+        depleted = pack.get("depletedScene")
         for sid in scenes:
-            if sid not in seen:
+            if sid not in seen and sid != depleted:  # depletedScene 由引擎电量机制跳入，无需剧情边
                 errors.append(f"场景不可达: {sid}")
-        if not any(scenes[s].get("setBattery") is not None for s in seen):
-            errors.append("从 startScene 出发无法到达任何结局场景（setBattery）")
+        if not any(scenes[s].get("setBattery") is not None or scenes[s].get("ending") for s in seen):
+            errors.append("从 startScene 出发无法到达任何结局场景（setBattery 或 ending:true）")
 
     if pack["restartScene"] not in scenes:
         errors.append(f"restartScene 不存在: {pack['restartScene']}")

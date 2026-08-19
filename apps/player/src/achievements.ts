@@ -1,15 +1,27 @@
 // 成就系统：进场景即解锁，幂等，localStorage 持久化（M3 后同步服务端）
 // 成就定义与场景绑定均在故事包内（story.json achievements[].unlockScene）
 import { pack } from "./pack";
+import { ICON_ACHIEVEMENT } from "./icons";
 import type { AchievementDef } from "./story";
+import { loadStoriesIndex } from "./story";
 import { api } from "./api";
 import { session } from "./session";
+import { reportAnonEvent } from "./anon";
 
 type AchievementState = AchievementDef & { unlocked: boolean };
 
 const ACH_KEY = "taka_achievements";
 let achievements: Record<string, AchievementState> = {};
 let sceneAchievements: Record<string, string> = {}; // 场景 → 成就 id
+
+/** 全局已解锁 id 集（跨故事累加，只增不减——2026-08-15 前按当前包覆写会丢其他故事的档） */
+function readUnlockedIds(): string[] {
+    try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]") as string[]; }
+    catch { return []; }
+}
+function writeUnlockedIds(ids: string[]): void {
+    localStorage.setItem(ACH_KEY, JSON.stringify([...new Set(ids)]));
+}
 
 /** 故事包加载后调用一次：从包内成就表建索引，并合并本机已解锁记录 */
 export function initAchievementData(): void {
@@ -20,23 +32,22 @@ export function initAchievementData(): void {
         sceneAchievements[a.unlockScene] = a.id;
     }
     // 读档：已解锁的 id 合并进定义
-    try {
-        (JSON.parse(localStorage.getItem(ACH_KEY) || "[]") as string[]).forEach(id => {
-            if (achievements[id]) achievements[id].unlocked = true;
-        });
-    } catch {}
+    const unlocked = new Set(readUnlockedIds());
+    unlocked.forEach(id => { if (achievements[id]) achievements[id].unlocked = true; });
 }
 
 export function unlock(id: string): AchievementState | null {
     const a = achievements[id];
     if (!a || a.unlocked) return null;
     a.unlocked = true;
-    localStorage.setItem(ACH_KEY, JSON.stringify(
-        Object.keys(achievements).filter(k => achievements[k].unlocked)));
+    writeUnlockedIds([...readUnlockedIds(), id]); // 并入全局集，不覆写
     renderAchievements();
     // 云端同步（登录且选了孩子才发；失败静默，本地已是真源）
     if (session.token && session.childId) {
         api.unlockAchievement(session.childId, id).catch(() => {});
+    } else {
+        // 游客：成就事件（匿名记录）
+        reportAnonEvent({ story_id: pack().id, type: "achievement", payload: { achievement_id: id } });
     }
     return a;
 }
@@ -46,16 +57,16 @@ export async function syncFromServer(): Promise<void> {
     if (!session.token || !session.childId) return;
     try {
         const r = await api.listAchievements(session.childId);
+        const serverIds = r.achievements.map(x => x.id);
+        const before = readUnlockedIds();
+        writeUnlockedIds([...before, ...serverIds]); // 全局并集，不丢其他故事
+        const all = new Set(readUnlockedIds());
         let changed = false;
-        for (const { id } of r.achievements) {
+        for (const id of serverIds) {
             const a = achievements[id];
             if (a && !a.unlocked) { a.unlocked = true; changed = true; }
         }
-        if (changed) {
-            localStorage.setItem(ACH_KEY, JSON.stringify(
-                Object.keys(achievements).filter(k => achievements[k].unlocked)));
-            renderAchievements();
-        }
+        if (changed) renderAchievements();
     } catch {}
 }
 
@@ -88,12 +99,38 @@ function renderAchievements(): void {
 }
 
 export function initAchievements(): void {
-    const overlay = document.getElementById("ach-overlay")!;
-    document.getElementById("ach-btn")!.onclick = () => {
-        renderAchievements();
-        overlay.hidden = !overlay.hidden;
-    };
-    overlay.onclick = () => { overlay.hidden = true; }; // 点遮罩关闭
-    overlay.querySelector(".ach-modal")!.addEventListener("click", (e) => e.stopPropagation());
+    document.getElementById("ach-btn")!.innerHTML = ICON_ACHIEVEMENT;
+    document.getElementById("ach-btn")!.onclick = () => void openAchWall();
+    // 成就墙：整页覆盖，点遮罩/✕ 关闭
+    const wall = document.getElementById("ach-wall")!;
+    wall.onclick = () => { wall.hidden = true; };
+    wall.querySelector(".ach-wall-panel")!.addEventListener("click", (e) => e.stopPropagation());
+    wall.querySelector("#aw-close")!.addEventListener("click", () => { wall.hidden = true; });
     renderAchievements();
+}
+
+/** 成就墙：按故事分节展示全宇宙成就（index.json 内联定义 + 全局解锁集） */
+export async function openAchWall(): Promise<void> {
+    const wall = document.getElementById("ach-wall")!;
+    const bodyEl = document.getElementById("ach-wall-body")!;
+    wall.hidden = false;
+    bodyEl.innerHTML = '<div class="ach-wall-loading">珊瑚正在数…</div>';
+    const stories = await loadStoriesIndex();
+    const unlocked = new Set(readUnlockedIds());
+    bodyEl.innerHTML = stories.map(s => {
+        const achs = s.achievements || [];
+        const got = achs.filter(a => unlocked.has(a.id)).length;
+        const rows = achs.map(a => `
+            <div class="aw-item${unlocked.has(a.id) ? "" : " locked"}">
+                <span class="aw-icon">${a.icon}</span>
+                <span class="aw-text"><span class="aw-name">${a.name}</span>
+                <span class="aw-desc">${a.desc}</span></span>
+                <span class="aw-state">${unlocked.has(a.id) ? "✓" : ""}</span>
+            </div>`).join("");
+        return `<div class="aw-story">
+            <div class="aw-story-head"><span class="aw-title">《${s.title}》</span>
+            <span class="aw-count">${got}/${achs.length}</span></div>
+            ${rows}
+        </div>`;
+    }).join("");
 }

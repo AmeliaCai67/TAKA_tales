@@ -39,6 +39,7 @@
             <button id="sp-save">保存</button>
             <button id="sp-close">关闭</button>
         </div>
+        <div class="sp-nav"><button id="sp-toshelf"><span class="sp-shelf-ico"></span>保存并返回书架</button></div>
     </div>
     <div class="ai-status" id="ai-status"></div>
 
@@ -50,10 +51,20 @@
     </div>
     <div class="toast" id="toast"></div>
 
+    <main class="shelf-screen" id="shelf-screen" hidden></main>
+
     <div class="ach-overlay" id="ach-overlay" hidden>
         <div class="ach-modal">
             <div class="am-title">成 就</div>
             <div id="ach-list"></div>
+        </div>
+    </div>
+
+    <div class="ach-wall" id="ach-wall" hidden>
+        <div class="ach-wall-panel">
+            <button class="aw-close" id="aw-close">✕</button>
+            <div class="aw-heading">成 就 墙</div>
+            <div id="ach-wall-body"></div>
         </div>
     </div>
 

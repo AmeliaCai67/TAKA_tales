@@ -11,11 +11,41 @@
     "老机器": "oldmachine"
   },
   "achievements": [
-    { "id": "coral_cleaner", "name": "珊瑚清理者", "icon": "🪸", "desc": "不需要潜水服吗？", "unlockScene": "clean_branch" },
-    { "id": "inception", "name": "盗梦空间", "icon": "💤", "desc": "在梦里听见风声", "unlockScene": "dream" },
-    { "id": "bond", "name": "羁绊", "icon": "🔗", "desc": "这就是我们之间的羁绊！", "unlockScene": "ending_b" },
-    { "id": "homecoming", "name": "游子总要归乡", "icon": "🏠", "desc": "别怪我，我总得回家", "unlockScene": "ending_a" },
-    { "id": "listen_to_wind", "name": "且听风吟", "icon": "🌬️", "desc": "The answer is blowing in the wind", "unlockScene": "just_listen" }
+    {
+      "id": "coral_cleaner",
+      "name": "珊瑚清理者",
+      "icon": "🪸",
+      "desc": "不需要潜水服吗？",
+      "unlockScene": "clean_branch"
+    },
+    {
+      "id": "inception",
+      "name": "盗梦空间",
+      "icon": "💤",
+      "desc": "在梦里听见风声",
+      "unlockScene": "dream"
+    },
+    {
+      "id": "bond",
+      "name": "羁绊",
+      "icon": "🔗",
+      "desc": "这就是我们之间的羁绊！",
+      "unlockScene": "ending_b"
+    },
+    {
+      "id": "homecoming",
+      "name": "游子总要归乡",
+      "icon": "🏠",
+      "desc": "别怪我，我总得回家",
+      "unlockScene": "ending_a"
+    },
+    {
+      "id": "listen_to_wind",
+      "name": "且听风吟",
+      "icon": "🌬️",
+      "desc": "The answer is blowing in the wind",
+      "unlockScene": "just_listen"
+    }
   ],
   "scenes": {
     "prologue": {
@@ -24,7 +54,10 @@
       "cost": 0,
       "eyeState": "st-standby",
       "choices": [
-        { "text": "开始故事", "next": "start" }
+        {
+          "text": "开始故事",
+          "next": "start"
+        }
       ]
     },
     "start": {
@@ -34,65 +67,105 @@
       "cost": 0,
       "eyeState": "st-standby",
       "choices": [
-        { "text": "A. 游上去看看", "next": "surface" },
-        { "text": "B. 继续清理珊瑚", "next": "clean_branch" }
+        {
+          "text": "A. 游上去看看",
+          "next": "surface"
+        },
+        {
+          "text": "B. 继续清理珊瑚",
+          "next": "clean_branch"
+        }
+      ],
+      "beats": [
+        "塔卡在海底清理珊瑚，第一次听到海面传来的呼呼声",
+        "无论孩子想做什么，塔卡都对上面的声音产生好奇",
+        "承接孩子想法后回到主线：浮上去看看风声从哪里来",
+        "在场角色只有塔卡、老机器；海鸥在海面不在海底，不得出现；其他故事的角色（如铆钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
+      ],
+      "speakers": [
+        "塔卡",
+        "老机器"
       ]
     },
     "clean_branch": {
       "mode": "swim",
-      "ai": true,
       "freeInput": true,
       "beats": [
         "塔卡选择留下，继续清理珊瑚",
         "夜里它的灯一直亮着，睡不着",
-        "风声还在：呼呼"
+        "风声还在：呼呼",
+        "在场角色只有塔卡、老机器；海鸥在海面不在海底，不得出现；其他故事的角色（如铆钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡留下来清理珊瑚。\n\n夜里，它的灯一直亮着。它睡不着。\n\n呼呼。声音还在。",
       "cost": 5,
       "eyeState": "st-thinking",
       "choices": [
-        { "text": "A. 闭上眼睛睡觉", "next": "dream" }
+        {
+          "text": "A. 闭上眼睛睡觉",
+          "next": "dream"
+        }
+      ],
+      "speakers": [
+        "塔卡",
+        "老机器"
       ]
     },
     "dream": {
       "mode": "swim",
-      "ai": true,
       "freeInput": true,
       "beats": [
         "塔卡睡着了，梦到了很亮的光",
         "它梦到风，像海浪，呼呼",
         "它梦到珊瑚，很大，不发光",
         "老机器叫醒它：该工作了",
-        "塔卡看着珊瑚，又看了看上面"
+        "塔卡看着珊瑚，又看了看上面",
+        "在场角色只有塔卡、老机器；海鸥在海面不在海底，不得出现；其他故事的角色（如铆钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡睡着了。\n\n它梦到光。很亮。很亮。\n\n它梦到风。像海浪。呼呼。\n\n它梦到珊瑚。很大。不发光。\n\n老机器推它：\"该工作了。\"\n\n塔卡看着珊瑚。又看了看上面。",
       "cost": 5,
       "eyeState": "st-thinking",
       "choices": [
-        { "text": "上去看看", "next": "surface" }
+        {
+          "text": "上去看看",
+          "next": "surface"
+        }
+      ],
+      "speakers": [
+        "塔卡",
+        "老机器"
       ]
     },
     "surface": {
       "mode": "swim",
-      "ai": true,
       "freeInput": true,
       "beats": [
         "塔卡浮出水面，第一次离开水，外壳很疼",
         "但它听到了风声：呼呼",
         "一只海鸥飞来警告：你会掉下去",
-        "塔卡说：我不知道在听什么，但我想听完"
+        "塔卡说：我不知道在听什么，但我想听完",
+        "在场角色只有塔卡、海鸥、老机器；其他故事的角色（如铆钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡浮出水面。没有水。很疼。\n\n但它听到了。风声。呼呼。\n\n一只海鸥飞过来：\"你会掉下去。\"\n\n塔卡：\"我在听。\"\n\n海鸥：\"听什么？\"\n\n塔卡：\"我不知道。但我想听完。\"",
       "cost": 40,
       "eyeState": "st-standby",
       "choices": [
-        { "text": "A. 问风声：\"你从哪里来？\"", "next": "ask_wind" },
-        { "text": "B. 只是听（保持沉默）", "next": "just_listen" }
+        {
+          "text": "A. 问风声：\"你从哪里来？\"",
+          "next": "ask_wind"
+        },
+        {
+          "text": "B. 只是听（保持沉默）",
+          "next": "just_listen"
+        }
+      ],
+      "speakers": [
+        "塔卡",
+        "海鸥",
+        "老机器"
       ]
     },
     "ask_wind": {
       "mode": "swim",
-      "ai": true,
       "beats": [
         "塔卡问风：你从哪里来",
         "海鸥说：从有云的地方来",
@@ -105,12 +178,14 @@
       "sun": 5,
       "eyeState": "st-standby",
       "choices": [
-        { "text": "继续", "next": "climax" }
+        {
+          "text": "继续",
+          "next": "climax"
+        }
       ]
     },
     "just_listen": {
       "mode": "swim",
-      "ai": true,
       "beats": [
         "塔卡没有说话，只是听",
         "它的灯光慢慢变亮",
@@ -130,8 +205,14 @@
       "cost": 25,
       "eyeState": "st-low",
       "choices": [
-        { "text": "A. 回海底充电（安全，但听不到风声了）", "next": "ending_a" },
-        { "text": "B. 再听一分钟（可能关机，但听到了完整的歌）", "next": "ending_b" }
+        {
+          "text": "A. 回海底充电（安全，但听不到风声了）",
+          "next": "ending_a"
+        },
+        {
+          "text": "B. 再听一分钟（可能关机，但听到了完整的歌）",
+          "next": "ending_b"
+        }
       ]
     },
     "ending_a": {
@@ -141,7 +222,10 @@
       "setBattery": 100,
       "eyeState": "st-standby",
       "choices": [
-        { "text": "重新开始故事", "next": "start" }
+        {
+          "text": "重新开始故事",
+          "next": "start"
+        }
       ]
     },
     "ending_b": {
@@ -152,8 +236,13 @@
       "eyeState": "st-standby",
       "endState": "st-off",
       "choices": [
-        { "text": "重新开始故事", "next": "start" }
+        {
+          "text": "重新开始故事",
+          "next": "start"
+        }
       ]
     }
-  }
+  },
+  "cover": "cover.jpg",
+  "summary": "一个旧机器人浮出海面，第一次听见风。"
 }

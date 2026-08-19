@@ -1,4 +1,5 @@
 // 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
+import { ICON_SETTINGS, ICON_SHELF } from "./icons";
 
 export interface AiSettings {
     enabled: boolean; // 允许选项 C 调服务端生成（游客不显示选项 C，开关只控制已登录状态）
@@ -47,11 +48,28 @@ export function showStatus(msg: string, ms?: number): void {
 }
 
 /* ===== 设置面板 DOM 接线 ===== */
+/** 「保存并返回书架」处理器（main.ts 注入 engine.exitToShelf，避免 settings↔engine 循环依赖） */
+let exitToShelfHandler: (() => void) | null = null;
+export function setExitToShelfHandler(fn: () => void): void { exitToShelfHandler = fn; }
+
 export function initSettingsPanel(): void {
+    document.getElementById("settings-btn")!.innerHTML = ICON_SETTINGS;
+    document.querySelector("#sp-toshelf .sp-shelf-ico")!.innerHTML = ICON_SHELF;
     const s = loadSettings();
     (document.getElementById("sp-enabled") as HTMLInputElement).checked = s.enabled;
     const panel = document.getElementById("settings-panel")!;
-    document.getElementById("settings-btn")!.onclick = () => { panel.hidden = !panel.hidden; };
+    document.getElementById("settings-btn")!.onclick = () => {
+        panel.hidden = !panel.hidden;
+        if (!panel.hidden) {
+            // 故事进行中才显示「保存并返回书架」（书架页上无意义）
+            const shelf = document.getElementById("shelf-screen");
+            document.getElementById("sp-toshelf")!.style.display = shelf && shelf.hidden ? "" : "none";
+        }
+    };
+    document.getElementById("sp-toshelf")!.onclick = () => {
+        panel.hidden = true;
+        if (exitToShelfHandler) exitToShelfHandler();
+    };
     document.getElementById("sp-save")!.onclick = () => {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify({
             enabled: (document.getElementById("sp-enabled") as HTMLInputElement).checked

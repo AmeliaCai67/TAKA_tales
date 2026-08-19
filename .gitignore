@@ -50,3 +50,6 @@ dist/
 /apps/player/public/stories/
 # API 运行时产物（TTS 缓存等）
 /apps/api/data/
+
+# 测试体系（数据集/结果/密钥，本地保留）
+/test/
