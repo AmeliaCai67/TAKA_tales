@@ -65,7 +65,7 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 | `eyeState` | standby | 场景灯光：`st-standby / st-thinking / st-listening / st-low / st-off`（低电量会自动把 standby 压成挣扎闪） |
 | `endState` | 同 eyeState | 打字机结束后的灯光（如结局 B 关机 `st-off`） |
 | `ending` | false | 结局标记（不动电量版）：会话收尾 + 出现「回到书架」；`setBattery` 场景天然是结局 |
-| `voiceOverrides` | 无 | 场景级声线覆盖：`{"铆钉": "rivet-calm"}`——显示文本不动，只改该场景该角色的朗读者（结局声音转变） |
+| `voiceOverrides` | 无 | 场景级声线覆盖：`{"小钉": "rivet-calm"}`——显示文本不动，只改该场景该角色的朗读者（结局声音转变） |
 | `mode` | land | `swim` = 收腿悬浮（水下）/ `land` = 伸腿站立 |
 | `freeInput` | false | 本场景开放**选项 C**（自由输入，服务端 LLM 承接） |
 | `beats` | 无 | **选项 C 必填**：该场景的叙事节拍数组，服务端用它组 prompt + 软命中审计。无 beats 的场景请求生成会 400 |
@@ -89,7 +89,7 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 - 正文按**空行分段**，每段一句或短句组；管线逐段渲染 `01_<声线>.mp3`
 - 台词归属：**先解析引号归属，再清理引号**（"值了" bug 的教训）；无引号段落归 narrator
 - 声线 id 定义在 `packages/tts-pipeline/tts_pipeline/voices.py`（narrator / taka / seagull / oldmachine……新角色在那里登记）
-- 声线可带 `fx` 后期链（ffmpeg 滤镜，如铆钉的机械感：7bit 压碎 + 窄带 + 颤音）——管线与服务器动态 TTS 走同一条链，Docker 镜像已装 ffmpeg
+- 声线可带 `fx` 后期链（ffmpeg 滤镜，如小钉的机械感：7bit 压碎 + 窄带 + 颤音）——管线与服务器动态 TTS 走同一条链，Docker 镜像已装 ffmpeg
 - 选项朗读：`choices.mp3` 由场景 `choices[].text` 顺序拼接生成；聆听条场景由 `listenLabel` 生成
 
 ## 校验器检查项（validate_story.py）

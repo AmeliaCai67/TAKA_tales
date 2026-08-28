@@ -196,7 +196,7 @@
         },
         "voiceOverrides": {
           "type": "object",
-          "description": "场景级声线覆盖：{角色名: 声线id}，只改朗读者不改显示文本（如结局声音转变 {\"铆钉\": \"rivet-calm\"}）"
+          "description": "场景级声线覆盖：{角色名: 声线id}，只改朗读者不改显示文本（如结局声音转变 {\"小钉\": \"rivet-calm\"}）"
         },
         "freeInputMaxLength": {
           "type": "integer",

@@ -85,10 +85,24 @@
             z-index: 70;
         }
         .settings-btn:hover { opacity: 1; }
+        /* 如我所书：旅程日志入口（故事页左上角 📖，设置右邻） */
+        .log-btn {
+            position: absolute;
+            top: 8px;
+            left: 56px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            opacity: .7;
+            z-index: 70;
+        }
+        .log-btn:hover { opacity: 1; }
         /* 自定义 SVG 图标：跟随 currentColor，统一 17px；
-           四个按钮统一设色（emoji 时代只有 .settings-btn 设了 color，其余继承成黑色看不见） */
-        .settings-btn, .ach-btn, .speech-btn, .parent-btn { color: var(--text-secondary); }
-        .settings-btn svg, .ach-btn svg, .speech-btn svg, .parent-btn svg {
+           五个按钮统一设色（emoji 时代只有 .settings-btn 设了 color，其余继承成黑色看不见） */
+        .settings-btn, .ach-btn, .speech-btn, .parent-btn, .log-btn { color: var(--text-secondary); }
+        .settings-btn svg, .ach-btn svg, .speech-btn svg, .parent-btn svg, .log-btn svg {
             width: 26px; height: 26px; display: block;
         }
         .sc-fish svg { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
@@ -100,7 +114,7 @@
         .speech-btn {
             position: absolute;
             top: 8px;
-            left: 98px;
+            left: 140px;
             background: none;
             border: none;
             font-size: 15px;
@@ -114,7 +128,7 @@
         .ach-btn {
             position: absolute;
             top: 8px;
-            left: 56px;
+            left: 98px;
             background: none;
             border: none;
             font-size: 15px;
@@ -192,7 +206,7 @@
         .parent-btn {
             position: absolute;
             top: 8px;
-            left: 140px;
+            left: 182px;
             background: none;
             border: none;
             font-size: 15px;
@@ -251,7 +265,36 @@
             cursor: pointer;
         }
         .parent-modal .pm-main:hover { border-color: var(--accent-warm); }
-        .parent-modal .pm-logout { margin-top: 10px; color: var(--text-secondary); }
+        /* 2026-08-20：添加孩子独立成显眼区块（「＋」加号不直觉，改完整按钮） */
+        .parent-modal .pm-addsec { margin-top: 4px; }
+        .parent-modal .pm-addlabel { font-size: 12px; letter-spacing: 3px; color: var(--text-primary); margin: 10px 0 8px; }
+        .parent-modal .pm-addbtn {
+            width: 100%;
+            min-height: 44px;
+            margin-top: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-warm);
+            background: var(--choice-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .parent-modal .pm-addbtn:hover { background: rgba(255, 179, 3, .08); }
+        /* 退出登录：降级为小号弱链接，沉底（避免新手误点，添加孩子才是主要动作） */
+        .parent-modal .pm-logout {
+            width: 100%;
+            margin-top: 14px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            opacity: .7;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .parent-modal .pm-logout:hover { color: var(--text-primary); }
         .parent-modal .pm-close {
             position: absolute; top: 10px; right: 12px;
             border: none; background: none; color: var(--text-secondary);
@@ -281,6 +324,7 @@
         }
         .parent-modal .pm-child.active { border-color: var(--accent-warm); }
         .parent-modal .pm-child .pm-band { font-size: 11px; color: var(--text-secondary); }
+        .parent-modal .pm-child .pm-check { color: var(--accent-warm); margin-right: 6px; font-size: 12px; }
 
         .settings-panel {
             position: absolute;
@@ -422,12 +466,14 @@
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast .toast-desc { font-size: 11px; color: var(--text-secondary); letter-spacing: 1px; }
 
-        /* 立绘：偏左中 */
+        /* 立绘：偏左中。常驻缓慢浮动——水下悬浮感（塔卡不是钉死的贴片） */
         .taka-figure {
             position: absolute;
             left: 12%;
             top: 10%;
+            animation: floatY 5.5s ease-in-out infinite;
         }
+        @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
         .taka-figure svg { height: 300px; display: block; }
 
         /* 对话框：纯文本。固定高度——文本再长也不顶跑选项，内部滚动 */
@@ -600,6 +646,50 @@
             36% { opacity: 1; } 100% { opacity: 1; }
         }
 
+        /* ===== 思考演出（AI 生成期间，2026-08-25）：与 0.9s 选项预告的 st-thinking 区分 ===== */
+        /* 眼睛「思索漫游」：左右缓移 + 深脉冲 */
+        .st-pondering .eyeGlow { animation: ponder 3.6s infinite ease-in-out; }
+        @keyframes ponder {
+            0%,100% { opacity: .9;  transform: translateX(0);    filter: drop-shadow(0 0 6px rgba(255,183,3,.7)); }
+            25%     { opacity: .5;  transform: translateX(-3px); }
+            50%     { opacity: .95; transform: translateX(0);    filter: drop-shadow(0 0 10px rgba(255,183,3,.95)); }
+            75%     { opacity: .5;  transform: translateX(3px);  }
+        }
+        /* 身体轻微摇摆（沉思） */
+        .st-pondering .takaBody { animation: sway 3.6s infinite ease-in-out; }
+        @keyframes sway { 0%,100% { transform: rotate(0); } 50% { transform: rotate(1.2deg); } }
+        /* 能量光晕：背后一圈暖黄随呼吸缩放 */
+        .taka-figure::before {
+            content: ""; position: absolute; inset: -25%; z-index: -1;
+            background: radial-gradient(circle, rgba(255,183,3,.14), transparent 65%);
+            opacity: 0; transition: opacity .6s ease; pointer-events: none;
+        }
+        .st-pondering::before { opacity: 1; animation: haloPulse 3.6s infinite ease-in-out; }
+        @keyframes haloPulse { 0%,100% { transform: scale(.92); } 50% { transform: scale(1.06); } }
+        /* 思想泡泡：默认隐藏，pondering 时浮现 */
+        .thought-bubble {
+            position: absolute; left: 64%; top: -6%;
+            display: flex; gap: 5px; align-items: center;
+            padding: 9px 13px;
+            background: rgba(226,232,240,.92); border-radius: 999px;
+            opacity: 0; transform: scale(.6); transform-origin: bottom left;
+            transition: opacity .4s ease, transform .4s ease;
+            pointer-events: none;
+        }
+        .thought-bubble::before, .thought-bubble::after {
+            content: ""; position: absolute; background: rgba(226,232,240,.85); border-radius: 50%;
+        }
+        .thought-bubble::before { width: 10px; height: 10px; left: -5px; bottom: -9px; }
+        .thought-bubble::after  { width: 6px;  height: 6px;  left: -13px; bottom: -19px; }
+        .thought-bubble i {
+            width: 6px; height: 6px; border-radius: 50%; background: #5d6875;
+            animation: tbDot 1.4s infinite;
+        }
+        .thought-bubble i:nth-child(2) { animation-delay: .2s; }
+        .thought-bubble i:nth-child(3) { animation-delay: .4s; }
+        @keyframes tbDot { 0%,100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+        .st-pondering .thought-bubble { opacity: 1; transform: scale(1); }
+
         .st-listening .eyeGlow { animation: listen 4.5s infinite ease-in-out; }
         @keyframes listen {
             0%,100% { opacity: .35; filter: drop-shadow(0 0 1px rgba(255,183,3,.3)); }
@@ -651,19 +741,14 @@
         body.on-shelf .settings-btn,
         body.on-shelf .ach-btn,
         body.on-shelf .speech-btn,
-        body.on-shelf .parent-btn { display: none; }
+        body.on-shelf .parent-btn,
+        body.on-shelf .log-btn { display: none; }
         .shelf-topbar {
             max-width: 880px;
             margin: 0 auto 30px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;   /* 左上留空（2026-08-20），动作组靠右 */
             align-items: baseline;
-        }
-        .st-logo {
-            font-size: 13px;
-            letter-spacing: 5px;
-            color: var(--accent-warm);
-            opacity: .9;
         }
         .st-actions { display: flex; gap: 22px; }
         .st-actions button {
@@ -676,6 +761,21 @@
             cursor: pointer;
         }
         .st-actions button:hover { color: var(--text-primary); }
+        /* 顶栏按钮上的橙黄通知点（如我所书/成就/记忆库有更新时亮起） */
+        .btn-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: var(--accent-warm);
+            vertical-align: middle;
+            animation: notify-pulse 2s ease-in-out infinite;
+        }
+        @keyframes notify-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(255, 183, 3, .18); transform: scale(1); }
+            50%      { box-shadow: 0 0 0 5px rgba(255, 183, 3, .34); transform: scale(1.12); }
+        }
         .shelf-topbar .shelf-child {
             position: static;
             padding: 2px 0;
@@ -818,3 +918,222 @@
             font-family: inherit;
         }
         .sp-nav button:hover { color: var(--accent-warm); border-color: var(--accent-dim); }
+
+/* ===== 如我所书（2026-08-19）：旅程日志抽屉 + 我的书架 ===== */
+/* hidden 覆盖：display:flex 会顶掉 HTML hidden 属性（否则弹窗永远显示/抽屉关不掉） */
+.journey-drawer[hidden], .journey-scrim[hidden], .archive-overlay[hidden] { display: none !important; }
+
+/* 抽屉遮罩：点抽屉外任意处收起（移动端）；半透明压暗底层，字更清楚 */
+.journey-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 89;  /* 抽屉 90 之下、HUD（70）之上 */
+    background: rgba(4,8,14,.45);
+}
+
+.journey-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: min(320px, 85vw);
+    background: rgba(8,14,20,.96);  /* 比 --bg-dialog(.88) 更实：字密，移动端不透底 */
+    border-right: 1px solid var(--border);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 0 24px rgba(0,0,0,.35);
+    animation: jd-in .22s ease-out;
+}
+@keyframes jd-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.jd-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.jd-title { font-size: 15px; letter-spacing: 6px; color: var(--accent-warm); }
+.jd-close { background: none; border: none; color: var(--text-secondary); font-size: 16px; cursor: pointer; }
+.jd-body { flex: 1; overflow-y: auto; padding: 10px 14px; }
+.jd-story {
+    font-size: 12px; opacity: .7; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.jd-writing { color: var(--accent-warm); animation: jd-blink 1.2s infinite; }
+@keyframes jd-blink { 50% { opacity: .3; } }
+.jd-row { display: flex; gap: 8px; padding: 7px 4px; border-bottom: 1px dashed rgba(128,128,128,.18); font-size: 13px; align-items: baseline; }
+.jd-icon { flex: none; width: 16px; text-align: center; }
+.jd-who { flex: none; min-width: 34px; color: var(--accent-warm); font-weight: 600; }
+.jd-child .jd-who { color: #6fa8dc; }
+.jd-child .jd-text { color: #6fa8dc; }
+.jd-text { flex: 1; line-height: 1.5; }
+.jd-empty { opacity: .5; font-size: 13px; padding: 20px 0; text-align: center; }
+
+/* ===== 记忆库（2026-08-25 spec）：关键词高亮 + 词条卡 + 记忆库面板 ===== */
+/* 故事文本里的可点关键词：暖黄 + 虚下划线；未解锁时呼吸闪烁邀请点击 */
+.codex-link {
+    color: var(--accent-warm);
+    border-bottom: 1px dashed rgba(255,183,3,.55);
+    cursor: pointer;
+}
+.codex-link.locked { animation: codex-breathe 2.2s ease-in-out infinite; }
+@keyframes codex-breathe { 50% { opacity: .55; } }
+
+.codex-overlay {
+    position: fixed; inset: 0; z-index: 96;
+    background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center;
+}
+.codex-card-overlay { z-index: 97; } /* 词条卡叠在记忆库面板之上 */
+.codex-card {
+    width: min(400px, 92vw);
+    max-height: 88vh; overflow-y: auto;
+    background: #0d1826; border: 1px solid var(--border); border-radius: 12px;
+    position: relative;
+}
+.cc-close {
+    position: absolute; top: 8px; right: 10px; z-index: 2;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(8,14,20,.65); border: none;
+    color: var(--text-secondary); font-size: 15px; cursor: pointer;
+}
+.cc-img { width: 100%; display: block; aspect-ratio: 16/9; max-height: 210px; object-fit: cover; border-radius: 12px 12px 0 0; }
+.cc-body { padding: 14px 16px 16px; }
+.cc-name { font-size: 17px; color: var(--accent-warm); letter-spacing: 3px; margin-bottom: 8px; }
+.cc-science p { font-size: 13.5px; line-height: 1.7; margin: 4px 0; }
+.cc-taka {
+    margin-top: 12px; padding: 10px 12px;
+    border-left: 2px solid var(--accent-warm); border-radius: 0 8px 8px 0;
+    background: rgba(255,183,3,.06);
+}
+.cc-taka-label { font-size: 11px; color: var(--accent-warm); letter-spacing: 2px; }
+.cc-taka p { font-size: 13px; line-height: 1.6; margin: 4px 0; color: var(--text-secondary); }
+.cc-tts {
+    margin-top: 10px; padding: 5px 14px;
+    background: none; border: 1px solid var(--border); border-radius: 999px;
+    color: var(--text-secondary); font-size: 12.5px; cursor: pointer;
+}
+.cc-tts.playing { color: var(--accent-warm); border-color: var(--accent-warm); }
+.cc-src { margin-top: 10px; font-size: 10.5px; opacity: .45; }
+.cc-src a { color: inherit; }
+
+/* 记忆库面板：按故事分组，剪影（已发现）/ 彩色（已解锁） */
+.codex-panel {
+    width: min(560px, 94vw); max-height: 86vh;
+    background: #0d1826; border: 1px solid var(--border); border-radius: 14px;
+    display: flex; flex-direction: column;
+}
+.cp-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.cp-title { font-size: 15px; letter-spacing: 6px; color: #6fa8dc; } /* 记忆库蓝：家族唯一的蓝色破例 */
+.cp-title svg { width: 18px; height: 18px; vertical-align: -4px; margin-right: 8px; }
+.cp-body { overflow-y: auto; padding: 12px 16px 16px; }
+.cp-story { margin-bottom: 16px; }
+.cp-story-name { font-size: 13px; opacity: .8; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.cp-count { color: #6fa8dc; }
+.cp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.cp-tile {
+    background: #16222f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 0 0 6px; cursor: pointer; color: var(--text-primary);
+    text-align: center; overflow: hidden; display: flex; flex-direction: column;
+}
+.cp-tile img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.cp-tile span { font-size: 12px; padding-top: 6px; }
+.cp-tile.locked img.silhouette { filter: blur(5px) brightness(.45); } /* 悬念 teaser：形与色隐約可辨，看不清细节 */
+.cp-tile.locked span { opacity: .6; }
+.cp-tile.locked em { font-size: 10px; font-style: normal; opacity: .45; padding: 2px 4px 0; }
+.cp-hint { font-size: 11px; opacity: .45; margin-top: 6px; }
+.cp-empty { text-align: center; opacity: .5; padding: 30px 0; font-size: 13px; }
+
+/* 我的书架浮层 */
+.archive-overlay {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center;
+}
+.archive-panel {
+    width: min(720px, 94vw); height: min(560px, 90vh);
+    background: var(--bg-dialog);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.archive-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+}
+.archive-title { font-size: 16px; letter-spacing: 8px; color: var(--accent-warm); }
+.archive-close { background: none; border: none; color: var(--text-secondary); font-size: 16px; cursor: pointer; }
+.archive-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.ar-empty { text-align: center; opacity: .6; padding: 40px 0; line-height: 2; }
+
+/* 树状书架（2026-08-25 改版）：故事分组 → 版次行 */
+.ar-group { margin-bottom: 18px; }
+.ar-group-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 2px 10px;
+}
+.ar-group-cover { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+.ar-group-name { font-size: 14.5px; font-weight: 600; color: var(--text-primary); }
+.ar-group-count { font-size: 11px; opacity: .5; margin-left: auto; }
+.ar-row {
+    display: flex; align-items: stretch; gap: 8px;
+    margin-bottom: 8px;
+}
+.ar-row-main {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    background: var(--bg-dialog); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; cursor: pointer; color: var(--text-primary);
+    font-family: inherit; font-size: 13px; text-align: left;
+}
+.ar-row-main:hover { border-color: var(--accent-dim); }
+.ar-edition { font-weight: 600; color: var(--accent-warm); flex: none; }
+.ar-row-meta { font-size: 11.5px; opacity: .55; }
+.ar-state { font-size: 11px; margin-left: auto; flex: none; }
+.ar-state.ready { color: var(--ok-green); }
+.ar-state.pending { color: var(--accent-warm); }
+.ar-state.failed { color: #d97706; }
+.ar-dl {
+    flex: none; background: var(--choice-bg); border: 1px solid var(--choice-border);
+    color: var(--text-secondary); border-radius: 10px; padding: 0 16px;
+    cursor: pointer; font-family: inherit; font-size: 12.5px;
+}
+.ar-dl:hover { color: var(--accent-warm); border-color: var(--accent-dim); }
+
+/* 连续书页阅读器（2026-08-25 改版：一页一句 → 场景分节段落流） */
+.ar-reader2 { display: flex; flex-direction: column; min-height: 100%; }
+.ar-r-head {
+    padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.ar-back {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    color: var(--accent-warm); font-size: 13px; text-align: left; padding: 0;
+}
+.ar-r-title { font-size: 17px; font-weight: 700; letter-spacing: 1.5px; }
+.ar-r-meta { font-size: 11.5px; opacity: .6; }
+.ar-r-body { flex: 1; padding: 8px 2px; }
+.rl { font-size: 14px; line-height: 1.9; margin: 6px 0; color: var(--text-primary); }
+.rl-who {
+    color: var(--accent-warm); font-weight: 600; font-size: 12px;
+    margin-right: 8px; letter-spacing: 1px;
+}
+.rl.child { color: #6fa8dc; }
+.rl.child .rl-who { color: #6fa8dc; }
+.rl.taka .rl-who { color: var(--accent-warm); }
+.rl-break {
+    height: 1px; margin: 14px 20%;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+.ar-r-foot {
+    border-top: 1px solid var(--border); padding: 16px 0 6px;
+    display: flex; flex-direction: column; gap: 12px; align-items: center;
+}
+.pg-end-title { font-size: 15px; letter-spacing: 2px; line-height: 1.8; }
+.pg-export {
+    background: var(--accent-dim); border: 1px solid var(--accent-warm); color: var(--text-primary);
+    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px;
+    align-self: flex-start; /* 不撑满整行 */
+}
+.pg-export:hover { opacity: .9; }

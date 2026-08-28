@@ -16,6 +16,7 @@
         <span id="battery-text">100%</span>
     </div>
 
+    <button class="log-btn" id="log-btn" title="旅程日志">📖</button>
     <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
     <button class="ach-btn" id="ach-btn" title="成就">🏅</button>
     <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
@@ -33,7 +34,6 @@
         <label>语速 <span id="sp-rate-val">0.95x</span>
             <input type="range" id="sp-rate" min="0.5" max="1.5" step="0.05" value="0.95">
         </label>
-        <button id="sp-preview">▶ 试听语速</button>
         <div class="sp-note">AI 生成在服务端完成，经过内容安全校验；每个账号每日限 50 次。开场、高潮与结局为定稿文本，AI 只承接孩子的自由想法。</div>
         <div class="sp-actions">
             <button id="sp-save">保存</button>
@@ -69,6 +69,8 @@
     </div>
 
     <div class="taka-figure st-standby" id="taka-figure">
+        <!-- 思考演出（st-pondering 时浮现）：思想泡泡，三圆点依次跳动 -->
+        <div class="thought-bubble" aria-hidden="true"><i></i><i></i><i></i></div>
         <svg viewBox="0 0 220 210">
             <defs>
                 <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
@@ -160,6 +162,17 @@
             <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
         <div class="choices" id="choices"></div>
+    </div>
+</div>
+
+<!-- 如我所书（2026-08-19）：我的书架全屏浮层 -->
+<div class="archive-overlay" id="archive-overlay" hidden>
+    <div class="archive-panel">
+        <div class="archive-head">
+            <span class="archive-title">如 我 所 书</span>
+            <button class="archive-close" id="archive-close">✕</button>
+        </div>
+        <div class="archive-body" id="archive-body"></div>
     </div>
 </div>
 

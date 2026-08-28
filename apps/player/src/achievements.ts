@@ -7,6 +7,7 @@ import { loadStoriesIndex } from "./story";
 import { api } from "./api";
 import { session } from "./session";
 import { reportAnonEvent } from "./anon";
+import { setBadge } from "./badge";
 
 type AchievementState = AchievementDef & { unlocked: boolean };
 
@@ -36,15 +37,35 @@ export function initAchievementData(): void {
     unlocked.forEach(id => { if (achievements[id]) achievements[id].unlocked = true; });
 }
 
+/** 云端同步（登录且选孩子才发）。带重试 + 可见日志，避免静默丢失（曾致成就永久从 server 缺失）。
+ *  最终仍失败则 console.error + toast 提示「成就同步失败」，本地仍是真源，留待对账补录。 */
+async function pushUnlock(id: string, attempt = 0): Promise<boolean> {
+    if (!session.token || !session.childId) return false;
+    try {
+        await api.unlockAchievement(session.childId, id);
+        return true;
+    } catch (e) {
+        if (attempt < 2) {
+            await new Promise(res => setTimeout(res, 600 * (attempt + 1)));
+            return pushUnlock(id, attempt + 1);
+        }
+        console.error("[achievements] 云端同步失败，已本地记录待对账:", id, e);
+        try {
+            showToast("成就「" + (achievements[id]?.name || id) + "」同步失败，重进将自动补录");
+        } catch {}
+        return false;
+    }
+}
+
 export function unlock(id: string): AchievementState | null {
     const a = achievements[id];
     if (!a || a.unlocked) return null;
     a.unlocked = true;
     writeUnlockedIds([...readUnlockedIds(), id]); // 并入全局集，不覆写
     renderAchievements();
-    // 云端同步（登录且选了孩子才发；失败静默，本地已是真源）
+    setBadge("ach", true); // 成就更新 → 「成 就」按钮亮橙黄点
     if (session.token && session.childId) {
-        api.unlockAchievement(session.childId, id).catch(() => {});
+        void pushUnlock(id); // 异步重试，不阻塞场景
     } else {
         // 游客：成就事件（匿名记录）
         reportAnonEvent({ story_id: pack().id, type: "achievement", payload: { achievement_id: id } });
@@ -52,7 +73,7 @@ export function unlock(id: string): AchievementState | null {
     return a;
 }
 
-/** 选中孩子后拉服务端成就合并进本地（不回弹 toast） */
+/** 选中孩子后拉服务端成就合并进本地（不回弹 toast）；并对账：本地有、server 缺的补 POST（自愈） */
 export async function syncFromServer(): Promise<void> {
     if (!session.token || !session.childId) return;
     try {
@@ -60,14 +81,23 @@ export async function syncFromServer(): Promise<void> {
         const serverIds = r.achievements.map(x => x.id);
         const before = readUnlockedIds();
         writeUnlockedIds([...before, ...serverIds]); // 全局并集，不丢其他故事
-        const all = new Set(readUnlockedIds());
         let changed = false;
         for (const id of serverIds) {
             const a = achievements[id];
             if (a && !a.unlocked) { a.unlocked = true; changed = true; }
         }
+        // 对账：本地已解锁（本故事包内）但 server 缺失 → 补 POST（静默丢失的自愈）
+        const serverSet = new Set(serverIds);
+        for (const id of readUnlockedIds()) {
+            if (serverSet.has(id)) continue;
+            if (!achievements[id]) continue;      // 非本包成就（其他故事），跳过
+            if (!achievements[id].unlocked) continue;
+            void pushUnlock(id);
+        }
         if (changed) renderAchievements();
-    } catch {}
+    } catch (e) {
+        console.error("[achievements] syncFromServer 失败:", e);
+    }
 }
 
 /** 引擎进场景时调用：该场景绑定了成就则解锁，返回解锁的成就（未解锁过才非 null） */

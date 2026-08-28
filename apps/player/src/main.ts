@@ -13,6 +13,8 @@ import { renderScene, getCurrentText, setResumePoint, setShelfReturn, exitToShel
 import { initShelf, showShelf, hideShelf, shelfVisible } from "./shelf";
 import { loadLocalProgress } from "./progress";
 import { ensureAnonId } from "./anon";
+import { initJourneyLog, initArchive } from "./archive";
+import { initCodex, hydrateCodex } from "./codex";
 import { api } from "./api";
 import { session } from "./session";
 
@@ -104,13 +106,18 @@ async function boot(): Promise<void> {
     initSpeech();
     initAchievementData();   // 成就表来自故事包
     initAchievements();
+    initJourneyLog();        // 如我所书：旅程日志抽屉（故事页 📖）
+    initArchive();           // 如我所书：我的书架浮层（关闭按钮）
+    initCodex();             // 记忆库：关键词点击委托
     await initAuth();        // 静默恢复登录态；选中孩子则拉断点与成就
+    void hydrateCodex();     // 记忆库：登录拉后端 / 游客拉本地
     if (!session.token) void ensureAnonId(); // 游客预注册匿名设备 ID（静默失败，本地照玩）
 
     initShelf(pickStory);
     setShelfReturn(showShelf); // 结局场景「回到书架」
     setExitToShelfHandler(exitToShelf); // 设置面板「保存并返回书架」
-    setAfterChildSelect(() => { if (shelfVisible()) showShelf(); }); // 书架上的孩子切换即时反映
+    // 书架上的孩子切换即时反映；记忆库状态同步水合（孩子 × 词条隔离）
+    setAfterChildSelect(() => { void hydrateCodex(); if (shelfVisible()) showShelf(); });
     initStartGate();
 
     // 首次交互补读：起播竞态漏读时兜住（播放链空闲才补，避免重复）

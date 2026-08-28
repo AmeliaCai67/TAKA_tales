@@ -6,12 +6,14 @@ import type { Scene } from "./story";
 import { loadSettings, showStatus } from "./settings";
 import { unlockForScene, showToast } from "./achievements";
 import {
-    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio
+    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs
 } from "./speech";
 import { api, ApiError } from "./api";
 import { session, selectedChild, clearSession } from "./session";
 import { saveLocalProgress } from "./progress";
-import { reportAnonEvent } from "./anon";
+import { reportAnonEvent, ensureAnonId } from "./anon";
+import { discoverScene, wrapCodexLinks, resetCodexHighlights } from "./codex";
+import { setBadge } from "./badge";
 
 /** 选项 C 生成上下文（生成在服务端完成，玩家端只传参） */
 export interface GenCtx {
@@ -67,6 +69,37 @@ export function setResumePoint(p: { sceneKey: string; battery: number; path: str
     resumePoint = p;
 }
 
+// ===== 如我所书（2026-08-19）：会话对话流收集 + 增量上报 =====
+// 孩子的话 role=child（导出映射塔卡声线）；固定场景=beat、AI 生成=ai。
+export interface DialogueEv { story_id: string; scene_key: string; role: string; text: string; type: string; }
+
+let dialogueQueue: DialogueEv[] = [];
+let dialogueTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** 旅程日志抽屉订阅实时对话流（main.ts 注入） */
+export let onDialogue: ((evs: DialogueEv[]) => void) | null = null;
+export function setDialogueListener(fn: ((evs: DialogueEv[]) => void) | null): void { onDialogue = fn; }
+
+function collectDialogue(evs: DialogueEv[]): void {
+    if (!evs.length) return;
+    dialogueQueue.push(...evs);
+    if (onDialogue) onDialogue(evs);
+    if (dialogueTimer) clearTimeout(dialogueTimer);
+    dialogueTimer = setTimeout(() => void flushDialogueEvents(), 800);
+}
+
+/** 冲刷对话流（防抖；结局前 await 确保成书数据完整） */
+function flushDialogueEvents(): Promise<void> {
+    if (dialogueTimer) { clearTimeout(dialogueTimer); dialogueTimer = null; }
+    if (!sessionId || !session.token || !session.childId || !dialogueQueue.length) {
+        return Promise.resolve();
+    }
+    const evs = dialogueQueue;
+    dialogueQueue = [];
+    return api.postEvents(sessionId, evs)
+        .then(() => {}, () => { dialogueQueue.unshift(...evs); }); // 失败回滚，下次再试
+}
+
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 「玩一半被删」降级（spec §6 核心场景）：家长在别处删了当前孩子档案 → 云端保存 404。
@@ -97,6 +130,8 @@ function scheduleProgressSave(sceneKey: string): void {
 }
 
 function syncSessionStart(): void {
+    dialogueQueue = []; // 如我所书：新会话清空待上报队列（旧会话已在结局冲刷）
+    resetCodexHighlights(); // 记忆库：新一次游玩，关键词「首次出现高亮」追踪归零
     if (session.token && session.childId) {
         api.startSession(session.childId, pack().id)
             .then(r => { sessionId = r.session_id; })
@@ -112,6 +147,7 @@ function syncSessionFinish(ending: string): void {
     if (sessionId != null) {
         api.finishSession(sessionId, runPath, ending).catch(() => {});
         sessionId = null;
+        setBadge("books", true); // 如我所书：结局成书 → 「如我所书」按钮亮橙黄点
     }
     // 进度归位到故事开头：下次「继续上次的故事」不会落在结局页
     if (session.token && session.childId) {
@@ -221,21 +257,23 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
     const submit = async () => {
         const text = input.value.trim();
         if (!text) return;
-        if (!(session.token && session.childId)) { // 双保险：未登录本不该看到选项 C
-            showStatus("需要家长登录后，塔卡才能听懂你", 3000);
-            return;
-        }
         if (activeRec) { try { activeRec.abort(); } catch {} }
         const box = document.getElementById("choices")!;
-        box.querySelectorAll("button, input").forEach(b => (b as HTMLButtonElement).disabled = true);
+        box.querySelectorAll("button, input").forEach(b => (b as HTMLButtonElement | HTMLInputElement).disabled = true);
 
         // 自定义选择没有 fallback 文案可退（孩子的整活只有 AI 接得住）：
         // 先在当前场景生成，成功才切场景；失败则恢复选项，孩子再选一次
-        const nextKey = scene.choices![0].next;
-        setFigureState("st-thinking");
+        // 2026-08-20：freeInput 场景可能无预设选项（如抹香鲸"等你开口"），跳转目标用 scene.next
+        const nextKey = (scene.choices && scene.choices[0]) ? scene.choices[0].next : scene.next!;
+        setFigureState("st-pondering"); // 思考演出：思想泡泡 + 眼睛漫游 + 光晕（区别于 0.9s 选项预告）
         showStatus("塔卡在想...");
         try {
-            const r = await api.generate(session.childId!, pack().id, nextKey, currentText, text, currentSceneKey);
+            // 游客也可自由输入（展示 AI 能力）：无孩子时用匿名设备 ID 走游客生成通道
+            const anonId = (session.token && session.childId) ? undefined
+                         : (await ensureAnonId()) || undefined;
+            const r = await api.generate(
+                session.token && session.childId ? session.childId! : null,
+                pack().id, nextKey, currentText, text, currentSceneKey, anonId);
             showStatus("");
             if (r.type === "stay") {
                 // nonsense：原地停留——重渲当前场景（微调文案），不耗电、不计路径、可再输入
@@ -255,7 +293,7 @@ function buildFreeInput(scene: Scene): HTMLDivElement {
                       : "网络开小差了，再试一次";
             showStatus(why, 4500);
             setFigureState(eyeOf(scene));
-            box.querySelectorAll("button, input").forEach(b => (b as HTMLButtonElement).disabled = false);
+            box.querySelectorAll("button, input").forEach(b => (b as HTMLButtonElement | HTMLInputElement).disabled = false);
         }
     };
     send.onclick = submit;
@@ -299,8 +337,8 @@ function showChoices(scene: Scene, sceneKey: string): void {
         };
         box.appendChild(btn);
     });
-    // 线性场景（有 next 无 choices）：「继续」导航按钮——属界面导航，不是剧情选择，不进语音、不计路径
-    if (scene.next && !(scene.choices && scene.choices.length)) {
+    // 线性场景（有 next 无 choices 且非自由输入专属场景）：「继续」导航按钮——freeInput 场景以自由输入为唯一推进
+    if (scene.next && !(scene.choices && scene.choices.length) && !scene.freeInput) {
         const btn = document.createElement("button");
         btn.className = "choice-btn";
         btn.innerText = "继续 ▶";
@@ -311,9 +349,9 @@ function showChoices(scene: Scene, sceneKey: string): void {
         };
         box.appendChild(btn);
     }
-    // 选项 C 渲染条件：登录 + 选了孩子 + 本机开关开 + 家长后台未关该孩子的自由发挥（游客不显示）
+    // 选项 C 渲染条件：本机开关开 + 家长后台未关该孩子自由发挥；游客也可用（2026-08-20 展示 AI 能力）
     const childOff = selectedChild()?.prefs?.ai_enabled === false;
-    if (scene.freeInput && session.token && session.childId && loadSettings().enabled && !childOff) {
+    if (scene.freeInput && loadSettings().enabled && !childOff) {
         box.appendChild(buildFreeInput(scene));
     }
     // 结局场景：追加「回到书架」
@@ -387,7 +425,12 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
         runPath = [];
         syncSessionStart();
     }
-    if (ctx && ctx.choiceText && key !== pack().restartScene) runPath.push(ctx.choiceText); // 记录选择路径（重开点击不算剧情选择）
+    if (ctx && ctx.choiceText && key !== pack().restartScene) {
+        runPath.push(ctx.choiceText); // 记录选择路径（重开点击不算剧情选择）
+        // 如我所书：孩子的话入对话流（自由输入=custom → freeinput，预设选支 → choice）
+        collectDialogue([{ story_id: pack().id, scene_key: key, role: "child", text: ctx.choiceText,
+                           type: ctx.custom ? "freeinput" : "choice" }]);
+    }
     if (!skipCostOnce) {
         battery = Math.max(0, battery - (scene.cost ?? 10));    // 推进剧情耗电
         if (scene.sun && battery > 0)                           // 太阳回电
@@ -411,7 +454,10 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     }
 
     stopSpeech(); // 切场景打断上一段朗读
-    if (isEnding(scene)) syncSessionFinish(key); // 结局：会话收尾（路径+结局上报）
+    if (isEnding(scene)) { // 结局：先冲刷对话流（确保成书数据完整），再会话收尾
+        await flushDialogueEvents();
+        syncSessionFinish(key);
+    }
     stopWind();   // 风声只属于且听风吟场景
     if (scene.isSpecialListen) startWind(); // 风声起：这 4 秒，风是主角
     if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
@@ -423,17 +469,27 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const text = (ctx && ctx.generated) || scene.text;
     const usedAI = !!(ctx && ctx.generated);
 
+    // 如我所书：场景文本按说话人切句入对话流（固定场景=beat，AI 生成=ai；含开场/序章）
+    if (text) {
+        const segs = parseTextSegs(text, scene.voiceOverrides);
+        collectDialogue(segs.map(s => ({
+            story_id: pack().id, scene_key: key, role: s.who, text: s.text, type: usedAI ? "ai" : "beat"
+        })));
+    }
+
     // 打字机期间 standby 临时切 speaking（spec §7）；特殊状态不被打断
     const eye = eyeOf(scene); // 电量档位修正后的实际灯光
     const duringTyping = eye === "st-standby" ? "st-speaking" : eye;
     setFigureState(duringTyping);
 
     currentText = text;
+    discoverScene(scene); // 记忆库：读到即「发现」（面板出现剪影）
     // 语音双轨：固定文本 → 预渲染 mp3 包（定稿声线）；AI 生成 → 浏览器 TTS 实时念
     // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐
     const played = !usedAI && playSceneAudio(key, scene.isSpecialListen);
     if (!played) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
     typeText(text, () => {
+        wrapCodexLinks(scene); // 记忆库：打字机播完，关键词亮起可点（spec §2 打字中不可点）
         setFigureState(scene.endState || eye);
         if (scene.isSpecialListen) {
             runListenBar(scene);

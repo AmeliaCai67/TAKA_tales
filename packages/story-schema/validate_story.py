@@ -136,6 +136,35 @@ def validate(pack_dir: str) -> list[str]:
             if sc.get("choices") and sid in manifest and not manifest[sid].get("choices"):
                 warn.append(f"manifest {sid}: 场景有选项但无 choices 音频（将走浏览器 TTS 兜底）")
 
+    # --- 7. 记忆库（codex，2026-08-25）---
+    entries = pack.get("codex", {}).get("entries", [])
+    entry_ids = set()
+    for e in entries:
+        for f in ["id", "name", "image", "science", "takaSays", "source"]:
+            if f not in e:
+                errors.append(f"词条缺少字段 {f}: {e.get('id', e)}")
+        eid = e.get("id")
+        if eid in entry_ids:
+            errors.append(f"词条 id 重复: {eid}")
+        entry_ids.add(eid)
+        if e.get("image") and not os.path.exists(os.path.join(pack_dir, e["image"])):
+            errors.append(f"词条 {eid}: 图片不存在 {e.get('image')}")
+        src = e.get("source", {})
+        for f in ["title", "author", "license", "url"]:
+            if not src.get(f):
+                errors.append(f"词条 {eid}: source 缺 {f}（图片许可四元组必须齐全）")
+        if not e.get("science") or not e.get("takaSays"):
+            errors.append(f"词条 {eid}: science/takaSays 不能为空")
+    for sid, sc in scenes.items():
+        for link in sc.get("codex", []):
+            if link.get("entry") not in entry_ids:
+                errors.append(f"场景 {sid}: codex 引用了不存在的词条 {link.get('entry')}")
+            elif link.get("word") not in sc.get("text", ""):
+                errors.append(f"场景 {sid}: 关键词「{link.get('word')}」不在场景文本里")
+    for e in entries:
+        if not any(l.get("entry") == e["id"] for sc in scenes.values() for l in sc.get("codex", [])):
+            warn.append(f"词条 {e['id']} 没有被任何场景标注（永远不会被发现）")
+
     for w in warn:
         print("WARN:", w)
     return errors

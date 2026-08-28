@@ -121,23 +121,34 @@ function renderLoggedOut(body: HTMLElement): void {
 function renderLoggedIn(body: HTMLElement): void {
     const rows = session.children.map(c =>
         `<button class="pm-child${c.id === session.childId ? " active" : ""}" data-id="${c.id}">` +
-        `${c.nickname}<span class="pm-band">${c.age_band} 岁</span></button>`).join("");
+        `<span>${c.nickname}</span><span class="pm-band">${c.id === session.childId ? '<b class="pm-check">✓</b>' : ""}${c.age_band} 岁</span></button>`).join("");
     body.innerHTML = `
         ${closeBtn()}
         <div class="pm-note">${session.email}</div>
         <div class="pm-label">谁在玩？</div>
         <div class="pm-children">${rows || '<div class="pm-hint">还没有孩子档案，加一个吧</div>'}</div>
-        <div class="pm-row">
-            <input type="text" id="pm-nick" placeholder="孩子昵称" maxlength="12">
-            <select id="pm-band"><option>3-4</option><option>4-5</option><option>5-6</option></select>
-            <button id="pm-add">＋</button>
+        <div class="pm-addsec">
+            <div class="pm-addlabel">添加孩子</div>
+            <div class="pm-row">
+                <input type="text" id="pm-nick" placeholder="孩子昵称" maxlength="12">
+                <select id="pm-band"><option>3-4</option><option>4-5</option><option>5-6</option></select>
+            </div>
+            <button class="pm-addbtn" id="pm-add">＋ 添加孩子</button>
         </div>
-        <button class="pm-main pm-logout" id="pm-logout">退出登录</button>`;
+        <button class="pm-logout" id="pm-logout">退出登录</button>`;
     bindClose(body);
     body.querySelectorAll(".pm-child").forEach(b =>
         b.addEventListener("click", async () => {
-            await selectChild(Number((b as HTMLElement).dataset.id));
-            advanceIfOnGate(body);
+            const id = Number((b as HTMLElement).dataset.id);
+            await selectChild(id);
+            advanceIfOnGate(body); // 大门：关门进书架
+            // 书架/故事里（非大门）：选了就生效——自动关弹窗 + toast 反馈。
+            // 不加确认按钮：切换成本极低（再点一次就换回来），一步即达比两步确认顺手
+            if (!document.getElementById("gate-btn")) {
+                document.getElementById("parent-overlay")!.hidden = true;
+                const nick = session.children.find(c => c.id === id)?.nickname || "";
+                showStatus(`现在和 ${nick} 一起玩`, 2500);
+            }
         }));
     body.querySelector("#pm-add")!.addEventListener("click", async () => {
         const nick = (body.querySelector("#pm-nick") as HTMLInputElement).value.trim();

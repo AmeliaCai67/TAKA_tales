@@ -6,8 +6,11 @@ import { ICON_CHILD } from "./icons";
 import type { StoryMeta } from "./story";
 import { session, selectedChild } from "./session";
 import { selectChild, openParentModal } from "./auth";
+import { openArchive } from "./archive";
+import { openCodexPanel } from "./codex";
 import { loadLocalProgress } from "./progress";
 import { speechPref } from "./settings";
+import { renderBadges, clearBadge } from "./badge";
 
 const ACH_KEY = "taka_achievements";
 
@@ -74,9 +77,10 @@ async function render(el: HTMLElement): Promise<void> {
 
     el.innerHTML = `
         <div class="shelf-topbar">
-            <span class="st-logo">塔卡书房</span>
             <div class="st-actions">
                 ${chip}
+                <button data-act="books">如我所书</button>
+                <button data-act="codex">记忆库</button>
                 <button data-act="ach">成 就</button>
                 <button data-act="speech">语音 · ${speechPref.on ? "开" : "关"}</button>
                 <button data-act="settings">设 置</button>
@@ -89,13 +93,16 @@ async function render(el: HTMLElement): Promise<void> {
         </div>`;
 
     // 顶栏按钮复用隐藏 emoji 按钮的既有接线（成就/语音/设置）；「家 长」仅未登录显示（spec §2.4）
-    el.querySelector('[data-act="ach"]')!.addEventListener("click", () => document.getElementById("ach-btn")!.click());
+    el.querySelector('[data-act="books"]')!.addEventListener("click", () => { clearBadge("books"); void openArchive(); });
+    el.querySelector('[data-act="codex"]')!.addEventListener("click", () => { clearBadge("codex"); void openCodexPanel(); });
+    el.querySelector('[data-act="ach"]')!.addEventListener("click", () => { clearBadge("ach"); document.getElementById("ach-btn")!.click(); });
     el.querySelector('[data-act="settings"]')!.addEventListener("click", () => document.getElementById("settings-btn")!.click());
     el.querySelector('[data-act="parent"]')?.addEventListener("click", () => void openParentModal());
     el.querySelector('[data-act="speech"]')!.addEventListener("click", () => {
         document.getElementById("speech-btn")!.click();
         showShelf(); // 重渲刷新「语音 · 开/关」文案
     });
+    renderBadges(); // 按 localStorage 未读状态，给「如我所书/成就/记忆库」按钮加橙黄点
 
     el.querySelectorAll<HTMLElement>(".shelf-card").forEach(card => {
         card.onclick = () => {

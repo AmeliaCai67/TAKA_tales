@@ -5,6 +5,20 @@ export interface Choice {
     next: string;
 }
 
+export interface CodexLink {
+    word: string;   // 场景文本里高亮的关键词
+    entry: string;  // → codex.entries[].id
+}
+
+export interface CodexEntry {
+    id: string;
+    name: string;
+    image: string;          // 相对故事包根（卡片渲染时拼 baseUrl；index.json 里是完整路径）
+    science: string[];      // 科学介绍（定稿，不走 LLM）
+    takaSays: string[];     // 塔卡口吻（定稿）
+    source: { title: string; author: string; license: string; url: string }; // 图片许可四元组
+}
+
 export interface Scene {
     mode?: "swim" | "land";
     text: string;
@@ -23,9 +37,10 @@ export interface Scene {
     voiceOverrides?: Record<string, string>; // 场景级声线覆盖：{角色名: 声线id}，只改朗读者不改显示文本
     next?: string;
     choices?: Choice[];
+    codex?: CodexLink[]; // 记忆库：本场景可点的关键词（打字机播完后高亮）
 }
 
-export type EyeState = "st-standby" | "st-thinking" | "st-listening" | "st-low" | "st-off";
+export type EyeState = "st-standby" | "st-thinking" | "st-pondering" | "st-listening" | "st-low" | "st-off";
 
 export interface AchievementDef {
     id: string;
@@ -47,6 +62,7 @@ export interface StoryPack {
     depletedScene: string; // 非结局场景电量耗尽时的被动结局
     speakers: Record<string, string>; // 台词归属表：角色中文名 → 声线 id
     achievements: AchievementDef[];
+    codex?: { entries: CodexEntry[] }; // 记忆库词条表（2026-08-25）
     scenes: Record<string, Scene>;
     baseUrl: string; // 故事包根路径（音频等资产相对它解析），加载时注入
 }
@@ -68,6 +84,7 @@ export interface StoryMeta {
     cover: string;    // 完整相对路径 stories/<id>/<cover>，无封面为空串
     achIds: string[]; // 本故事的成就 id 表（书架计数用）
     achievements?: { id: string; name: string; icon: string; desc: string }[]; // 成就墙用内联定义
+    codexEntries?: CodexEntry[]; // 记忆库面板用内联词条（image 已拼完整路径）
 }
 
 /** 书架索引：书架页列出全部故事 */

@@ -45,6 +45,12 @@ trap 'git checkout -q -f main' EXIT   # 任何退出路径都强制切回 main
 # 路径级同步：只把白名单路径从 main 取过来
 git checkout main -- "${ALLOWED[@]}"
 
+# 母带/源文件不入公开库（与 sync-content.mjs 同规则：「_」开头不发布，如 ch01-wind/_src/风声母带）
+UNDERSCORE=$(git -c core.quotepath=false ls-files | grep -E '(^|/)_[^/]+' || true)
+if [ -n "$UNDERSCORE" ]; then
+    echo "$UNDERSCORE" | while read -r f; do git rm -qf -- "$f"; done  # -f：checkout main -- 刚暂存的文件需要强制
+fi
+
 # 反向清理：opensource 上已不在白名单内的历史文件（如后来下架的路径）一律移除
 # ——白名单是双向强制的，公开库 = 白名单的精确镜像
 # core.quotepath=false：ls-files 默认把中文名转义成八进制，既破坏白名单匹配也让 git rm 找不到文件
@@ -55,7 +61,8 @@ if [ -n "$OUT" ]; then
 fi
 
 # 漂移检查：新增/修改不得落在白名单之外（删除不管——反向清理产生的删除是合法的）
-DRIFT=$(git status --porcelain | awk '$1 !~ /D/ {print $2}' | grep -vE "$PATTERN" || true)
+# core.quotepath=false：否则中文路径被转义成 "\351\243\216..." 带引号格式，^ 锚点匹配不上会误杀
+DRIFT=$(git -c core.quotepath=false status --porcelain | awk '$1 !~ /D/ {print $2}' | grep -vE "$PATTERN" || true)
 if [ -n "$DRIFT" ]; then
     echo "✗ 检测到白名单外的改动，中止发布："
     echo "$DRIFT"

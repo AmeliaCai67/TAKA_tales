@@ -6,11 +6,12 @@ import { pack } from "./pack";
 import { ICON_SOUND_ON, ICON_SOUND_OFF } from "./icons";
 import { speechPref, saveSpeechPref } from "./settings";
 import { TTS_ENDPOINT } from "./config";
+import { acquireAudio } from "./audioPriority";
 
 /* ===== 台词归属（与 packages/tts-pipeline/tts_pipeline/segments.py 严格镜像） ===== */
 // 角色名 + 最多 16 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗，引语后允许跟旁白
 // 2026-08-18 修复：正则必须随故事包 speakers 重建——旧缓存只认 ch01 的角色（塔卡/海鸥/老机器），
-// 切到 ch02/ch03 后抹香鲸/757/铆钉 全部识别失败 → 声线 fallback 到 narrator（线上实测复现）
+// 切到 ch02/ch03 后抹香鲸/757/小钉 全部识别失败 → 声线 fallback 到 narrator（线上实测复现）
 let dialogRe: RegExp | null = null;
 let dialogNames = "";
 
@@ -24,6 +25,12 @@ function getDialogRe(): RegExp {
 }
 
 interface Seg { who: string; text: string; }
+
+/** 如我所书（2026-08-19）：把一段故事文本解析成逐句（说话人+文本），供对话流收集/上报。
+ *  与朗读链路同一解析器，保证书的内容与听到的一致。 */
+export function parseTextSegs(text: string, overrides?: Record<string, string>): Seg[] {
+    return text.split(/\n+/).flatMap(p => parseParagraph(p, overrides));
+}
 
 function parseParagraph(p: string, overrides?: Record<string, string>): Seg[] {
     const m = p.match(getDialogRe());
@@ -67,6 +74,7 @@ let scenePlaylist: string[] = [], scenePlayIdx = 0;
 let speechGen = 0;            // 播放代际：stopSpeech/新播放使旧链失效
 let chainActive = false;      // 播放链进行中（speakChoices 可续接到链尾）
 let choicesQueued = false;    // 选项朗读已在链里（manifest choices.mp3）→ speakChoices 不再重复
+let storyRelease: (() => void) | null = null; // 故事层音频焦点（供高优先级暂停/恢复）
 
 function startChain(urls: string[], duck?: boolean): void {
     stopSpeech(); // 停旧链，拿到新 speechGen
@@ -85,6 +93,8 @@ function startChain(urls: string[], duck?: boolean): void {
     scenePlayer.onended = playNext;
     scenePlayer.onerror = playNext; // 单个文件加载失败跳过，不让整条链哑掉
     chainActive = true;
+    // 故事层（低优先）：图鉴介绍(codex) 开始后会暂停本链，停止后恢复
+    storyRelease = acquireAudio("story", () => scenePlayer.pause(), () => scenePlayer.play());
     playNext();
 }
 
@@ -104,6 +114,7 @@ export function stopSpeech(): void {
     scenePlaylist = [];
     chainActive = false;
     choicesQueued = false;
+    if (storyRelease) { storyRelease(); storyRelease = null; } // 释放故事层焦点
 }
 
 /** 首次交互补读用：播放链是否空闲 */
@@ -194,8 +205,7 @@ export function playSceneAudio(key: string, duck?: boolean): boolean {
     return true;
 }
 
-/* ===== 🔊 按钮 + 语速滑块 + 试听（试听放故事包样例音频） ===== */
-const previewAudio = new Audio();
+/* ===== 🔊 按钮 + 语速滑块（语速即调即生效，无需试听——2026-08-27 移除试听按钮） ===== */
 
 export function initSpeech(): void {
     const btn = document.getElementById("speech-btn")!;
@@ -213,31 +223,6 @@ export function initSpeech(): void {
         speechPref.rate = v;
         saveSpeechPref();
         scenePlayer.playbackRate = v; // 全局：正在播放的链也立即变速（风声 BGM 不变速）
-    };
-    document.getElementById("sp-preview")!.onclick = (e) => {
-        e.stopPropagation();
-        stopSpeech();
-        const rate = Number(slider.value);
-        // 试听 = 开场景前两段（「这是塔卡。」+「它住在海底。…」）；从 manifest 取，引擎不绑内容
-        const segs = audioManifest?.[pack().startScene]?.segments?.slice(0, 2);
-        if (segs && segs.length) {
-            const base = pack().baseUrl + "audio/";
-            let i = 0;
-            const next = () => {
-                if (i >= segs.length) return;
-                previewAudio.src = base + segs[i++].file;
-                previewAudio.playbackRate = rate;
-                previewAudio.play().catch(() => {});
-            };
-            previewAudio.onended = next;
-            next();
-        } else {
-            // manifest 缺失兜底：开场景第一段走服务端 TTS
-            const first = pack().scenes[pack().startScene].text.split(/\n\s*\n/)[0];
-            previewAudio.src = ttsUrl(cleanForSpeech(first), "narrator");
-            previewAudio.playbackRate = rate;
-            previewAudio.play().catch(() => {});
-        }
     };
     btn.onclick = () => {
         speechPref.on = !speechPref.on;
