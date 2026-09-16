@@ -32,7 +32,7 @@ lsof -ti :8000 >/dev/null 2>&1 || {
     (set -a; [ -f .env ] && . ./.env; set +a; cd apps/api && PYTHONPATH=../../packages/tts-pipeline nohup $VENV -m uvicorn app.main:app --port 8000 > /tmp/taka_api.log 2>&1 &)
 }
 lsof -ti :8017 >/dev/null 2>&1 || {
-    (cd apps/player/dist && nohup python3 -m http.server 8017 > /tmp/taka_player.log 2>&1 &)
+    (nohup python3 scripts/serve-player.py > /tmp/taka_player.log 2>&1 &)
 }
 lsof -ti :5173 >/dev/null 2>&1 || {
     # 家长后台：vite dev（源码实时编译；/api 已由 vite.config.ts 代理到 8000，与生产 nginx 反代一致）

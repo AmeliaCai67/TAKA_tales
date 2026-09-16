@@ -15,11 +15,55 @@ export class ApiError extends Error {
 async function req<T>(path: string, opts: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
     const headers: Record<string, string> = { "Content-Type": "application/json", ...(opts.headers || {}) };
     if (session.token) headers["Authorization"] = "Bearer " + session.token;
-    const res = await fetch(API_BASE + path, {
+    const doFetch = () => fetch(API_BASE + path, {
         method: opts.method || "GET",
         headers,
-        body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+        body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+        cache: "no-store"
     });
+    // XHR 回退（2026-09-01 Mate 60 Chrome/99 实测：探针页证明 XHR POST 在其浏览器上 100% 通）
+    const doXhr = () => new Promise<T>((resolve, reject) => {
+        const x = new XMLHttpRequest();
+        x.open(opts.method || "GET", API_BASE + path);
+        for (const [k, v] of Object.entries(headers)) x.setRequestHeader(k, v);
+        x.onload = () => {
+            let data: any = {};
+            try { data = JSON.parse(x.responseText || "{}"); } catch {}
+            if (x.status >= 200 && x.status < 300) return resolve(data as T);
+            let msg = "HTTP " + x.status;
+            if (data && data.detail) msg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+            reject(new ApiError(x.status, msg));
+        };
+        x.onerror = () => reject(new TypeError("xhr onerror (status=" + x.status + ")"));
+        x.ontimeout = () => reject(new TypeError("xhr timeout"));
+        x.timeout = 15000;
+        x.send(opts.body === undefined ? undefined : JSON.stringify(opts.body));
+    });
+    // 移动浏览器对复用的已死 keep-alive 连接不重试 POST（非幂等）→ TypeError「Failed to fetch」。
+    // 阶梯：fetch → fetch 重试（新连接）→ XHR 回退；HTTP 错误不进入重试（2026-09-01 实机排查）
+    let res: Response | undefined;
+    let fetchErr: Error | null = null;
+    try {
+        res = await doFetch();
+    } catch (e: any) {
+        fetchErr = e;
+        try {
+            await new Promise(r => setTimeout(r, 400));
+            res = await doFetch();
+            fetchErr = null;
+        } catch (e2: any) {
+            fetchErr = e2;
+        }
+    }
+    if (fetchErr) {
+        try {
+            return await doXhr();
+        } catch (xe: any) {
+            // 两种传输全挂：把两边的错误都带上去（排障需要）
+            throw new TypeError(fetchErr.message + "；xhr: " + (xe && xe.message ? xe.message : xe));
+        }
+    }
+    if (!res) throw fetchErr; // 理论不可达（fetchErr 非空已在上面 return/throw）
     if (!res.ok) {
         let msg = "HTTP " + res.status;
         try {
@@ -75,16 +119,23 @@ export const api = {
     /** 记忆库（2026-08-25）：发现/解锁/查询词条 */
     codexDiscover: (childId: number, storyId: string, entryId: string) =>
         req("/api/codex/discover", { method: "POST", body: { child_id: childId, story_id: storyId, entry_id: entryId } }),
-    codexUnlock: (childId: number, storyId: string, entryId: string) =>
-        req<{ first: boolean }>("/api/codex/unlock", { method: "POST", body: { child_id: childId, story_id: storyId, entry_id: entryId } }),
+    codexUnlock: (childId: number, storyId: string, entryId: string, tags?: string[]) =>
+        req<{ first: boolean }>("/api/codex/unlock", { method: "POST", body: { child_id: childId, story_id: storyId, entry_id: entryId, tags } }),
+    /** 海底农场控制台 AI 问答（2026-09-07 spec M2）：家长 token 或游客 anonId 通道 */
+    consoleQa: (childId: number | null, storyId: string, itemId: string, question: string, anonId: string | undefined, lang: string) =>
+        req<{ type: "answer" | "canned" | "ignore"; text: string; retried?: boolean }>("/api/console-qa", {
+            method: "POST",
+            body: { child_id: childId, story_id: storyId, item_id: itemId, question, lang },
+            headers: anonId ? { "X-Anon-ID": anonId } : undefined,
+        }),
     codexList: (childId: number) =>
-        req<{ entries: { story_id: string; entry_id: string; unlocked_at: string | null }[] }>(`/api/codex?child_id=${childId}`),
+        req<{ entries: { story_id: string; entry_id: string; unlocked_at: string | null; tags?: string[] | null }[] }>(`/api/codex?child_id=${childId}`),
     /** M4：选项 C 现场生成（服务端受控流水线；401 未登录 / 429 配额 / 503 生成失败）
      *  2026-08-20：游客也可生成（childId=null + anonId 走匿名通道，展示 AI 能力） */
-    generate: (childId: number | null, storyId: string, sceneKey: string, prevText: string, choiceText: string, currentSceneKey: string, anonId?: string) =>
+    generate: (childId: number | null, storyId: string, sceneKey: string, prevText: string, choiceText: string, currentSceneKey: string, anonId?: string, lang: string = "zh") =>
         req<{ type: "advance" | "stay" | "ignore"; text: string; retried: boolean }>("/api/generate", {
             method: "POST",
-            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText, current_scene_key: currentSceneKey },
+            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText, current_scene_key: currentSceneKey, lang },
             headers: anonId ? { "X-Anon-ID": anonId } : undefined,
         }),
     /** 游客匿名（2026-08-18）：注册设备 ID / 上报事件流，均无需登录（无 token 时才用） */

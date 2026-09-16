@@ -1,5 +1,6 @@
 // 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
 import { ICON_SETTINGS, ICON_SHELF } from "./icons";
+import { t } from "./i18n";
 
 export interface AiSettings {
     enabled: boolean; // 允许选项 C 调服务端生成（游客不显示选项 C，开关只控制已登录状态）
@@ -36,6 +37,19 @@ export function saveSpeechPref(): void {
     localStorage.setItem(SPEECH_KEY, JSON.stringify(speechPref));
 }
 
+/* ===== 布局偏好（2026-08-31 绘本模式）：auto=宽度阈值判定 / book=强制绘本 / vn=强制小说 ===== */
+export type LayoutPref = "auto" | "book" | "vn";
+const LAYOUT_KEY = "taka_layout";
+
+export function loadLayoutPref(): LayoutPref {
+    const v = localStorage.getItem(LAYOUT_KEY);
+    return v === "book" || v === "vn" ? v : "auto";
+}
+
+/** 布局切换回调（main.ts 注入：重判 book-mode + 原地重渲当前场景） */
+let layoutChangeHandler: ((p: LayoutPref) => void) | null = null;
+export function setLayoutChangeHandler(fn: (p: LayoutPref) => void): void { layoutChangeHandler = fn; }
+
 /* ===== 顶部状态条（AI 状态/提示共用） ===== */
 let statusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -47,38 +61,80 @@ export function showStatus(msg: string, ms?: number): void {
     }
 }
 
-/* ===== 设置面板 DOM 接线 ===== */
+/* ===== 设置面板 DOM 接线（2026-09-02 改版：即改即存，点面板外自动关闭；删保存/关闭钮；加退出登录） ===== */
 /** 「保存并返回书架」处理器（main.ts 注入 engine.exitToShelf，避免 settings↔engine 循环依赖） */
 let exitToShelfHandler: (() => void) | null = null;
 export function setExitToShelfHandler(fn: () => void): void { exitToShelfHandler = fn; }
+
+/** 「退出登录」处理器（main.ts 注入 auth.logoutEverywhere，同样防循环依赖） */
+let logoutHandler: (() => void) | null = null;
+export function setLogoutHandler(fn: () => void): void { logoutHandler = fn; }
+
+/** 登录态查询（main.ts 注入 session 快照，控制「退出登录」显隐） */
+let isLoggedInFn: (() => boolean) | null = null;
+export function setIsLoggedInFn(fn: () => boolean): void { isLoggedInFn = fn; }
 
 export function initSettingsPanel(): void {
     document.getElementById("settings-btn")!.innerHTML = ICON_SETTINGS;
     document.querySelector("#sp-toshelf .sp-shelf-ico")!.innerHTML = ICON_SHELF;
     const s = loadSettings();
-    (document.getElementById("sp-enabled") as HTMLInputElement).checked = s.enabled;
+    const enabledEl = document.getElementById("sp-enabled") as HTMLInputElement;
+    const readChoicesEl = document.getElementById("sp-readchoices") as HTMLInputElement;
+    enabledEl.checked = s.enabled;
+    readChoicesEl.checked = speechPref.readChoices;
     const panel = document.getElementById("settings-panel")!;
-    document.getElementById("settings-btn")!.onclick = () => {
-        panel.hidden = !panel.hidden;
-        if (!panel.hidden) {
+
+    // 即改即存：两个开关直接落盘
+    enabledEl.onchange = () => {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ enabled: enabledEl.checked } satisfies AiSettings));
+    };
+    readChoicesEl.onchange = () => {
+        speechPref.readChoices = readChoicesEl.checked;
+        saveSpeechPref();
+    };
+
+    let outsideCloser: ((ev: Event) => void) | null = null;
+    const closePanel = () => {
+        panel.hidden = true;
+        if (outsideCloser) {
+            document.removeEventListener("pointerdown", outsideCloser);
+            outsideCloser = null;
+        }
+    };
+    document.getElementById("settings-btn")!.onclick = (e) => {
+        e.stopPropagation();
+        if (panel.hidden) {
+            panel.hidden = false;
             // 故事进行中才显示「保存并返回书架」（书架页上无意义）
             const shelf = document.getElementById("shelf-screen");
             document.getElementById("sp-toshelf")!.style.display = shelf && shelf.hidden ? "" : "none";
+            // 登录时显示「退出登录」
+            document.getElementById("sp-logout")!.hidden = !(isLoggedInFn && isLoggedInFn());
+            // 点面板外任意处自动关闭（设置项全部即改即存，无需显式保存）
+            setTimeout(() => {
+                outsideCloser = (ev: Event) => {
+                    if (!panel.contains(ev.target as Node)) closePanel();
+                };
+                document.addEventListener("pointerdown", outsideCloser);
+            }, 0); // 本次点击不触发刚挂的监听
+        } else {
+            closePanel();
         }
     };
     document.getElementById("sp-toshelf")!.onclick = () => {
-        panel.hidden = true;
+        closePanel();
         if (exitToShelfHandler) exitToShelfHandler();
     };
-    document.getElementById("sp-save")!.onclick = () => {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-            enabled: (document.getElementById("sp-enabled") as HTMLInputElement).checked
-        } satisfies AiSettings));
-        speechPref.readChoices = (document.getElementById("sp-readchoices") as HTMLInputElement).checked;
-        speechPref.rate = Number((document.getElementById("sp-rate") as HTMLInputElement).value);
-        saveSpeechPref();
-        panel.hidden = true;
-        showStatus("设置已保存", 2000);
+    document.getElementById("sp-logout")!.onclick = () => {
+        closePanel();
+        if (logoutHandler) logoutHandler();
     };
-    document.getElementById("sp-close")!.onclick = () => { panel.hidden = true; };
+    // 布局三档：即时生效（与语速滑块同款交互）
+    const layoutSel = document.getElementById("sp-layout") as HTMLSelectElement;
+    layoutSel.value = loadLayoutPref();
+    layoutSel.onchange = () => {
+        const v = layoutSel.value as LayoutPref;
+        localStorage.setItem(LAYOUT_KEY, v);
+        if (layoutChangeHandler) layoutChangeHandler(v);
+    };
 }

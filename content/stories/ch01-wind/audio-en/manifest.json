@@ -1,0 +1,517 @@
+{
+ "prologue": {
+  "segments": [
+   {
+    "file": "prologue/01_narrator.mp3",
+    "who": "narrator",
+    "text": "This is TAKA."
+   },
+   {
+    "file": "prologue/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA lives at the bottom of the sea."
+   },
+   {
+    "file": "prologue/03_narrator.mp3",
+    "who": "narrator",
+    "text": "Every day, TAKA cleans the coral."
+   },
+   {
+    "file": "prologue/04_narrator.mp3",
+    "who": "narrator",
+    "text": "Every day, TAKA listens to the Old Machine tell stories."
+   },
+   {
+    "file": "prologue/05_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA is old."
+   },
+   {
+    "file": "prologue/06_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA is made of iron."
+   },
+   {
+    "file": "prologue/07_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA is calm and quiet."
+   },
+   {
+    "file": "prologue/08_narrator.mp3",
+    "who": "narrator",
+    "text": "But today, TAKA wants to go up."
+   }
+  ],
+  "choices": {
+   "file": "prologue/choices.mp3",
+   "who": "narrator",
+   "text": "Start the story. "
+  }
+ },
+ "start": {
+  "segments": [
+   {
+    "file": "start/01_narrator.mp3",
+    "who": "narrator",
+    "text": "The sea bottom is full of lights."
+   },
+   {
+    "file": "start/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA cleans the coral in the shiny lights."
+   },
+   {
+    "file": "start/03_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA hears a sound."
+   },
+   {
+    "file": "start/04_narrator.mp3",
+    "who": "narrator",
+    "text": "Ooo... ooo..."
+   },
+   {
+    "file": "start/05_narrator.mp3",
+    "who": "narrator",
+    "text": "It comes from up there."
+   },
+   {
+    "file": "start/06_narrator.mp3",
+    "who": "narrator",
+    "text": "The Old Machine says,"
+   },
+   {
+    "file": "start/07_oldmachine.mp3",
+    "who": "oldmachine",
+    "text": "Do not go. There is no water up there."
+   }
+  ],
+  "choices": {
+   "file": "start/choices.mp3",
+   "who": "narrator",
+   "text": "You choose. A. Swim up and see. B. Keep cleaning the coral. Or tell me your own idea."
+  }
+ },
+ "clean_branch": {
+  "segments": [
+   {
+    "file": "clean_branch/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA stays."
+   },
+   {
+    "file": "clean_branch/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA cleans the coral."
+   },
+   {
+    "file": "clean_branch/03_narrator.mp3",
+    "who": "narrator",
+    "text": "At night, TAKA's light stays on."
+   },
+   {
+    "file": "clean_branch/04_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA cannot sleep."
+   },
+   {
+    "file": "clean_branch/05_narrator.mp3",
+    "who": "narrator",
+    "text": "Ooo... ooo..."
+   },
+   {
+    "file": "clean_branch/06_narrator.mp3",
+    "who": "narrator",
+    "text": "The sound is still there."
+   }
+  ],
+  "choices": {
+   "file": "clean_branch/choices.mp3",
+   "who": "narrator",
+   "text": "A. Close your eyes and sleep. Or tell me your own idea."
+  }
+ },
+ "dream": {
+  "segments": [
+   {
+    "file": "dream/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA falls asleep."
+   },
+   {
+    "file": "dream/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA dreams of light."
+   },
+   {
+    "file": "dream/03_narrator.mp3",
+    "who": "narrator",
+    "text": "Very, very bright."
+   },
+   {
+    "file": "dream/04_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA dreams of wind."
+   },
+   {
+    "file": "dream/05_narrator.mp3",
+    "who": "narrator",
+    "text": "Like waves."
+   },
+   {
+    "file": "dream/06_narrator.mp3",
+    "who": "narrator",
+    "text": "Ooo... ooo..."
+   },
+   {
+    "file": "dream/07_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA dreams of coral."
+   },
+   {
+    "file": "dream/08_narrator.mp3",
+    "who": "narrator",
+    "text": "So big. Not shiny."
+   },
+   {
+    "file": "dream/09_narrator.mp3",
+    "who": "narrator",
+    "text": "The Old Machine pokes TAKA."
+   },
+   {
+    "file": "dream/10_oldmachine.mp3",
+    "who": "oldmachine",
+    "text": "Time to work."
+   },
+   {
+    "file": "dream/11_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA looks at the coral."
+   },
+   {
+    "file": "dream/12_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA looks up."
+   }
+  ],
+  "choices": {
+   "file": "dream/choices.mp3",
+   "who": "narrator",
+   "text": "Go up and see. Or tell me your own idea."
+  }
+ },
+ "surface": {
+  "segments": [
+   {
+    "file": "surface/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA floats up."
+   },
+   {
+    "file": "surface/02_narrator.mp3",
+    "who": "narrator",
+    "text": "No water."
+   },
+   {
+    "file": "surface/03_narrator.mp3",
+    "who": "narrator",
+    "text": "Ouch."
+   },
+   {
+    "file": "surface/04_narrator.mp3",
+    "who": "narrator",
+    "text": "But TAKA hears the sound clearly now."
+   },
+   {
+    "file": "surface/05_narrator.mp3",
+    "who": "narrator",
+    "text": "Wind."
+   },
+   {
+    "file": "surface/06_narrator.mp3",
+    "who": "narrator",
+    "text": "Ooo... ooo..."
+   },
+   {
+    "file": "surface/07_narrator.mp3",
+    "who": "narrator",
+    "text": "A seagull flies over."
+   },
+   {
+    "file": "surface/08_seagull.mp3",
+    "who": "seagull",
+    "text": "You will fall!"
+   },
+   {
+    "file": "surface/09_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA says,"
+   },
+   {
+    "file": "surface/10_taka.mp3",
+    "who": "taka",
+    "text": "I am listening."
+   },
+   {
+    "file": "surface/11_seagull.mp3",
+    "who": "seagull",
+    "text": "To what?"
+   },
+   {
+    "file": "surface/12_narrator.mp3",
+    "who": "narrator",
+    "text": "asks the seagull."
+   },
+   {
+    "file": "surface/13_taka.mp3",
+    "who": "taka",
+    "text": "I do not know. But I want to hear it all."
+   }
+  ],
+  "choices": {
+   "file": "surface/choices.mp3",
+   "who": "narrator",
+   "text": "You choose. A. Ask the wind: Where do you come from?. B. Just listen. Or tell me your own idea."
+  }
+ },
+ "ask_wind": {
+  "segments": [
+   {
+    "file": "ask_wind/01_taka.mp3",
+    "who": "taka",
+    "text": "Where do you come from?"
+   },
+   {
+    "file": "ask_wind/02_narrator.mp3",
+    "who": "narrator",
+    "text": "asks TAKA."
+   },
+   {
+    "file": "ask_wind/03_seagull.mp3",
+    "who": "seagull",
+    "text": "I come from where the clouds live,"
+   },
+   {
+    "file": "ask_wind/04_narrator.mp3",
+    "who": "narrator",
+    "text": "says the seagull."
+   },
+   {
+    "file": "ask_wind/05_taka.mp3",
+    "who": "taka",
+    "text": "What are clouds?"
+   },
+   {
+    "file": "ask_wind/06_seagull.mp3",
+    "who": "seagull",
+    "text": "Clouds are the sea in the sky. You cannot hold them."
+   },
+   {
+    "file": "ask_wind/07_narrator.mp3",
+    "who": "narrator",
+    "text": "The Sun rises, slow and warm."
+   }
+  ],
+  "choices": {
+   "file": "ask_wind/choices.mp3",
+   "who": "narrator",
+   "text": "Continue. "
+  }
+ },
+ "just_listen": {
+  "segments": [
+   {
+    "file": "just_listen/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA stays still."
+   },
+   {
+    "file": "just_listen/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA's light glows brighter."
+   },
+   {
+    "file": "just_listen/03_narrator.mp3",
+    "who": "narrator",
+    "text": "The wind is so clear now."
+   },
+   {
+    "file": "just_listen/04_narrator.mp3",
+    "who": "narrator",
+    "text": "Ooo... ooo..."
+   }
+  ],
+  "choices": {
+   "file": "just_listen/choices.mp3",
+   "who": "narrator",
+   "text": "TAKA opens its eyes. The sun is up, big and round."
+  }
+ },
+ "climax": {
+  "segments": [
+   {
+    "file": "climax/01_narrator.mp3",
+    "who": "narrator",
+    "text": "The Sun rises. It shines on TAKA. It shines on the seagull."
+   },
+   {
+    "file": "climax/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA's battery is low."
+   },
+   {
+    "file": "climax/03_narrator.mp3",
+    "who": "narrator",
+    "text": "The Old Machine calls, weak and far."
+   },
+   {
+    "file": "climax/04_oldmachine.mp3",
+    "who": "oldmachine",
+    "text": "Come back."
+   },
+   {
+    "file": "climax/05_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA looks at the surface. The wind is still here."
+   },
+   {
+    "file": "climax/06_narrator.mp3",
+    "who": "narrator",
+    "text": "The seagull says,"
+   },
+   {
+    "file": "climax/07_seagull.mp3",
+    "who": "seagull",
+    "text": "You choose. I will not choose for you."
+   },
+   {
+    "file": "climax/08_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA's light blinks. One. Two. Three."
+   }
+  ],
+  "choices": {
+   "file": "climax/choices.mp3",
+   "who": "narrator",
+   "text": "You choose. A. Dive back to recharge. B. Listen one more minute. "
+  }
+ },
+ "ending_a": {
+  "segments": [
+   {
+    "file": "ending_a/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA dives back down."
+   },
+   {
+    "file": "ending_a/02_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA plugs in."
+   },
+   {
+    "file": "ending_a/03_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA saves the wind song in the Memory Bank."
+   },
+   {
+    "file": "ending_a/04_narrator.mp3",
+    "who": "narrator",
+    "text": "The next day, TAKA is full of power."
+   },
+   {
+    "file": "ending_a/05_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA plays the song for the Old Machine."
+   },
+   {
+    "file": "ending_a/06_narrator.mp3",
+    "who": "narrator",
+    "text": "For the first time, the Old Machine's light blinks."
+   },
+   {
+    "file": "ending_a/07_oldmachine.mp3",
+    "who": "oldmachine",
+    "text": "Sounds good,"
+   },
+   {
+    "file": "ending_a/08_narrator.mp3",
+    "who": "narrator",
+    "text": "says the Old Machine."
+   }
+  ],
+  "choices": {
+   "file": "ending_a/choices.mp3",
+   "who": "narrator",
+   "text": "Restart the story. "
+  }
+ },
+ "ending_b": {
+  "segments": [
+   {
+    "file": "ending_b/01_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA does not move."
+   },
+   {
+    "file": "ending_b/02_narrator.mp3",
+    "who": "narrator",
+    "text": "One minute. Two minutes."
+   },
+   {
+    "file": "ending_b/03_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA hears the whole song."
+   },
+   {
+    "file": "ending_b/04_narrator.mp3",
+    "who": "narrator",
+    "text": "Click."
+   },
+   {
+    "file": "ending_b/05_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA's power goes out."
+   },
+   {
+    "file": "ending_b/06_narrator.mp3",
+    "who": "narrator",
+    "text": "Little by little, the seagull pushes TAKA back down to the sea with big wings."
+   },
+   {
+    "file": "ending_b/07_narrator.mp3",
+    "who": "narrator",
+    "text": "TAKA wakes up at sunset."
+   },
+   {
+    "file": "ending_b/08_narrator.mp3",
+    "who": "narrator",
+    "text": "Battery: 0%."
+   },
+   {
+    "file": "ending_b/09_narrator.mp3",
+    "who": "narrator",
+    "text": "But in TAKA's Memory Bank, there is one finished wind song."
+   },
+   {
+    "file": "ending_b/10_taka.mp3",
+    "who": "taka",
+    "text": "Worth it,"
+   },
+   {
+    "file": "ending_b/11_narrator.mp3",
+    "who": "narrator",
+    "text": "says TAKA."
+   },
+   {
+    "file": "ending_b/12_narrator.mp3",
+    "who": "narrator",
+    "text": "The seagull sits close by."
+   }
+  ],
+  "choices": {
+   "file": "ending_b/choices.mp3",
+   "who": "narrator",
+   "text": "Restart the story. "
+  }
+ }
+}

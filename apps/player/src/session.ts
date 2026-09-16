@@ -9,6 +9,9 @@ export const session = {
     children: [] as ChildInfo[] // /api/auth/me 拉取后由 auth.ts 填充
 };
 
+/** 页面加载时是否处于「未登录/游客」态——用于成就「游客→登录」一次性携带判断（2026-08-30） */
+export const wasGuestAtLoad: boolean = !localStorage.getItem("taka_token");
+
 /** 当前选中的孩子档案（未选中/未登录为 undefined） */
 export function selectedChild(): ChildInfo | undefined {
     return session.children.find(c => c.id === session.childId);

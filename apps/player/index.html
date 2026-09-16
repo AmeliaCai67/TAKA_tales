@@ -2,52 +2,69 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="./favicon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="./favicon-192.png">
-    <title>塔卡 (TAKA)</title>
+    <title data-i18n="misc.doc_title">塔卡 (TAKA)</title>
 </head>
 <body>
 
+<div class="bg-layer" id="bg-a"></div>
+<div class="bg-layer" id="bg-b"></div>
+<div class="bg-shade"></div>
+
 <div id="stage">
     <div class="hud">
-        <div class="battery-icon"><div class="battery-fill" id="battery-fill"></div></div>
+        <button class="lang-toggle" id="lang-toggle" title="中文 / English">中 / EN</button>
+        <div class="core-ico" id="core-ico" title="塔卡的能源核心">
+            <svg viewBox="0 0 32 32">
+                <circle class="core-ring" cx="16" cy="16" r="12.5"/>
+                <circle class="core-arc" id="core-arc" cx="16" cy="16" r="12.5"/>
+                <path class="core-bolt" d="M17.4 9.6 L13.4 16.5 H16.1 L15 22.4 L19.8 15.3 H16.9 Z"/>
+            </svg>
+        </div>
         <span id="battery-text">100%</span>
     </div>
 
-    <button class="log-btn" id="log-btn" title="旅程日志">📖</button>
-    <button class="settings-btn" id="settings-btn" title="设置">⚙</button>
-    <button class="ach-btn" id="ach-btn" title="成就">🏅</button>
-    <button class="speech-btn" id="speech-btn" title="语音开关">🔊</button>
-    <button class="parent-btn" id="parent-btn" title="家长入口">👤</button>
+    <button class="log-btn" id="log-btn" data-i18n-title="log.btn_title" title="旅程日志">📖</button>
+    <button class="settings-btn" id="settings-btn" data-i18n-title="misc.settings_btn_title" title="设置">⚙</button>
+    <button class="ach-btn" id="ach-btn" data-i18n-title="ach.btn_title" title="成就">🏅</button>
+    <button class="speech-btn" id="speech-btn" data-i18n-title="speech.btn_title" title="语音开关">🔊</button>
+    <button class="parent-btn" id="parent-btn" data-i18n-title="misc.parent_btn_title" title="家长入口">👤</button>
     <div class="parent-overlay" id="parent-overlay" hidden>
         <div class="ach-modal parent-modal">
-            <div class="am-title">家 长</div>
+            <div class="am-title" data-i18n="auth.parent_title">家 长</div>
             <div id="parent-body"></div>
         </div>
     </div>
     <div class="settings-panel" id="settings-panel" hidden>
-        <div class="sp-title">设 置</div>
-        <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> 允许孩子自由发挥（需登录）</label>
-        <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> 朗读选项（家长代读 / 大孩子可关）</label>
-        <label>语速 <span id="sp-rate-val">0.95x</span>
+        <div class="sp-title" data-i18n="settings.title">设 置</div>
+        <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> <span data-i18n="settings.allow_free">允许孩子自由发挥（需登录）</span></label>
+        <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> <span data-i18n="settings.read_choices">朗读选项（家长代读 / 大孩子可关）</span></label>
+        <label><span data-i18n="settings.rate">语速</span> <span id="sp-rate-val">0.95x</span>
             <input type="range" id="sp-rate" min="0.5" max="1.5" step="0.05" value="0.95">
         </label>
-        <div class="sp-note">AI 生成在服务端完成，经过内容安全校验；每个账号每日限 50 次。开场、高潮与结局为定稿文本，AI 只承接孩子的自由想法。</div>
-        <div class="sp-actions">
-            <button id="sp-save">保存</button>
-            <button id="sp-close">关闭</button>
+        <label><span data-i18n="settings.layout">页面布局</span>
+            <select id="sp-layout">
+                <option value="auto" data-i18n="settings.layout_auto">自动</option>
+                <option value="book" data-i18n="settings.layout_book">翻页书</option>
+                <option value="vn" data-i18n="settings.layout_vn">小说</option>
+            </select>
+        </label>
+        <div class="sp-note" data-i18n="settings.note">AI 生成在服务端完成，经过内容安全校验；每个账号每日限 50 次。开场、高潮与结局为定稿文本，AI 只承接孩子的自由想法。</div>
+        <div class="sp-nav">
+            <button id="sp-toshelf"><span class="sp-shelf-ico"></span><span data-i18n="settings.to_shelf">保存并返回书架</span></button>
+            <button id="sp-logout" hidden data-i18n="auth.logout">退出登录</button>
         </div>
-        <div class="sp-nav"><button id="sp-toshelf"><span class="sp-shelf-ico"></span>保存并返回书架</button></div>
     </div>
     <div class="ai-status" id="ai-status"></div>
 
     <div class="start-gate" id="start-gate" hidden>
         <div class="gate-eye"></div>
-        <div class="gate-title">塔 卡</div>
-        <button class="gate-btn" id="gate-btn">点一下，听风声</button>
-        <button class="gate-parent" id="gate-parent">家长入口</button>
+        <div class="gate-title" data-i18n="gate.title">塔 卡</div>
+        <button class="gate-btn" id="gate-btn" data-i18n="gate.enter">点一下，听风声</button>
+        <button class="gate-parent" id="gate-parent" data-i18n="gate.parent">家长入口</button>
     </div>
     <div class="toast" id="toast"></div>
 
@@ -55,7 +72,7 @@
 
     <div class="ach-overlay" id="ach-overlay" hidden>
         <div class="ach-modal">
-            <div class="am-title">成 就</div>
+            <div class="am-title" data-i18n="ach.modal_title">成 就</div>
             <div id="ach-list"></div>
         </div>
     </div>
@@ -63,7 +80,7 @@
     <div class="ach-wall" id="ach-wall" hidden>
         <div class="ach-wall-panel">
             <button class="aw-close" id="aw-close">✕</button>
-            <div class="aw-heading">成 就 墙</div>
+            <div class="aw-heading" data-i18n="ach.wall_title">成 就 墙</div>
             <div id="ach-wall-body"></div>
         </div>
     </div>
@@ -155,13 +172,29 @@
     </div>
 
     <div class="dialog" id="dialog">
-        <div class="speaker">塔 卡</div>
+        <div class="speaker" id="speaker-label">塔 卡</div>
         <div class="story-text" id="story-text"></div>
         <div class="listen-bar" id="listen-bar">
-            <span>风声。呼呼。正在收听...</span>
+            <span data-i18n="engine.listen_bar">风声。呼呼。正在收听...</span>
             <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
         <div class="choices" id="choices"></div>
+    </div>
+
+    <!-- 全局语音输入悬浮钮（FAB）：吸附屏幕右下角，远离文字区（2026-09-01 Mate 60 误触治理） -->
+    <button class="mic-fab" id="mic-fab" hidden aria-label="语音输入"></button>
+
+    <!-- 横屏绘本舞台：book-mode 时由 book.ts 填充 spread 双页（显隐由 CSS 管，不用 hidden） -->
+    <div id="book-stage"></div>
+</div>
+
+<!-- 窄屏进故事的横屏提示（可勾不再提示） -->
+<div class="rotate-hint" id="rotate-hint" hidden>
+    <div class="rh-card">
+        <div class="rh-phone" aria-hidden="true"></div>
+        <div class="rh-text" data-i18n="book.hint_title">横过来，故事会更好看</div>
+        <button class="rh-ok" id="rh-ok" data-i18n="book.hint_ok">知道了，继续</button>
+        <label class="rh-never"><input type="checkbox" id="rh-never"> <span data-i18n="book.hint_never">不再提示</span></label>
     </div>
 </div>
 
@@ -169,7 +202,7 @@
 <div class="archive-overlay" id="archive-overlay" hidden>
     <div class="archive-panel">
         <div class="archive-head">
-            <span class="archive-title">如 我 所 书</span>
+            <span class="archive-title" data-i18n="archive.title">如 我 所 书</span>
             <button class="archive-close" id="archive-close">✕</button>
         </div>
         <div class="archive-body" id="archive-body"></div>

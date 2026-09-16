@@ -10,6 +10,10 @@
     "海鸥": "seagull",
     "老机器": "oldmachine"
   },
+  "characters": {
+    "seagull": "characters/seagull.svg",
+    "oldmachine": "characters/oldmachine.svg"
+  },
   "achievements": [
     {
       "id": "coral_cleaner",
@@ -51,6 +55,12 @@
     "prologue": {
       "mode": "swim",
       "text": "这是塔卡。\n\n它住在海底。每天清理珊瑚，听老机器讲故事。\n\n塔卡是一只旧铁皮机器人，话少。\n\n今天，它第一次想去海面上看看。",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
       "cost": 0,
       "eyeState": "st-standby",
       "choices": [
@@ -70,6 +80,28 @@
       "mode": "swim",
       "freeInput": true,
       "text": "海底很亮。有很多光。\n\n塔卡每天清理珊瑚。光在动。\n\n它听到声音。呼呼。从上面来。\n\n老机器说：\"不要去。上面没有水。\"\n\n塔卡的灯闪了一下：\"我想知道。\"",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "light",
+            "x": 50,
+            "y": 12,
+            "size": 11
+          },
+          {
+            "choice": 1,
+            "actor": "coral",
+            "x": 80,
+            "y": 76,
+            "size": 13
+          }
+        ]
+      },
       "cost": 0,
       "eyeState": "st-standby",
       "choices": [
@@ -103,6 +135,12 @@
         "在场角色只有塔卡、老机器；海鸥在海面不在海底，不得出现；其他故事的角色（如小钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡留下来清理珊瑚。\n\n夜里，它的灯一直亮着。它睡不着。\n\n呼呼。声音还在。",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
       "cost": 5,
       "eyeState": "st-thinking",
       "choices": [
@@ -128,6 +166,21 @@
         "在场角色只有塔卡、老机器；海鸥在海面不在海底，不得出现；其他故事的角色（如小钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡睡着了。\n\n它梦到光。很亮。很亮。\n\n它梦到风。像海浪。呼呼。\n\n它梦到珊瑚。很大。不发光。\n\n老机器推它：\"该工作了。\"\n\n塔卡看着珊瑚。又看了看上面。",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "light",
+            "x": 50,
+            "y": 10,
+            "size": 11
+          }
+        ]
+      },
       "cost": 5,
       "eyeState": "st-thinking",
       "choices": [
@@ -152,6 +205,28 @@
         "在场角色只有塔卡、海鸥、老机器；其他故事的角色（如小钉、757、抹香鲸）不得出现，如需出声必须先有入场动作"
       ],
       "text": "塔卡浮出水面。没有水。很疼。\n\n但它听到了。风声。呼呼。\n\n一只海鸥飞过来：\"你会掉下去。\"\n\n塔卡：\"我在听。\"\n\n海鸥：\"听什么？\"\n\n塔卡：\"我不知道。但我想听完。\"",
+      "background": "backgrounds/ch01-dawn-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "seagull",
+            "x": 70,
+            "y": 20,
+            "size": 15
+          },
+          {
+            "choice": 1,
+            "actor": "waves",
+            "x": 45,
+            "y": 78,
+            "size": 13
+          }
+        ]
+      },
       "cost": 40,
       "eyeState": "st-standby",
       "choices": [
@@ -186,6 +261,21 @@
         "太阳渐渐升起来了"
       ],
       "text": "塔卡问：\"你从哪里来？\"\n\n海鸥回答：\"我从有云的地方来。\"\n\n塔卡问：\"云是什么？\"\n\n海鸥说：\"云是天上的海，只是它抓不住。\"\n\n太阳渐渐升起来了。",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "actors": [
+          {
+            "actor": "seagull",
+            "x": 70,
+            "y": 22,
+            "size": 16,
+            "flip": true
+          }
+        ]
+      },
       "cost": 20,
       "sun": 5,
       "eyeState": "st-standby",
@@ -205,6 +295,12 @@
         "没有问题。只有风"
       ],
       "text": "塔卡没有说话。它的灯光慢慢变亮。\n\n风声变得很清晰。呼呼。呼呼。\n\n没有问题。只有风。",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ]
+      },
       "cost": 20,
       "eyeState": "st-listening",
       "isSpecialListen": true,
@@ -214,6 +310,41 @@
     "climax": {
       "mode": "swim",
       "text": "太阳出来了。塔卡的电量不多了。\n\n老机器的信号很弱：\"回来。现在。\"\n\n塔卡看着海面。风声还在。\n\n海鸥说：\"你选。我不帮你选。\"\n\n塔卡的灯闪了三次。",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "taka": {
+          "x": 20,
+          "y": 30
+        },
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "deep",
+            "x": 32,
+            "y": 78,
+            "size": 12
+          },
+          {
+            "choice": 1,
+            "actor": "sun",
+            "x": 68,
+            "y": 22,
+            "size": 11
+          }
+        ],
+        "actors": [
+          {
+            "actor": "seagull",
+            "x": 46,
+            "y": 14,
+            "size": 14,
+            "flip": true
+          }
+        ]
+      },
       "cost": 25,
       "eyeState": "st-low",
       "choices": [
@@ -230,6 +361,12 @@
     "ending_a": {
       "mode": "swim",
       "text": "塔卡沉入海底。它接上了充电线。\n\n它把风声录进了记忆库。\n\n第二天，它带着满电回来，放给老机器听。\n\n老机器的灯第一次闪了：\"原来是这样。\"\n\n（完 - 分享而非牺牲）",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
       "cost": 0,
       "setBattery": 100,
       "eyeState": "st-standby",
@@ -243,6 +380,12 @@
     "ending_b": {
       "mode": "swim",
       "text": "塔卡没有动。一分钟。两分钟。\n\n它听到了完整的一首歌。\n\n咔哒。塔卡关机了。\n\n海鸥用巨大的翅膀，一点点把它推回了海面。\n\n它在日落时醒来。电池 0%。但记忆里有完整的风声。\n\n塔卡说：\"值了。\"它身边坐着海鸥。\n\n（完 - 体验优先，有友兜底）",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ]
+      },
       "cost": 0,
       "setBattery": 0,
       "eyeState": "st-standby",

@@ -1,367 +1,387 @@
 {
  "prologue/01_narrator.mp3": {
-  "hash": "a368b72a0ef3e67052a016298eccfc118c638f69",
+  "hash": "f03854479df01101271a9aa546489a3449e5a624",
   "who": "narrator",
   "text": "这是塔卡。"
  },
  "prologue/02_narrator.mp3": {
-  "hash": "50e5d7fb90639dfce901a53687d8f09283d7c9e0",
+  "hash": "b4431e59269ecc1f05801d97cfb1823fccf4d2e2",
   "who": "narrator",
   "text": "它住在海底。每天清理珊瑚，听老机器讲故事。"
  },
  "prologue/03_narrator.mp3": {
-  "hash": "40ee620875d2b27727adbe9db6a4700bf2492efb",
+  "hash": "90e78fcb2e6320acb580877fc7535d191e98a012",
   "who": "narrator",
   "text": "塔卡是一只旧铁皮机器人，话少。"
  },
  "prologue/04_narrator.mp3": {
-  "hash": "ffd2af7e2a74f6393a47a7a24fde5ccdd2bf31f4",
+  "hash": "94e0d5a9df955eb1afdb3ded8dd264f99e05db7b",
   "who": "narrator",
   "text": "今天，它第一次想去海面上看看。"
  },
  "prologue/choices.mp3": {
-  "hash": "1ce1974209b2a4e9d5e370b0bdeac1bc58ed5ec4",
+  "hash": "11d43c18fe5e79e23c271f5010175cbc087d33bf",
   "who": "narrator",
   "text": "开始故事。"
  },
  "start/01_narrator.mp3": {
-  "hash": "66994f16df162204464942af703db52ed2503e28",
+  "hash": "ac9d847824753aa7dcb9824fdcde8f9776ddf170",
   "who": "narrator",
   "text": "海底很亮。有很多光。"
  },
  "start/02_narrator.mp3": {
-  "hash": "d4fa1336eea4e3bded33f6f87217366ee8d65fd5",
+  "hash": "9e6935e595ee06ce52830be252b18aaa76053b2b",
   "who": "narrator",
   "text": "塔卡每天清理珊瑚。光在动。"
  },
  "start/03_narrator.mp3": {
-  "hash": "9dd16847b16d26699af1690b5c57198cd3e43ecc",
+  "hash": "5f9bc07fedda528299522f89f6439c4194229a77",
   "who": "narrator",
   "text": "它听到声音。呼呼。从上面来。"
  },
  "start/04_narrator.mp3": {
-  "hash": "bfbdc85c5ad70fa109b5faeed0e4da3deb36e7ec",
+  "hash": "970d1585fc68c677782850dc8d480ee5e76a7da5",
   "who": "narrator",
   "text": "老机器说"
  },
  "start/05_oldmachine.mp3": {
-  "hash": "a5b54165276bb5c4969137c24241ab1a1251d6f2",
+  "hash": "8a6a95ca23d8a60f9918743dd2c813718f42b6ae",
   "who": "oldmachine",
   "text": "不要去。上面没有水。"
  },
  "start/06_narrator.mp3": {
-  "hash": "20e1f4218ff5a48c566f7203f6a4692de03e1bd7",
+  "hash": "693b58c0182bd375f8897d1eecea83a240b259d4",
   "who": "narrator",
   "text": "塔卡的灯闪了一下"
  },
  "start/07_taka.mp3": {
-  "hash": "bf632185c3e7fb09c6ca9d0f852f23a97f92f37e",
+  "hash": "376e3457ce1dcc70ec86429724651df0599c2d7e",
   "who": "taka",
   "text": "我想知道。"
  },
  "start/choices.mp3": {
-  "hash": "38ec09c915499a358f6890c616a5e1aa4012291a",
+  "hash": "292f15dc8ec18c558f6d15944a4509a41903a485",
   "who": "narrator",
   "text": "你选。A. 游上去看看。B. 继续清理珊瑚。或者，说说你的想法。"
  },
  "clean_branch/01_narrator.mp3": {
-  "hash": "1cd805604b8530b96f95dc79f62ea7aa25a443e3",
+  "hash": "c4c2a3a21a42e8fba187fb9c32e6bb9c4636b397",
   "who": "narrator",
   "text": "塔卡留下来清理珊瑚。"
  },
  "clean_branch/02_narrator.mp3": {
-  "hash": "117586e661a159ae5da909ec4fd96351fb50ad82",
+  "hash": "87fc3f1f108cf4ba17472fec3cbba37205504695",
   "who": "narrator",
   "text": "夜里，它的灯一直亮着。它睡不着。"
  },
  "clean_branch/03_narrator.mp3": {
-  "hash": "76c4453bc4ea68954dc21cb31b053d52cea2d319",
+  "hash": "0f1537ba2b05b9de933036a750c6364bc0fa92bd",
   "who": "narrator",
   "text": "呼呼。声音还在。"
  },
  "clean_branch/choices.mp3": {
-  "hash": "98ac25b056f679a7ebcb2802de5b8c1f9d20a0fd",
+  "hash": "94387f2b2f76e16d9d8e655077f2a095c5fb0249",
   "who": "narrator",
   "text": "A. 闭上眼睛睡觉。或者，说说你的想法。"
  },
  "dream/01_narrator.mp3": {
-  "hash": "ac33d5e577e8178eed505afcee0ccc7a4e28500b",
+  "hash": "029157b5bc6a6e04ed30ec55d2ee7ed46ffe2fba",
   "who": "narrator",
   "text": "塔卡睡着了。"
  },
  "dream/02_narrator.mp3": {
-  "hash": "5e21817e1d58bd03655adc85d5c0636330336ed4",
+  "hash": "e3bfa0cd99f35b0c255df2109ba80f18745f398b",
   "who": "narrator",
   "text": "它梦到光。很亮。很亮。"
  },
  "dream/03_narrator.mp3": {
-  "hash": "199bbad04bb362db330352b049dae5c32a4ec164",
+  "hash": "9c24e1076a5332d9f70d73d17b1b65e0ac68f039",
   "who": "narrator",
   "text": "它梦到风。像海浪。呼呼。"
  },
  "dream/04_narrator.mp3": {
-  "hash": "d4cc1784b22615ff71ef37831e43bf481e2779ec",
+  "hash": "67270a3b45d2d843ed4aeb1ea16699cf2691c3fc",
   "who": "narrator",
   "text": "它梦到珊瑚。很大。不发光。"
  },
  "dream/05_narrator.mp3": {
-  "hash": "75469262b9cccf737899c8f7a28d6f021c892636",
+  "hash": "9fb28e862edcbf49ea5417fdcb1f023c89aac7d4",
   "who": "narrator",
   "text": "老机器推它"
  },
  "dream/06_oldmachine.mp3": {
-  "hash": "7046456cdd006f834935aa4b2551c8886ce54e28",
+  "hash": "2034435480e0eb1d98ef3379b709e8750e39cb12",
   "who": "oldmachine",
   "text": "该工作了。"
  },
  "dream/07_narrator.mp3": {
-  "hash": "2bb863459e40ed26fb84fd061c68d752e62caa8a",
+  "hash": "989a721d0b65ab633c35d5537480f549e93d4cb7",
   "who": "narrator",
   "text": "塔卡看着珊瑚。又看了看上面。"
  },
  "dream/choices.mp3": {
-  "hash": "9a8a036d88c418a5f986a26e28b047b6b8706899",
+  "hash": "7c8673e13a09b37ec76041bbbca8b7aed1795430",
   "who": "narrator",
   "text": "上去看看。或者，说说你的想法。"
  },
  "surface/01_narrator.mp3": {
-  "hash": "6172ffe11b43110c273dcb8b9c27a30d70da4617",
+  "hash": "f4b7c6d355afa3b70ab5eb9856b52bed28da964b",
   "who": "narrator",
   "text": "塔卡浮出水面。没有水。很疼。"
  },
  "surface/02_narrator.mp3": {
-  "hash": "55cffdb27fce879851481b8448bedc3c53035dd9",
+  "hash": "794298b65fdc4f38bbcea36746d43f10b6bb7694",
   "who": "narrator",
   "text": "但它听到了。风声。呼呼。"
  },
  "surface/03_narrator.mp3": {
-  "hash": "d923a6afcf53ab03d9869e9fa4123e9a35ea8b45",
+  "hash": "debe142dd02887af31246ac9484249e70bb013f8",
   "who": "narrator",
   "text": "一只海鸥飞过来"
  },
  "surface/04_seagull.mp3": {
-  "hash": "31256a53176ee21a2d63828ed05576dd161c9174",
+  "hash": "01bcbe1d0134f6f9cb3ca5f136e6876fe1dc1e42",
   "who": "seagull",
   "text": "你会掉下去。"
  },
  "surface/05_narrator.mp3": {
-  "hash": "9c2c3985ae2af20ebc4cf4e1081dd1c6a8eacc59",
+  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
   "who": "narrator",
   "text": "塔卡说"
  },
  "surface/06_taka.mp3": {
-  "hash": "64499bd25fb1c76c77688ea677bc25a327998720",
+  "hash": "c75d6dd513c95c042c6924b73d91a539327d0c48",
   "who": "taka",
   "text": "我在听。"
  },
  "surface/07_narrator.mp3": {
-  "hash": "ab19d72fbb894f8f08173864b17297e12d50e411",
+  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
   "who": "narrator",
   "text": "海鸥说"
  },
  "surface/08_seagull.mp3": {
-  "hash": "d08826fb7984202263e4ab90f09d19bdd28e4ef7",
+  "hash": "b52ebfa89ddb18bc2451a5115c8ca76e660868ed",
   "who": "seagull",
   "text": "听什么？"
  },
  "surface/09_narrator.mp3": {
-  "hash": "9c2c3985ae2af20ebc4cf4e1081dd1c6a8eacc59",
+  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
   "who": "narrator",
   "text": "塔卡说"
  },
  "surface/10_taka.mp3": {
-  "hash": "7377c708e1d7793e65dacc20d5e22d610b900992",
+  "hash": "c3106441d629732db5598b52a4d560c64866d3ee",
   "who": "taka",
   "text": "我不知道。但我想听完。"
  },
  "surface/choices.mp3": {
-  "hash": "2a8a10021214fcb13d35b63d5d6ff63029722c9e",
+  "hash": "103999f8991e3c4e42016e4ae5d1c61683fc3446",
   "who": "narrator",
   "text": "你选。A. 问风声：你从哪里来？。B. 只是听。或者，说说你的想法。"
  },
  "ask_wind/01_narrator.mp3": {
-  "hash": "36cae41f1eafedf374f0dd7d9904f3f54772862f",
+  "hash": "c403af7711a0266273492fe21363d9dffd383d05",
   "who": "narrator",
   "text": "塔卡问"
  },
  "ask_wind/02_taka.mp3": {
-  "hash": "736434be1de261bed7d9c49a5a4d6160cf3caaf1",
+  "hash": "c155819dbc1a8c548fa804a527cd3efb7b6f8e43",
   "who": "taka",
   "text": "你从哪里来？"
  },
  "ask_wind/03_narrator.mp3": {
-  "hash": "60c72a61b2203df92da88b6614851fc8f6f6d151",
+  "hash": "3a1f4edc5410571ecd16110efb4dbe0885b8e479",
   "who": "narrator",
   "text": "海鸥回答"
  },
  "ask_wind/04_seagull.mp3": {
-  "hash": "14cefd4bb63fe5c49e6076b2b7edca6dc11cc1f9",
+  "hash": "e528c56339ac6997fa32605f21acf5b604e14399",
   "who": "seagull",
   "text": "我从有云的地方来。"
  },
  "ask_wind/05_narrator.mp3": {
-  "hash": "36cae41f1eafedf374f0dd7d9904f3f54772862f",
+  "hash": "c403af7711a0266273492fe21363d9dffd383d05",
   "who": "narrator",
   "text": "塔卡问"
  },
  "ask_wind/06_taka.mp3": {
-  "hash": "93f56041a45246cf2f83131564adb9b4d06e79d6",
+  "hash": "9e07443f34cebe3d3c0aa031f72a3d00cac9df2c",
   "who": "taka",
   "text": "云是什么？"
  },
  "ask_wind/07_narrator.mp3": {
-  "hash": "ab19d72fbb894f8f08173864b17297e12d50e411",
+  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
   "who": "narrator",
   "text": "海鸥说"
  },
  "ask_wind/08_seagull.mp3": {
-  "hash": "c52660b6734fb2030a3d2857b6ed71f8a4cc1d66",
+  "hash": "a2aca1dc833c30a8ec1196b17ff028d48c225bfc",
   "who": "seagull",
   "text": "云是天上的海，只是它抓不住。"
  },
  "ask_wind/09_narrator.mp3": {
-  "hash": "5c142f76d51a4f3e0e35dde429c93b0058586107",
+  "hash": "572167185eb8ad4ff624ae494bff250504e48d0d",
   "who": "narrator",
   "text": "太阳渐渐升起来了。"
  },
  "ask_wind/choices.mp3": {
-  "hash": "af379e32ebac34c464ccde3124ca49674a789c1b",
+  "hash": "114fee4475c60c7a02e2661ebd8a44f412009b50",
   "who": "narrator",
   "text": "继续。"
  },
  "just_listen/01_narrator.mp3": {
-  "hash": "ed9318dc1522fd6a1de2b77f5431e5a202535933",
+  "hash": "e24a505f268cf7397e1c06f7f56fc6d8f39a7eb5",
   "who": "narrator",
   "text": "塔卡没有说话。它的灯光慢慢变亮。"
  },
  "just_listen/02_narrator.mp3": {
-  "hash": "b10f3e7200746e1ac5c7354487ab4e92c04c0d84",
+  "hash": "db5d132b6109a1e815252c269f43883c8d450ecc",
   "who": "narrator",
   "text": "风声变得很清晰。呼呼。呼呼。"
  },
  "just_listen/03_narrator.mp3": {
-  "hash": "864b33e463ee7634c9e8a7a241a007ba557f1439",
+  "hash": "c8f0cc76538c0960238811acb53f1fa1077bbd4c",
   "who": "narrator",
   "text": "没有问题。只有风。"
  },
  "just_listen/choices.mp3": {
-  "hash": "68d2940fafe67fb17e9245b0f2496d782e79dd26",
+  "hash": "cd1deb5b209e27c2f7508f3b58f3658baf54d671",
   "who": "narrator",
   "text": "睁开眼睛，太阳升起来了"
  },
  "climax/01_narrator.mp3": {
-  "hash": "c112014de80911a5b08b9d30a6eb72bfaff64485",
+  "hash": "302cee3223d3e646003d4f683fa36e3449792898",
   "who": "narrator",
   "text": "太阳出来了。塔卡的电量不多了。"
  },
  "climax/02_narrator.mp3": {
-  "hash": "fb6279e99c694bf37ccdc28a5b0894ec78b2ae37",
+  "hash": "e3a203aa5d44ec2fdca4972316250d2a9a7eb929",
   "who": "narrator",
   "text": "老机器的信号很弱"
  },
  "climax/03_oldmachine.mp3": {
-  "hash": "ffa9148f626eba094a8f85a4a43509f19f3e841b",
+  "hash": "a1a5dd0682d389defa9a9a059cd79896db6934d5",
   "who": "oldmachine",
   "text": "回来。现在。"
  },
  "climax/04_narrator.mp3": {
-  "hash": "1f2973b6ac45929946650f7ef0828de6293b9079",
+  "hash": "5d9505a0bbd184a02485d98d5cff925f9f52df2a",
   "who": "narrator",
   "text": "塔卡看着海面。风声还在。"
  },
  "climax/05_narrator.mp3": {
-  "hash": "ab19d72fbb894f8f08173864b17297e12d50e411",
+  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
   "who": "narrator",
   "text": "海鸥说"
  },
  "climax/06_seagull.mp3": {
-  "hash": "af94ee1b47a33cb00c9e55ec84d011480fe24753",
+  "hash": "f13ba65eb0230b228484fde63e23b0a11535db5a",
   "who": "seagull",
   "text": "你选。我不帮你选。"
  },
  "climax/07_narrator.mp3": {
-  "hash": "931f4b8a5a33286ac2b5b8b94f9232671803648d",
+  "hash": "5ad2d817ee88b7b8b8feb97419146d5cbc3edfb4",
   "who": "narrator",
   "text": "塔卡的灯闪了三次。"
  },
  "climax/choices.mp3": {
-  "hash": "5f0868820518628500b243c05dd6e3b049c1c602",
+  "hash": "7f5c815df605df46ac6f9ea6cfe1c5db362adf80",
   "who": "narrator",
   "text": "你选。A. 回海底充电。B. 再听一分钟。"
  },
  "ending_a/01_narrator.mp3": {
-  "hash": "8e8dced57a2b30f378e7fd7db43af5b37bad2e14",
+  "hash": "a6fe0dbb3ac15acf22859fff8a173f8291b21791",
   "who": "narrator",
   "text": "塔卡沉入海底。它接上了充电线。"
  },
  "ending_a/02_narrator.mp3": {
-  "hash": "960698b791fab6ccc910aadfc4f94be9776abed0",
+  "hash": "fba0ae4f559b89f777624b9fe673814637221a25",
   "who": "narrator",
   "text": "它把风声录进了记忆库。"
  },
  "ending_a/03_narrator.mp3": {
-  "hash": "048c813f9ffb6b76bf83abced7a348826dc130a4",
+  "hash": "75fc1ae706fbc60409280016f9603f3d8216bb73",
   "who": "narrator",
   "text": "第二天，它带着满电回来，放给老机器听。"
  },
  "ending_a/04_narrator.mp3": {
-  "hash": "d9f5019897261d55e05a6c6733ade9941f7c7c75",
+  "hash": "3c5c0bb647d081fafc6fe8422de28c435e033b98",
   "who": "narrator",
   "text": "老机器的灯第一次闪了"
  },
  "ending_a/05_oldmachine.mp3": {
-  "hash": "3bb80d5c054ff5aea354688cb23d134bd1989ab1",
+  "hash": "dd7d4eedc4481d55a70235d2978a7248a4ded050",
   "who": "oldmachine",
   "text": "原来是这样。"
  },
  "ending_a/choices.mp3": {
-  "hash": "a2c80552496f6e00dfeea43fc35737507a81c21e",
+  "hash": "bedc2e24fac4e8b3411764db51b1c6bf7ecca7a0",
   "who": "narrator",
   "text": "重新开始故事。"
  },
  "ending_b/01_narrator.mp3": {
-  "hash": "73f74624bbf9cc8c8a3212b35da81d6a2016a879",
+  "hash": "997d7608a6bdeae549abfa19fbdaef7cae5084bb",
   "who": "narrator",
   "text": "塔卡没有动。一分钟。两分钟。"
  },
  "ending_b/02_narrator.mp3": {
-  "hash": "a8670afd27021886087de8e6d8993d6811b73ae2",
+  "hash": "4897faea7d5d5f73885b02529125b4e80f4a2ed2",
   "who": "narrator",
   "text": "它听到了完整的一首歌。"
  },
  "ending_b/03_narrator.mp3": {
-  "hash": "9ff918f36c28ca84a9a4bbaf4a682b3c3748bbed",
+  "hash": "c5561be1fbfecf3dfcd0906c3c0857a83e626f4c",
   "who": "narrator",
   "text": "咔哒。塔卡关机了。"
  },
  "ending_b/04_narrator.mp3": {
-  "hash": "27f8b4c2907f271f988ee08e343b351a050e39bb",
+  "hash": "f9a021005329003a17b7195577a42146449678b5",
   "who": "narrator",
   "text": "海鸥用巨大的翅膀，一点点把它推回了海面。"
  },
  "ending_b/05_narrator.mp3": {
-  "hash": "755bc859f0a9411b959e6f7597abb333a77464e9",
+  "hash": "ac911aebab5689c7fcf122cf4ae209309b4b2eb8",
   "who": "narrator",
   "text": "它在日落时醒来。电池 0%。但记忆里有完整的风声。"
  },
  "ending_b/06_narrator.mp3": {
-  "hash": "9c2c3985ae2af20ebc4cf4e1081dd1c6a8eacc59",
+  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
   "who": "narrator",
   "text": "塔卡说"
  },
  "ending_b/07_taka.mp3": {
-  "hash": "3b12b589786e1cb7e4be48c7d4f64b55e5337144",
+  "hash": "84d7d0e0ac2e5a3f949610017056288b0f1eb550",
   "who": "taka",
   "text": "值了。"
  },
  "ending_b/08_narrator.mp3": {
-  "hash": "70f4d8bf181fbe4312e866cbeb671949cc19b6b1",
+  "hash": "45e0d4f4d800891d5aeb2a5fe503d660ed826b4c",
   "who": "narrator",
   "text": "它身边坐着海鸥。"
  },
  "ending_b/choices.mp3": {
-  "hash": "a2c80552496f6e00dfeea43fc35737507a81c21e",
+  "hash": "bedc2e24fac4e8b3411764db51b1c6bf7ecca7a0",
   "who": "narrator",
   "text": "重新开始故事。"
+ },
+ "codex/coral.science.mp3": {
+  "hash": "c4cdad364462556c9919e414193c8f7660311972",
+  "who": "narrator",
+  "text": "珊瑚看起来像石头，其实是一大群小动物。每只小动物叫珊瑚虫，只有小芝麻那么大。珊瑚虫一代一代住在一起，盖出硬硬的房子。珊瑚礁是好多好多海洋动物的家。"
+ },
+ "codex/coral.taka.mp3": {
+  "hash": "cd87d51482f39c234caf77facf1646355c8d87a4",
+  "who": "taka",
+  "text": "珊瑚不是石头。是很多小虫子盖的房子。 我每天打扫的，就是它们的家。"
+ },
+ "codex/seagull.science.mp3": {
+  "hash": "89bc6d2d3fb5011c9e8dd8f3eaac2fa17b796cc6",
+  "who": "narrator",
+  "text": "海鸥是一种喜欢住在海边的鸟。它有一双大翅膀，可以迎着风飞很久。海鸥不挑食，鱼、小虾、贝壳，它都吃。它的叫声很响，「啊——啊——」，像在打招呼。"
+ },
+ "codex/seagull.taka.mp3": {
+  "hash": "d19f9419fe945a2faeb8a561cc28fd3851f8b96b",
+  "who": "taka",
+  "text": "海鸥有翅膀。我没有。 但我有螺旋桨。"
  }
 }

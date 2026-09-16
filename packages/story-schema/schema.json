@@ -94,6 +94,10 @@
     "ttsAliases": {
       "type": "object",
       "description": "读音别名（可选）：显示文本不动，只改喂给 TTS 的文案，如 {\"757\": \"七五七\"}"
+    },
+    "characters": {
+      "type": "object",
+      "description": "绘本模式角色 SVG 注册表（可选）：actor 名 → 相对故事包根的 SVG 路径，如 {\"seagull\": \"characters/seagull.svg\"}"
     }
   },
   "definitions": {
@@ -113,6 +117,10 @@
         "text": {
           "type": "string",
           "description": "内置定稿正文；ai 场景作为回退文案"
+        },
+        "background": {
+          "type": "string",
+          "description": "场景背景图（相对故事包根，如 backgrounds/xxx.jpg）；缺省保持上一场景"
         },
         "cost": {
           "type": "integer",
@@ -159,6 +167,10 @@
         "freeInput": {
           "type": "boolean",
           "description": "是否提供选项 C 自由输入"
+        },
+        "freeInputNext": {
+          "type": "string",
+          "description": "自由输入（选项 C）生成后的跳转目标场景；优先于 choices[0].next / scene.next。第四章用于「自由输入统跳 E」"
         },
         "isSpecialListen": {
           "type": "boolean",
@@ -216,6 +228,89 @@
           "minimum": 50,
           "maximum": 800,
           "description": "该场景 AI 生成正文的字数硬上限（默认取 redlines.max_length=300）；对话密集型场景可放宽，如 ask-rivet=450"
+        },
+        "collect": {
+          "type": "object",
+          "description": "收集小游戏节点（2026-09 第四章）：横屏/整页/塔卡可拖动/物化物品可交互收集/集满 N 解锁成就。仅横屏模式；右页文字区隐藏，左页占满。",
+          "required": ["items", "required", "next"],
+          "properties": {
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "description": "可交互收集物：塔卡走近后点击即可收集",
+              "items": {
+                "type": "object",
+                "required": ["id", "actor", "x", "y"],
+                "properties": {
+                  "id": { "type": "string", "description": "收集物唯一 id（去重用）" },
+                  "actor": { "type": "string", "description": "物化件：pack.characters 注册名或内置件（grass/cat/bee/butterfly 等）" },
+                  "x": { "type": "number", "description": "左页内横向位置 %" },
+                  "y": { "type": "number", "description": "左页内纵向位置 %" },
+                  "size": { "type": "number", "description": "宽度占左页 %（缺省 16）" },
+                  "label": { "type": "string", "description": "收集提示文案（如「混着水稻的草坪」）" }
+                }
+              }
+            },
+            "required": { "type": "integer", "minimum": 1, "description": "集满多少个触发成就/继续" },
+            "achievement": { "type": "string", "description": "集满 required 时解锁的成就 id（须在根 achievements 表）" },
+            "next": { "type": "string", "description": "集满后跳转的目标场景" }
+          }
+        },
+        "book": {
+          "type": "object",
+          "description": "横屏绘本模式构图（可选；缺省 = background 作左页画面 + 塔卡默认位 + 选项全退化气泡按钮）",
+          "properties": {
+            "art": {
+              "type": "string",
+              "description": "左页画面（相对故事包根）；缺省用 scene.background"
+            },
+            "taka": {
+              "type": "object",
+              "description": "塔卡在左页的位置（%，左上原点）与旋转角",
+              "properties": {
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "rotate": { "type": "number" }
+              }
+            },
+            "decor": {
+              "type": "array",
+              "items": { "enum": ["waves", "sun", "bubbles"] },
+              "description": "左页氛围件（引擎内置 CSS 件）：waves 波纹 / sun 太阳 / bubbles 气泡"
+            },
+            "actors": {
+              "type": "array",
+              "description": "场景常驻角色（非交互演出件，2026-09-03）：随场景渲染即出现在左页画面；actor 须在 pack.characters 注册或为内置件（light/coral/deep/shell/sun/waves/screen/green/door）",
+              "items": {
+                "type": "object",
+                "required": ["actor", "x", "y"],
+                "properties": {
+                  "actor": { "type": "string" },
+                  "x": { "type": "number", "description": "左页内横向位置 %" },
+                  "y": { "type": "number", "description": "左页内纵向位置 %" },
+                  "size": { "type": "number", "description": "宽度占左页 %（缺省 20）" },
+                  "flip": { "type": "boolean", "description": "水平镜像" },
+                  "rotate": { "type": "number", "description": "旋转角（度）" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "hotspots": {
+              "type": "array",
+              "description": "选项物化：choice 下标对齐 choices；actor 须在 pack.characters 注册或为内置件（light/coral/deep/shell）；未声明的选项退化为右页气泡按钮",
+              "items": {
+                "type": "object",
+                "required": ["choice", "actor", "x", "y"],
+                "properties": {
+                  "choice": { "type": "integer", "minimum": 0 },
+                  "actor": { "type": "string" },
+                  "x": { "type": "number", "description": "左页内横向位置 %" },
+                  "y": { "type": "number", "description": "左页内纵向位置 %" },
+                  "size": { "type": "number", "description": "宽度占左页 %（缺省 14）" }
+                }
+              }
+            }
+          }
         }
       }
     }

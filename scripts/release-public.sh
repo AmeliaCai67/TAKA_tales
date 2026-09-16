@@ -28,6 +28,7 @@ ALLOWED=(
     "scripts"
     "index.html"
     "README.md"
+    "README.en.md"
     ".gitignore"
     ".nojekyll"
 )

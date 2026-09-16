@@ -7,11 +7,13 @@ import { ICON_SOUND_ON, ICON_SOUND_OFF } from "./icons";
 import { speechPref, saveSpeechPref } from "./settings";
 import { TTS_ENDPOINT } from "./config";
 import { acquireAudio } from "./audioPriority";
+import { t, lang } from "./i18n";
 
 /* ===== 台词归属（与 packages/tts-pipeline/tts_pipeline/segments.py 严格镜像） ===== */
-// 角色名 + 最多 16 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗，引语后允许跟旁白
+// 角色名 + 最多 8 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗；引语后允许跟旁白
 // 2026-08-18 修复：正则必须随故事包 speakers 重建——旧缓存只认 ch01 的角色（塔卡/海鸥/老机器），
 // 切到 ch02/ch03 后抹香鲸/757/小钉 全部识别失败 → 声线 fallback 到 narrator（线上实测复现）
+// 2026-09-07：引语窗口 16→8 与 Python 侧对齐（两边分段必须一致，否则气泡与音频错位）
 let dialogRe: RegExp | null = null;
 let dialogNames = "";
 
@@ -19,12 +21,31 @@ function getDialogRe(): RegExp {
     const names = Object.keys(pack().speakers).join("|");
     if (!dialogRe || dialogNames !== names) {
         dialogNames = names;
-        dialogRe = new RegExp("(" + names + ")([^：:]{0,16})[：:][\"「“『]([^\"」”』]+?)[\"」”』]");
+        dialogRe = new RegExp("(" + names + ")([^：:]{0,8})[：:][\"「“『]([^\"」”』]+?)[\"」”』]");
     }
     return dialogRe;
 }
 
 interface Seg { who: string; text: string; }
+
+// 插话式台词的引号对（与 segments.py _QUOTE_PAIR[zh] 镜像）
+const QUOTE_PAIR_RE = /["「“『]([^"」”』]+?)["」”』]/g;
+
+/** 引语后余文的插话式拆分（2026-09-07，镜像 segments.py _outro_segs）：
+ *  `757："而且，"757 的声音变得很轻，"我会看着你……"`——插条归旁白，续台词归同一说话人 */
+function outroSegs(outro: string, who: string): Seg[] {
+    const segs: Seg[] = [];
+    let pos = 0;
+    for (const m of outro.matchAll(QUOTE_PAIR_RE)) {
+        const before = outro.slice(pos, m.index).trim();
+        if (before) segs.push({ who: "narrator", text: before });
+        segs.push({ who, text: m[1] });
+        pos = m.index! + m[0].length;
+    }
+    const tail = outro.slice(pos).trim();
+    if (tail) segs.push({ who: "narrator", text: tail });
+    return segs;
+}
 
 /** 如我所书（2026-08-19）：把一段故事文本解析成逐句（说话人+文本），供对话流收集/上报。
  *  与朗读链路同一解析器，保证书的内容与听到的一致。 */
@@ -41,9 +62,13 @@ function parseParagraph(p: string, overrides?: Record<string, string>): Seg[] {
     const segs: Seg[] = [];
     if (intro) segs.push({ who: "narrator", text: intro });
     // 场景级声线覆盖（voiceOverrides）：显示文本不动，只换朗读者
-    const who = pack().speakers[m[1]] || "narrator";
-    segs.push({ who: (overrides && overrides[m[1]]) || who, text: m[3] });
-    if (outro) segs.push({ who: "narrator", text: outro });
+    const who = (overrides && overrides[m[1]]) || pack().speakers[m[1]] || "narrator";
+    segs.push({ who, text: m[3] });
+    if (outro) {
+        // 插话式续引：余文里还有「名+冒号+引号」→ 递归；否则裸引号对归同一说话人
+        if (getDialogRe().test(outro)) segs.push(...parseParagraph(outro, overrides));
+        else segs.push(...outroSegs(outro, who));
+    }
     return segs;
 }
 
@@ -65,7 +90,9 @@ function aliasForSpeech(t: string): string {
 }
 
 function ttsUrl(text: string, who: string): string {
-    return TTS_ENDPOINT + "?text=" + encodeURIComponent(aliasForSpeech(text)) + "&who=" + encodeURIComponent(who);
+    // i18n（2026-08-28）：en 模式走英文声线表（/api/tts?lang=en → voices_en）
+    const langParam = lang === "en" ? "&lang=en" : "";
+    return TTS_ENDPOINT + "?text=" + encodeURIComponent(aliasForSpeech(text)) + "&who=" + encodeURIComponent(who) + langParam;
 }
 
 /* ===== 统一播放链：mp3 包与动态 TTS 共用 ===== */
@@ -82,16 +109,44 @@ function startChain(urls: string[], duck?: boolean): void {
     scenePlayIdx = 0;
     scenePlayer.volume = duck ? 0.55 : 1; // 且听风吟：人声 duck 给风声
     const gen = speechGen;
+    let segError = 0; // 当前段的 error 重试计数（ArkWeb 对有效段也会发虚假 error，只重试一次）
     const playNext = () => {
         if (gen !== speechGen) return;
         if (scenePlayIdx >= scenePlaylist.length) { chainActive = false; return; }
-        scenePlayer.src = scenePlaylist[scenePlayIdx++];
+        segError = 0; // 新段重置 error 计数
+        const url = scenePlaylist[scenePlayIdx++];
+        scenePlayer.src = url;
+        // 显式 load()：部分移动内核（华为 ArkWeb）在上一段 ended 后立刻换 src 不 load，
+        // 会静默丢掉这一段（2026-09-01 Mate 60 实测：英文包老机器台词被吞）
+        scenePlayer.load();
         // 必须在 src 之后设置：媒体元素 load() 会把 playbackRate 重置为 defaultPlaybackRate
         scenePlayer.playbackRate = speechPref.rate || 1; // 家长语速滑块
-        scenePlayer.play().catch(() => {});
+        let tries = 2;
+        const tryPlay = () => {
+            if (gen !== speechGen) return;
+            scenePlayer.play().catch(() => {
+                if (tries-- > 0) setTimeout(tryPlay, 300); // 移动端 play() 偶发拒绝，重试
+                else { console.warn("[tts] 段播放失败跳过:", url); playNext(); } // 放弃该段不卡链
+            });
+        };
+        tryPlay();
     };
     scenePlayer.onended = playNext;
-    scenePlayer.onerror = playNext; // 单个文件加载失败跳过，不让整条链哑掉
+    scenePlayer.onerror = () => { // 单个文件 error：先重试该段一次再跳（ArkWeb 发虚假 error）
+        console.warn("[tts] 段 error:", scenePlayer.src);
+        if (gen !== speechGen) return;
+        if (segError < 1) {
+            segError++;
+            // 重试该段：重置 src + load + play（不动索引，重播当前段）
+            const url = scenePlaylist[scenePlayIdx - 1];
+            scenePlayer.src = url; scenePlayer.load();
+            scenePlayer.playbackRate = speechPref.rate || 1;
+            scenePlayer.play().catch(() => setTimeout(playNext, 200));
+        } else {
+            segError = 0;
+            setTimeout(playNext, 200); // 两次 error 才真正跳过
+        }
+    };
     chainActive = true;
     // 故事层（低优先）：图鉴介绍(codex) 开始后会暂停本链，停止后恢复
     storyRelease = acquireAudio("story", () => scenePlayer.pause(), () => scenePlayer.play());
@@ -137,8 +192,8 @@ export function speakStory(text: string, volume?: number, overrides?: Record<str
 // 有自由输入选项时，末尾补一句“或者，说说你的想法”
 export function speakChoices(choices?: { text: string }[], hasFreeInput?: boolean): void {
     if (!speechPref.on || !speechPref.readChoices || choicesQueued || !choices || !choices.length) return;
-    const prefix = choices.length > 1 ? "你选。" : "";
-    const suffix = hasFreeInput ? "或者，说说你的想法。" : "";
+    const prefix = choices.length > 1 ? t("speech.choice_prefix") : "";
+    const suffix = hasFreeInput ? t("speech.freeinput_suffix") : "";
     const text = prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix;
     appendChain([ttsUrl(text, "narrator")]);
 }
@@ -179,22 +234,34 @@ interface ManifestEntry {
 }
 let audioManifest: Record<string, ManifestEntry> | null = null;
 
-/** 故事包加载后调用：定位音频资产 + 拉取 manifest（版本参数防缓存错位）。返回 Promise 供启动门等待 */
+/** 故事包加载后调用：定位音频资产 + 拉取 manifest（版本参数防缓存错位）。返回 Promise 供启动门等待。
+ *  en 模式先试 audio-en/manifest.json，没有则回退中文包（语音会自动降级为服务端 TTS 英文声线） */
 export function initAudioAssets(): Promise<void> {
     // 只有含 isSpecialListen 场景的故事才有风声资产，避免无风声包白 404
     if (Object.values(pack().scenes).some(s => s.isSpecialListen)) {
         windAudio.src = pack().baseUrl + "audio/" + encodeURIComponent("风声") + ".mp3";
     }
-    return fetch(pack().baseUrl + "audio/manifest.json?v=" + Date.now())
-        .then(r => r.json())
+    const manifestUrl = lang === "en"
+        ? pack().baseUrl + "audio-en/manifest.json?v=" + Date.now()
+        : pack().baseUrl + "audio/manifest.json?v=" + Date.now();
+    return fetch(manifestUrl)
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
         .then(m => { audioManifest = m; })
-        .catch(() => {});
+        .catch(() => {
+            // en 包还没渲出来：回退中文包（内容对不上时服务端 TTS 会兜底英文）
+            if (lang === "en") {
+                return fetch(pack().baseUrl + "audio/manifest.json?v=" + Date.now())
+                    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                    .then(m => { audioManifest = m; })
+                    .catch(() => {});
+            }
+        });
 }
 
 export function playSceneAudio(key: string, duck?: boolean): boolean {
     if (!audioManifest || !audioManifest[key] || !speechPref.on) return false;
     const entry = audioManifest[key];
-    const base = pack().baseUrl + "audio/";
+    const base = pack().baseUrl + (lang === "en" ? "audio-en/" : "audio/");
     const urls = entry.segments.map(s => base + s.file);
     const willQueueChoices = !!(entry.choices && speechPref.readChoices);
     if (willQueueChoices) urls.push(base + entry.choices!.file);

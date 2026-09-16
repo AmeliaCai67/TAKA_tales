@@ -1,0 +1,449 @@
+{
+  "id": "ch01-wind-en",
+  "title": "The First Wind Song",
+  "version": 1,
+  "startScene": "prologue",
+  "restartScene": "start",
+  "depletedScene": "ending_b",
+  "speakers": {
+    "TAKA": "taka",
+    "Seagull": "seagull",
+    "Old Machine": "oldmachine"
+  },
+  "characters": {
+    "seagull": "characters/seagull.svg",
+    "oldmachine": "characters/oldmachine.svg"
+  },
+  "achievements": [
+    {
+      "id": "coral_cleaner",
+      "name": "Coral Cleaner",
+      "icon": "🪸",
+      "desc": "No diving suit needed?",
+      "unlockScene": "clean_branch"
+    },
+    {
+      "id": "inception",
+      "name": "Inception",
+      "icon": "💤",
+      "desc": "Hearing the wind in a dream",
+      "unlockScene": "dream"
+    },
+    {
+      "id": "bond",
+      "name": "KIZUNA (キズナ)",
+      "icon": "🔗",
+      "desc": "This is the KIZUNA between us!",
+      "unlockScene": "ending_b"
+    },
+    {
+      "id": "homecoming",
+      "name": "A Wanderer Comes Home",
+      "icon": "🏠",
+      "desc": "Don't blame me. I have to go home.",
+      "unlockScene": "ending_a"
+    },
+    {
+      "id": "listen_to_wind",
+      "name": "Listen to the Wind",
+      "icon": "🌬️",
+      "desc": "The answer is blowing in the wind",
+      "unlockScene": "just_listen"
+    }
+  ],
+  "scenes": {
+    "prologue": {
+      "mode": "swim",
+      "text": "This is TAKA.\n\nTAKA lives at the bottom of the sea.\nEvery day, TAKA cleans the coral.\nEvery day, TAKA listens to the Old Machine tell stories.\n\nTAKA is old.\nTAKA is made of iron.\nTAKA is calm and quiet.\n\nBut today, TAKA wants to go up.",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
+      "cost": 0,
+      "eyeState": "st-standby",
+      "choices": [
+        {
+          "text": "Start the story",
+          "next": "start"
+        }
+      ],
+      "codex": [
+        {
+          "word": "coral",
+          "entry": "coral"
+        }
+      ]
+    },
+    "start": {
+      "mode": "swim",
+      "freeInput": true,
+      "text": "The sea bottom is full of lights.\nTAKA cleans the coral in the shiny lights.\n\nTAKA hears a sound.\n\"Ooo... ooo...\"\nIt comes from up there.\n\nThe Old Machine says,\n\"Do not go. There is no water up there.\"",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "light",
+            "x": 50,
+            "y": 12,
+            "size": 11
+          },
+          {
+            "choice": 1,
+            "actor": "coral",
+            "x": 80,
+            "y": 76,
+            "size": 13
+          }
+        ]
+      },
+      "cost": 0,
+      "eyeState": "st-standby",
+      "choices": [
+        {
+          "text": "A. Swim up and see",
+          "next": "surface"
+        },
+        {
+          "text": "B. Keep cleaning the coral",
+          "next": "clean_branch"
+        }
+      ],
+      "beats": [
+        "TAKA is cleaning coral on the sea bottom and hears an 'ooo... ooo...' sound from the surface for the first time",
+        "Whatever the child wants to do, TAKA grows curious about the sound from above",
+        "After acknowledging the child's idea, return to the main line: float up to find where the wind sound comes from",
+        "Only TAKA and the Old Machine are present; the Seagull is at the surface, not under the sea, and must not appear; characters from other stories (e.g. Rivet, 757, the sperm whale) must not appear, and any voice must first have an entrance action"
+      ],
+      "speakers": [
+        "TAKA",
+        "Old Machine"
+      ]
+    },
+    "clean_branch": {
+      "mode": "swim",
+      "freeInput": true,
+      "beats": [
+        "TAKA chooses to stay and keeps cleaning the coral",
+        "At night its light stays on; it cannot sleep",
+        "The wind sound is still there: ooo... ooo...",
+        "Only TAKA and the Old Machine are present; the Seagull is at the surface, not under the sea, and must not appear; characters from other stories (e.g. Rivet, 757, the sperm whale) must not appear, and any voice must first have an entrance action"
+      ],
+      "text": "TAKA stays.\nTAKA cleans the coral.\n\nAt night, TAKA's light stays on.\nTAKA cannot sleep.\n\n\"Ooo... ooo...\"\nThe sound is still there.",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
+      "cost": 5,
+      "eyeState": "st-thinking",
+      "choices": [
+        {
+          "text": "A. Close your eyes and sleep",
+          "next": "dream"
+        }
+      ],
+      "speakers": [
+        "TAKA",
+        "Old Machine"
+      ]
+    },
+    "dream": {
+      "mode": "swim",
+      "freeInput": true,
+      "beats": [
+        "TAKA falls asleep and dreams of very bright light",
+        "It dreams of wind, like waves: ooo... ooo...",
+        "It dreams of coral, so big, not shiny",
+        "The Old Machine pokes it awake: time to work",
+        "TAKA looks at the coral, then looks up",
+        "Only TAKA and the Old Machine are present; the Seagull is at the surface, not under the sea, and must not appear; characters from other stories (e.g. Rivet, 757, the sperm whale) must not appear, and any voice must first have an entrance action"
+      ],
+      "text": "TAKA falls asleep.\n\nTAKA dreams of light.\nVery, very bright.\n\nTAKA dreams of wind.\nLike waves.\n\"Ooo... ooo...\"\n\nTAKA dreams of coral.\nSo big. Not shiny.\n\nThe Old Machine pokes TAKA.\n\"Time to work.\"\n\nTAKA looks at the coral.\nTAKA looks up.",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "light",
+            "x": 50,
+            "y": 10,
+            "size": 11
+          }
+        ]
+      },
+      "cost": 5,
+      "eyeState": "st-thinking",
+      "choices": [
+        {
+          "text": "Go up and see",
+          "next": "surface"
+        }
+      ],
+      "speakers": [
+        "TAKA",
+        "Old Machine"
+      ]
+    },
+    "surface": {
+      "mode": "swim",
+      "freeInput": true,
+      "beats": [
+        "TAKA floats up out of the water for the first time; leaving the water hurts its shell",
+        "But it hears the wind clearly now: ooo... ooo...",
+        "A seagull flies over and warns: you will fall",
+        "TAKA says: I do not know what I am listening to, but I want to hear it all",
+        "Only TAKA, the Seagull, and the Old Machine are present; characters from other stories (e.g. Rivet, 757, the sperm whale) must not appear, and any voice must first have an entrance action"
+      ],
+      "text": "TAKA floats up.\nNo water.\nOuch.\n\nBut TAKA hears the sound clearly now.\nWind.\n\"Ooo... ooo...\"\n\nA seagull flies over.\n\"You will fall!\"\nTAKA says, \"I am listening.\"\n\"To what?\" asks the seagull.\n\"I do not know. But I want to hear it all.\"",
+      "background": "backgrounds/ch01-dawn-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "seagull",
+            "x": 70,
+            "y": 20,
+            "size": 15
+          },
+          {
+            "choice": 1,
+            "actor": "waves",
+            "x": 45,
+            "y": 78,
+            "size": 13
+          }
+        ]
+      },
+      "cost": 40,
+      "eyeState": "st-standby",
+      "choices": [
+        {
+          "text": "A. Ask the wind: \"Where do you come from?\"",
+          "next": "ask_wind"
+        },
+        {
+          "text": "B. Just listen (stay quiet)",
+          "next": "just_listen"
+        }
+      ],
+      "speakers": [
+        "TAKA",
+        "Seagull",
+        "Old Machine"
+      ],
+      "codex": [
+        {
+          "word": "seagull",
+          "entry": "seagull"
+        }
+      ]
+    },
+    "ask_wind": {
+      "mode": "swim",
+      "beats": [
+        "TAKA asks the wind: where do you come from",
+        "The Seagull says: from where the clouds live",
+        "TAKA asks: what are clouds",
+        "The Seagull says: clouds are the sea in the sky; you cannot hold them",
+        "The sun rises, slow and warm"
+      ],
+      "text": "\"Where do you come from?\" asks TAKA.\n\n\"I come from where the clouds live,\" says the seagull.\n\n\"What are clouds?\"\n\n\"Clouds are the sea in the sky. You cannot hold them.\"\n\nThe Sun rises, slow and warm.",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "actors": [
+          {
+            "actor": "seagull",
+            "x": 70,
+            "y": 22,
+            "size": 16,
+            "flip": true
+          }
+        ]
+      },
+      "cost": 20,
+      "sun": 5,
+      "eyeState": "st-standby",
+      "choices": [
+        {
+          "text": "Continue",
+          "next": "climax"
+        }
+      ]
+    },
+    "just_listen": {
+      "mode": "swim",
+      "beats": [
+        "TAKA says nothing, just listens",
+        "Its light slowly glows brighter",
+        "The wind becomes very clear: ooo... ooo...",
+        "No questions. Only wind"
+      ],
+      "text": "TAKA stays still.\nTAKA's light glows brighter.\n\nThe wind is so clear now.\n\"Ooo... ooo...\"",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ]
+      },
+      "cost": 20,
+      "eyeState": "st-listening",
+      "isSpecialListen": true,
+      "listenLabel": "TAKA opens its eyes. The sun is up, big and round.",
+      "next": "climax"
+    },
+    "climax": {
+      "mode": "swim",
+      "text": "The Sun rises. It shines on TAKA. It shines on the seagull.\n\nTAKA's battery is low.\nThe Old Machine calls, weak and far. \"Come back.\"\n\nTAKA looks at the surface. The wind is still here.\n\nThe seagull says, \"You choose. I will not choose for you.\"\n\nTAKA's light blinks. One. Two. Three.",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ],
+        "taka": {
+          "x": 20,
+          "y": 30
+        },
+        "hotspots": [
+          {
+            "choice": 0,
+            "actor": "deep",
+            "x": 32,
+            "y": 78,
+            "size": 12
+          },
+          {
+            "choice": 1,
+            "actor": "sun",
+            "x": 68,
+            "y": 22,
+            "size": 11
+          }
+        ],
+        "actors": [
+          {
+            "actor": "seagull",
+            "x": 46,
+            "y": 14,
+            "size": 14,
+            "flip": true
+          }
+        ]
+      },
+      "cost": 25,
+      "eyeState": "st-low",
+      "choices": [
+        {
+          "text": "A. Dive back to recharge (safe, but no more wind song)",
+          "next": "ending_a"
+        },
+        {
+          "text": "B. Listen one more minute (may power off, but you will hear the whole song)",
+          "next": "ending_b"
+        }
+      ]
+    },
+    "ending_a": {
+      "mode": "swim",
+      "text": "TAKA dives back down.\nTAKA plugs in.\n\nTAKA saves the wind song in the Memory Bank.\n\nThe next day, TAKA is full of power.\nTAKA plays the song for the Old Machine.\n\nFor the first time, the Old Machine's light blinks.\n\"Sounds good,\" says the Old Machine.\n\n(The End — sharing, not sacrifice)",
+      "background": "backgrounds/ch01-background.jpg",
+      "book": {
+        "decor": [
+          "bubbles"
+        ]
+      },
+      "cost": 0,
+      "setBattery": 100,
+      "eyeState": "st-standby",
+      "choices": [
+        {
+          "text": "Restart the story",
+          "next": "start"
+        }
+      ]
+    },
+    "ending_b": {
+      "mode": "swim",
+      "text": "TAKA does not move.\nOne minute. Two minutes.\n\nTAKA hears the whole song.\n\nClick.\nTAKA's power goes out.\n\nLittle by little, the seagull pushes TAKA back down to the sea with big wings.\n\nTAKA wakes up at sunset.\nBattery: 0%.\nBut in TAKA's Memory Bank, there is one finished wind song.\n\n\"Worth it,\" says TAKA.\nThe seagull sits close by.\n\n(The End — experience first, a friend catches you)",
+      "background": "backgrounds/ch01-sunrise-background.jpg",
+      "book": {
+        "decor": [
+          "waves"
+        ]
+      },
+      "cost": 0,
+      "setBattery": 0,
+      "eyeState": "st-standby",
+      "endState": "st-off",
+      "choices": [
+        {
+          "text": "Restart the story",
+          "next": "start"
+        }
+      ]
+    }
+  },
+  "cover": "cover.jpg",
+  "summary": "An old robot floats up to the surface and hears the wind for the first time.",
+  "codex": {
+    "entries": [
+      {
+        "id": "coral",
+        "name": "Coral",
+        "image": "codex/coral.jpg",
+        "science": [
+          "Coral looks like stone, but it is actually a huge family of tiny animals.",
+          "Each tiny animal is called a coral polyp, only the size of a sesame seed.",
+          "Generation after generation, polyps live together and build hard little houses.",
+          "A coral reef is home to so many sea animals."
+        ],
+        "takaSays": [
+          "Coral is not stone. It is a house built by many little bugs.",
+          "What I clean every day is their home."
+        ],
+        "source": {
+          "title": "Coral Outcrop, Flynn Reef",
+          "author": "Toby Hudson",
+          "license": "CC BY-SA 3.0",
+          "url": "https://commons.wikimedia.org/wiki/File:Coral_Outcrop_Flynn_Reef.jpg"
+        }
+      },
+      {
+        "id": "seagull",
+        "name": "Seagull",
+        "image": "codex/seagull.jpg",
+        "science": [
+          "A seagull is a bird that loves living by the sea.",
+          "It has big wings and can ride the wind for a long, long time.",
+          "Seagulls are not picky eaters. Fish, little shrimp, shells — they eat them all.",
+          "Its call is very loud, 'ah—ah—', like saying hello."
+        ],
+        "takaSays": [
+          "The seagull has wings. I do not.",
+          "But I have a propeller."
+        ],
+        "source": {
+          "title": "Seagull flying in blue sky",
+          "author": "Michael N Haddad",
+          "license": "CC BY-SA 4.0",
+          "url": "https://commons.wikimedia.org/wiki/File:Seagull_flying_in_blue_sky.jpg"
+        }
+      }
+    ]
+  }
+}

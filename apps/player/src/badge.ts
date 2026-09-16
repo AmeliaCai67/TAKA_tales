@@ -2,6 +2,7 @@
 // 点击该按钮（打开面板）即清除；状态存 localStorage，返回书架仍显示未读点。
 
 export type BadgeDomain = "books" | "ach" | "codex";
+import { t } from "./i18n";
 const KEY = "taka_badges";
 const BTN: Record<BadgeDomain, string> = {
     books: '[data-act="books"]',
@@ -28,7 +29,7 @@ export function renderBadges(): void {
         if (on && !dot) {
             dot = document.createElement("span");
             dot.className = "btn-dot";
-            dot.title = "有新内容";
+            dot.title = t("badge.new_content");
             btn.appendChild(dot);
         }
         if (!on && dot) dot.remove();

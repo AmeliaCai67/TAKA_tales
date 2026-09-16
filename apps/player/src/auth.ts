@@ -5,9 +5,10 @@ import { ICON_PARENT } from "./icons";
 import { api } from "./api";
 import type { ChildInfo } from "./api";
 import { session, setToken, setChild, clearSession } from "./session";
-import { syncFromServer } from "./achievements";
+import { syncFromServer, carryGuestAchievements } from "./achievements";
 import { setResumePoint } from "./engine";
 import { showStatus } from "./settings";
+import { t } from "./i18n";
 
 
 
@@ -18,8 +19,8 @@ function syncParentBtn(): void {
     btn.style.display = session.token ? "none" : "";
     const child = session.children.find(c => c.id === session.childId);
     btn.title = session.token
-        ? "家长：" + session.email + (child ? " / " + child.nickname : "")
-        : "家长入口";
+        ? t("auth.parent_prefix") + session.email + (child ? " / " + child.nickname : "")
+        : t("misc.parent_btn_title");
 }
 
 /** 选中孩子后的回调（书架重渲用），main.ts 可注入 */
@@ -29,6 +30,7 @@ export function setAfterChildSelect(fn: (() => void) | null): void { afterChildS
 /** 选中孩子：成就合并 + 拉断点 */
 export async function selectChild(id: number): Promise<void> {
     setChild(id);
+    carryGuestAchievements(id); // 游客→登录一次性携带（首个孩子得游客成就；此后新建孩子从 0 开始）
     await syncFromServer();
     try {
         const p = await api.loadProgress(id, pack().id);
@@ -52,7 +54,7 @@ function dismissAsGuest(): void {
 }
 
 function closeBtn(): string {
-    return '<button class="pm-close" id="pm-close" title="关闭">✕</button>';
+    return `<button class="pm-close" id="pm-close" title="${t("auth.close")}">✕</button>`;
 }
 
 function bindClose(body: HTMLElement): void {
@@ -76,15 +78,15 @@ function advanceIfOnGate(body: HTMLElement): void {
 function renderLoggedOut(body: HTMLElement): void {
     body.innerHTML = `
         ${closeBtn()}
-        <div class="pm-note">邮箱验证码登录（内测）。登录后孩子的进度、成就会跟着账号走。</div>
-        <input type="email" id="pm-email" placeholder="邮箱" autocomplete="email">
+        <div class="pm-note">${t("auth.login_note")}</div>
+        <input type="email" id="pm-email" placeholder="${t("auth.email_ph")}" autocomplete="email">
         <div class="pm-row">
-            <input type="text" id="pm-code" placeholder="6 位验证码" maxlength="6" inputmode="numeric">
-            <button id="pm-send">发送验证码</button>
+            <input type="text" id="pm-code" placeholder="${t("auth.code_ph")}" maxlength="6" inputmode="numeric">
+            <button id="pm-send">${t("auth.send_code")}</button>
         </div>
         <div class="pm-hint" id="pm-hint"></div>
-        <button class="pm-main" id="pm-login">登 录</button>
-        <button class="pm-guest" id="pm-guest">先随便逛逛（游客模式，进度只存在这台设备上）</button>`;
+        <button class="pm-main" id="pm-login">${t("auth.login")}</button>
+        <button class="pm-guest" id="pm-guest">${t("auth.guest")}</button>`;
     bindClose(body);
     body.querySelector("#pm-guest")!.addEventListener("click", e => {
         e.stopPropagation();
@@ -95,13 +97,13 @@ function renderLoggedOut(body: HTMLElement): void {
     body.querySelector("#pm-send")!.addEventListener("click", async () => {
         const email = (body.querySelector("#pm-email") as HTMLInputElement).value.trim();
         if (!email) return;
-        hint.textContent = "发送中...";
+        hint.textContent = t("auth.sending");
         try {
             const r = await api.sendCode(email);
             devCode = r.dev_code || "";
-            hint.textContent = r.sent ? "已发送，请查收邮箱"
-                                      : "开发模式验证码：" + devCode; // SMTP 未配置时回显
-        } catch (e: any) { hint.textContent = "发送失败：" + e.message; }
+            hint.textContent = r.sent ? t("auth.sent")
+                                      : t("auth.dev_code_prefix") + devCode; // SMTP 未配置时回显
+        } catch (e: any) { hint.textContent = t("auth.send_fail_prefix") + e.message; }
     });
     body.querySelector("#pm-login")!.addEventListener("click", async () => {
         const email = (body.querySelector("#pm-email") as HTMLInputElement).value.trim();
@@ -121,21 +123,21 @@ function renderLoggedOut(body: HTMLElement): void {
 function renderLoggedIn(body: HTMLElement): void {
     const rows = session.children.map(c =>
         `<button class="pm-child${c.id === session.childId ? " active" : ""}" data-id="${c.id}">` +
-        `<span>${c.nickname}</span><span class="pm-band">${c.id === session.childId ? '<b class="pm-check">✓</b>' : ""}${c.age_band} 岁</span></button>`).join("");
+        `<span>${c.nickname}</span><span class="pm-band">${c.id === session.childId ? '<b class="pm-check">✓</b>' : ""}${c.age_band} ${t("auth.years_old")}</span></button>`).join("");
     body.innerHTML = `
         ${closeBtn()}
         <div class="pm-note">${session.email}</div>
-        <div class="pm-label">谁在玩？</div>
-        <div class="pm-children">${rows || '<div class="pm-hint">还没有孩子档案，加一个吧</div>'}</div>
+        <div class="pm-label">${t("auth.who_playing")}</div>
+        <div class="pm-children">${rows || `<div class="pm-hint">${t("auth.no_child")}</div>`}</div>
         <div class="pm-addsec">
-            <div class="pm-addlabel">添加孩子</div>
+            <div class="pm-addlabel">${t("auth.add_child_label")}</div>
             <div class="pm-row">
-                <input type="text" id="pm-nick" placeholder="孩子昵称" maxlength="12">
+                <input type="text" id="pm-nick" placeholder="${t("auth.nick_ph")}" maxlength="12">
                 <select id="pm-band"><option>3-4</option><option>4-5</option><option>5-6</option></select>
             </div>
-            <button class="pm-addbtn" id="pm-add">＋ 添加孩子</button>
+            <button class="pm-addbtn" id="pm-add">${t("shelf.add_child")}</button>
         </div>
-        <button class="pm-logout" id="pm-logout">退出登录</button>`;
+        <button class="pm-logout" id="pm-logout">${t("auth.logout")}</button>`;
     bindClose(body);
     body.querySelectorAll(".pm-child").forEach(b =>
         b.addEventListener("click", async () => {
@@ -147,7 +149,7 @@ function renderLoggedIn(body: HTMLElement): void {
             if (!document.getElementById("gate-btn")) {
                 document.getElementById("parent-overlay")!.hidden = true;
                 const nick = session.children.find(c => c.id === id)?.nickname || "";
-                showStatus(`现在和 ${nick} 一起玩`, 2500);
+                showStatus(t("auth.now_playing", { nick }), 2500);
             }
         }));
     body.querySelector("#pm-add")!.addEventListener("click", async () => {
@@ -162,12 +164,18 @@ function renderLoggedIn(body: HTMLElement): void {
         } catch (e: any) { showStatus(e.message, 3000); }
     });
     body.querySelector("#pm-logout")!.addEventListener("click", () => {
-        clearSession();
-        session.children = [];
-        setResumePoint(null);
+        logoutEverywhere();
         renderLoggedOut(body);
-        syncParentBtn();
     });
+}
+
+/** 设置面板「退出登录」走这里（2026-09-02）：与弹层同一套清理，不依赖弹层 DOM */
+export function logoutEverywhere(): void {
+    clearSession();
+    session.children = [];
+    setResumePoint(null);
+    syncParentBtn();
+    showStatus(t("auth.logged_out"), 2500);
 }
 
 async function refreshMe(): Promise<void> {

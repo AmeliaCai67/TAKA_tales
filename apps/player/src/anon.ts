@@ -19,6 +19,9 @@ export interface AnonEventInput {
 let anonId: string | null = localStorage.getItem(ANON_KEY);
 let registered = !!anonId;
 
+/** 同步取当前 anon_id（可能为 null；console-qa 等需要裸 id 的调用方用） */
+export function currentAnonId(): string | null { return anonId; }
+
 /** 游客预注册设备 ID（幂等）：离线/后端未起时静默失败，本机照玩 */
 export async function ensureAnonId(): Promise<string | null> {
     if (registered && anonId) return anonId;

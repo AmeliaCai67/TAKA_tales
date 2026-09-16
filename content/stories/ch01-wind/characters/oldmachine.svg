@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 240" aria-label="老机器">
+  <!-- ===== 老机器 · ch01《第一次听见风声》===== -->
+  <!-- 上一代机体：琥珀双眼（待机即接触不良式闪烁）/ 三角扬声器嘴 / 四条锯齿臂 + C 形钳 / 弹簧腿三爪足 / 锈迹更多（脸上没有伤疤）。 -->
+  <!-- 头顶双天线：左 = 信标细杆慢闪；右 = 向右弯的粗管，末端是插头——它的天线也是接口，可以插进系统里管理各类小机器人。 -->
+  <!-- 注意：本文件会被 innerHTML 注入，内嵌 style 为全局作用域——所有类名/keyframes/渐变 id 均带 om- 前缀，勿改回通用名 -->
+  <defs>
+    <linearGradient id="omMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#97a1ad"/><stop offset="0.55" stop-color="#646f7c"/><stop offset="1" stop-color="#49525e"/>
+    </linearGradient>
+    <radialGradient id="omEye" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#f7e2b0"/><stop offset="0.55" stop-color="#e8a33d"/><stop offset="1" stop-color="#7d5a10"/>
+    </radialGradient>
+    <style>
+      .om-eye { animation: omFlicker 3.5s infinite; }
+      @keyframes omFlicker {
+        0% { opacity: .72; } 8% { opacity: .28; } 12% { opacity: .8; }
+        40% { opacity: .68; } 44% { opacity: .3; } 48% { opacity: .76; } 100% { opacity: .72; }
+      }
+      .om-beacon { animation: omBeacon 2.6s infinite ease-in-out; }
+      @keyframes omBeacon { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+    </style>
+  </defs>
+
+  <!-- 双天线：左 = 信标；右 = 向右弯的粗管 + 插头（可插进系统管理小机器人） -->
+  <line x1="104" y1="56" x2="104" y2="28" stroke="#525d6b" stroke-width="3"/>
+  <circle class="om-beacon" cx="104" cy="22" r="6" fill="#ffb703"/>
+  <path d="M 158 56 V 40 Q 158 28 170 28 H 194" fill="none" stroke="#525d6b" stroke-width="5" stroke-linecap="round"/>
+  <rect x="194" y="21" width="15" height="14" rx="3" fill="#414b58" stroke="#39424e" stroke-width="1.5"/>
+  <rect x="209" y="24" width="9" height="3.4" rx="1.7" fill="#b3bdc9" stroke="#39424e" stroke-width="1"/>
+  <rect x="209" y="30" width="9" height="3.4" rx="1.7" fill="#b3bdc9" stroke="#39424e" stroke-width="1"/>
+  <!-- 四条锯齿臂 + C 形钳（左右各二） -->
+  <g fill="none" stroke="#6b7686" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <g>
+      <polyline points="70,95 50,87 34,97 20,91"/>
+      <path d="M 20 84 A 8 8 0 1 0 20 98" stroke-width="3.5"/>
+    </g>
+    <g>
+      <polyline points="70,130 50,139 34,129 20,135"/>
+      <path d="M 20 128 A 8 8 0 1 0 20 142" stroke-width="3.5"/>
+    </g>
+    <g>
+      <polyline points="192,95 212,87 228,97 242,91"/>
+      <path d="M 242 84 A 8 8 0 1 1 242 98" stroke-width="3.5"/>
+    </g>
+    <g>
+      <polyline points="192,130 212,139 228,129 242,135"/>
+      <path d="M 242 128 A 8 8 0 1 1 242 142" stroke-width="3.5"/>
+    </g>
+  </g>
+  <!-- 弹簧腿 + 三爪足 -->
+  <g stroke="#525d6b" stroke-width="3.5" fill="none" stroke-linejoin="round">
+    <path d="M 97 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6"/>
+    <path d="M 155 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6"/>
+  </g>
+  <g stroke="#39424e" stroke-width="3.5" stroke-linecap="round">
+    <path d="M 101 206 L 89 216 M 101 206 L 101 218 M 101 206 L 113 216"/>
+    <path d="M 159 206 L 147 216 M 159 206 L 159 218 M 159 206 L 171 216"/>
+  </g>
+  <!-- 身体（老一代，更暗更方） -->
+  <rect x="70" y="56" width="122" height="114" rx="7" fill="url(#omMetal)" stroke="#39424e" stroke-width="2.5"/>
+  <!-- 锈迹（只在机身，脸上没有伤疤） -->
+  <ellipse cx="86" cy="150" rx="9" ry="5" fill="#6b5335" opacity=".45" transform="rotate(-12 86 150)"/>
+  <!-- 双眼（老灯，琥珀色，接触不良式闪烁） -->
+  <circle cx="104" cy="98" r="13" fill="#18212b" stroke="#39424e" stroke-width="2.5"/>
+  <circle cx="158" cy="98" r="13" fill="#18212b" stroke="#39424e" stroke-width="2.5"/>
+  <circle class="om-eye" cx="104" cy="98" r="7" fill="url(#omEye)"/>
+  <circle class="om-eye" cx="158" cy="98" r="7" fill="url(#omEye)" style="animation-delay:.4s"/>
+  <circle cx="101" cy="94.5" r="2" fill="#fff" opacity="0.7"/>
+  <circle cx="155" cy="94.5" r="2" fill="#fff" opacity="0.7"/>
+  <!-- 三角嘴 = 扬声器格栅 -->
+  <polygon points="130,122 114,150 146,150" fill="#18212b" stroke="#39424e" stroke-width="2" stroke-linejoin="round"/>
+  <g stroke="#ffb703" stroke-width="2" stroke-linecap="round" opacity=".25">
+    <path d="M 122 137 L 138 137"/>
+    <path d="M 125.5 143 L 134.5 143"/>
+  </g>
+  <ellipse cx="130" cy="230" rx="58" ry="6" fill="#000" opacity="0.28"/>
+</svg>

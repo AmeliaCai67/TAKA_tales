@@ -1,0 +1,497 @@
+{
+ "prologue/01_narrator.mp3": {
+  "hash": "b605399cf30cb4c294dc6e9a7ee57ead485b2928",
+  "who": "narrator",
+  "text": "This is TAKA."
+ },
+ "prologue/02_narrator.mp3": {
+  "hash": "86d74d9b5a86bc92d48c3b84bf85fc14e64eced6",
+  "who": "narrator",
+  "text": "TAKA lives at the bottom of the sea."
+ },
+ "prologue/03_narrator.mp3": {
+  "hash": "8567ba0a4aa77341b5c32ceb518f9378d6345d03",
+  "who": "narrator",
+  "text": "Every day, TAKA cleans the coral."
+ },
+ "prologue/04_narrator.mp3": {
+  "hash": "fec6dbc8de72dfdb446e46684ecde04abbcccc18",
+  "who": "narrator",
+  "text": "Every day, TAKA listens to the Old Machine tell stories."
+ },
+ "prologue/05_narrator.mp3": {
+  "hash": "67cf2e73bf3cf9b78d232ac5c9a61b53abc8a42d",
+  "who": "narrator",
+  "text": "TAKA is old."
+ },
+ "prologue/06_narrator.mp3": {
+  "hash": "9eaa86332205954ac1586c720586201ad114c84a",
+  "who": "narrator",
+  "text": "TAKA is made of iron."
+ },
+ "prologue/07_narrator.mp3": {
+  "hash": "7e93e16e6222c31bb718ec2dc43f3f840d7a608d",
+  "who": "narrator",
+  "text": "TAKA is calm and quiet."
+ },
+ "prologue/08_narrator.mp3": {
+  "hash": "7cba5ef323c6e14a4360ae299ab5ff09da5880ad",
+  "who": "narrator",
+  "text": "But today, TAKA wants to go up."
+ },
+ "prologue/choices.mp3": {
+  "hash": "15cf3d0bddd311728d62a83748abc222130bc78a",
+  "who": "narrator",
+  "text": "Start the story. "
+ },
+ "start/01_narrator.mp3": {
+  "hash": "e77ce840337a801d3866ad0abf5ac3c422dbfa8b",
+  "who": "narrator",
+  "text": "The sea bottom is full of lights."
+ },
+ "start/02_narrator.mp3": {
+  "hash": "c99867380fa9c7ff5d37a2102e408d59ec394483",
+  "who": "narrator",
+  "text": "TAKA cleans the coral in the shiny lights."
+ },
+ "start/03_narrator.mp3": {
+  "hash": "fd2f72a3dfc3c46f060d37267ab9cccd2c6b1873",
+  "who": "narrator",
+  "text": "TAKA hears a sound."
+ },
+ "start/04_narrator.mp3": {
+  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "who": "narrator",
+  "text": "Ooo... ooo..."
+ },
+ "start/05_narrator.mp3": {
+  "hash": "ed91f6375f53afebcfdd3e2b3fb515fb2844014c",
+  "who": "narrator",
+  "text": "It comes from up there."
+ },
+ "start/06_narrator.mp3": {
+  "hash": "99429820acde4e132e5adcc67fbd4c660d19c9f5",
+  "who": "narrator",
+  "text": "The Old Machine says,"
+ },
+ "start/07_oldmachine.mp3": {
+  "hash": "a1a3ff42fad0b6ac2691a536b9e7842b053ac925",
+  "who": "oldmachine",
+  "text": "Do not go. There is no water up there."
+ },
+ "start/choices.mp3": {
+  "hash": "6779174478831f0a11aa13a2b83a0d654213cfc5",
+  "who": "narrator",
+  "text": "You choose. A. Swim up and see. B. Keep cleaning the coral. Or tell me your own idea."
+ },
+ "clean_branch/01_narrator.mp3": {
+  "hash": "4f01753851302a715d454be46ccfe696625de582",
+  "who": "narrator",
+  "text": "TAKA stays."
+ },
+ "clean_branch/02_narrator.mp3": {
+  "hash": "c0ea6dde8472b5c6f6d53a753414b13b2880ffed",
+  "who": "narrator",
+  "text": "TAKA cleans the coral."
+ },
+ "clean_branch/03_narrator.mp3": {
+  "hash": "ebaa07a01abe4dad5d8caa824775cbac443be4fc",
+  "who": "narrator",
+  "text": "At night, TAKA's light stays on."
+ },
+ "clean_branch/04_narrator.mp3": {
+  "hash": "f457fe076f6540d33165540591b19f514f9f22e4",
+  "who": "narrator",
+  "text": "TAKA cannot sleep."
+ },
+ "clean_branch/05_narrator.mp3": {
+  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "who": "narrator",
+  "text": "Ooo... ooo..."
+ },
+ "clean_branch/06_narrator.mp3": {
+  "hash": "f6a092f464b679daf0b8239ff0fc379fdc1546d4",
+  "who": "narrator",
+  "text": "The sound is still there."
+ },
+ "clean_branch/choices.mp3": {
+  "hash": "95ba981e85bf20a54a0a60faf5c5d75d57c83795",
+  "who": "narrator",
+  "text": "A. Close your eyes and sleep. Or tell me your own idea."
+ },
+ "dream/01_narrator.mp3": {
+  "hash": "2b19ddd00040daee92542bfffc92bdb0349eb5b1",
+  "who": "narrator",
+  "text": "TAKA falls asleep."
+ },
+ "dream/02_narrator.mp3": {
+  "hash": "61b3810439eef841487ee49c66cb966c30e3ba2a",
+  "who": "narrator",
+  "text": "TAKA dreams of light."
+ },
+ "dream/03_narrator.mp3": {
+  "hash": "2e80ee3cdf35254e39b7f13d3226998a5dc0cf3e",
+  "who": "narrator",
+  "text": "Very, very bright."
+ },
+ "dream/04_narrator.mp3": {
+  "hash": "7aebbe8f3b6545fc3df37e21bb0cc4260dc42a02",
+  "who": "narrator",
+  "text": "TAKA dreams of wind."
+ },
+ "dream/05_narrator.mp3": {
+  "hash": "48bda735a7447d2d709b4779c2e84e24cd034108",
+  "who": "narrator",
+  "text": "Like waves."
+ },
+ "dream/06_narrator.mp3": {
+  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "who": "narrator",
+  "text": "Ooo... ooo..."
+ },
+ "dream/07_narrator.mp3": {
+  "hash": "c49799ec01d06ac40c3b59b8ce7e208f8860539f",
+  "who": "narrator",
+  "text": "TAKA dreams of coral."
+ },
+ "dream/08_narrator.mp3": {
+  "hash": "a2c1c8ddc3d2689876a4d6b9f2b68a99dd61d2fb",
+  "who": "narrator",
+  "text": "So big. Not shiny."
+ },
+ "dream/09_narrator.mp3": {
+  "hash": "ae5e1490298c13f6a61c287e674a738fe6396c41",
+  "who": "narrator",
+  "text": "The Old Machine pokes TAKA."
+ },
+ "dream/10_oldmachine.mp3": {
+  "hash": "933cb709cf38c4360646e6a2fd3b5fac05991b15",
+  "who": "oldmachine",
+  "text": "Time to work."
+ },
+ "dream/11_narrator.mp3": {
+  "hash": "2d898e1764fae613c2918825e591013bcaa7e4fa",
+  "who": "narrator",
+  "text": "TAKA looks at the coral."
+ },
+ "dream/12_narrator.mp3": {
+  "hash": "3515c7772d0f2daf8b2649fdac79d808c3adf08d",
+  "who": "narrator",
+  "text": "TAKA looks up."
+ },
+ "dream/choices.mp3": {
+  "hash": "867a324ea9d71619c9ce2ef1e3f79d43fedde60a",
+  "who": "narrator",
+  "text": "Go up and see. Or tell me your own idea."
+ },
+ "surface/01_narrator.mp3": {
+  "hash": "d1843da38bdf2eb574089319026c9b0d377ac937",
+  "who": "narrator",
+  "text": "TAKA floats up."
+ },
+ "surface/02_narrator.mp3": {
+  "hash": "c3ada500bc57187e61c39184f5d3b6f40ce3ce7e",
+  "who": "narrator",
+  "text": "No water."
+ },
+ "surface/03_narrator.mp3": {
+  "hash": "56b74b3dd632b262a344e4e7c9a8b1ab4fed9a10",
+  "who": "narrator",
+  "text": "Ouch."
+ },
+ "surface/04_narrator.mp3": {
+  "hash": "5d0682bc9cdbaaafa58738d8e1a1b088e99726a5",
+  "who": "narrator",
+  "text": "But TAKA hears the sound clearly now."
+ },
+ "surface/05_narrator.mp3": {
+  "hash": "95108170f282adc87df0ff586f2100e57ecdb0d8",
+  "who": "narrator",
+  "text": "Wind."
+ },
+ "surface/06_narrator.mp3": {
+  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "who": "narrator",
+  "text": "Ooo... ooo..."
+ },
+ "surface/07_narrator.mp3": {
+  "hash": "150e401488dcf83b2fc1f3ad6c4033892aceebe1",
+  "who": "narrator",
+  "text": "A seagull flies over."
+ },
+ "surface/08_seagull.mp3": {
+  "hash": "886a551bf9516a5f887cd827bf650158a4894a5a",
+  "who": "seagull",
+  "text": "You will fall!"
+ },
+ "surface/09_narrator.mp3": {
+  "hash": "3340f310fa27e7a78d08494ea43053a13e1eb1ef",
+  "who": "narrator",
+  "text": "TAKA says,"
+ },
+ "surface/10_taka.mp3": {
+  "hash": "39f023db71511d896cc128b581acd90cfe4fd4ac",
+  "who": "taka",
+  "text": "I am listening."
+ },
+ "surface/11_seagull.mp3": {
+  "hash": "5faaee668e162d0545d6e1169b4ee0ba5b45033a",
+  "who": "seagull",
+  "text": "To what?"
+ },
+ "surface/12_narrator.mp3": {
+  "hash": "c7e7aa52646f33a7b6868036dad4b5a7d5fba497",
+  "who": "narrator",
+  "text": "asks the seagull."
+ },
+ "surface/13_taka.mp3": {
+  "hash": "8e435261be0ab4d3e8080e89bc2f322936d1e30b",
+  "who": "taka",
+  "text": "I do not know. But I want to hear it all."
+ },
+ "surface/choices.mp3": {
+  "hash": "8dd9c762629329653f292f34319ca60da233540a",
+  "who": "narrator",
+  "text": "You choose. A. Ask the wind: Where do you come from?. B. Just listen. Or tell me your own idea."
+ },
+ "ask_wind/01_taka.mp3": {
+  "hash": "92f8165ef6ff5f55019cc9b00f8ecc9b70900297",
+  "who": "taka",
+  "text": "Where do you come from?"
+ },
+ "ask_wind/02_narrator.mp3": {
+  "hash": "f1a2ca322d8508ec5b65f6831dca8bd8f41d4c6c",
+  "who": "narrator",
+  "text": "asks TAKA."
+ },
+ "ask_wind/03_seagull.mp3": {
+  "hash": "269903c70d253366fb98b68f0fcb8eaff5f5fdb6",
+  "who": "seagull",
+  "text": "I come from where the clouds live,"
+ },
+ "ask_wind/04_narrator.mp3": {
+  "hash": "34902189758fda0627ca2b1b911051ed1e34d2e9",
+  "who": "narrator",
+  "text": "says the seagull."
+ },
+ "ask_wind/05_taka.mp3": {
+  "hash": "b61b6dc487be66593490e74bbe39c5078c5f166a",
+  "who": "taka",
+  "text": "What are clouds?"
+ },
+ "ask_wind/06_seagull.mp3": {
+  "hash": "b5a21d697085ea447e8f5e04ddd34a31e265d874",
+  "who": "seagull",
+  "text": "Clouds are the sea in the sky. You cannot hold them."
+ },
+ "ask_wind/07_narrator.mp3": {
+  "hash": "bfa58e744342e94b4ec154f9806682612e252c80",
+  "who": "narrator",
+  "text": "The Sun rises, slow and warm."
+ },
+ "ask_wind/choices.mp3": {
+  "hash": "05f576f59615c61b558dca9cf82006d64cb7f8d4",
+  "who": "narrator",
+  "text": "Continue. "
+ },
+ "just_listen/01_narrator.mp3": {
+  "hash": "81f6092e02e242f837b1b2bbfea68301f064342a",
+  "who": "narrator",
+  "text": "TAKA stays still."
+ },
+ "just_listen/02_narrator.mp3": {
+  "hash": "1c9a94b7aa3885b7602893eaeb07e56d6e38204a",
+  "who": "narrator",
+  "text": "TAKA's light glows brighter."
+ },
+ "just_listen/03_narrator.mp3": {
+  "hash": "4dedabfcc73d3d6f8a8e523fecc875fdebf18e24",
+  "who": "narrator",
+  "text": "The wind is so clear now."
+ },
+ "just_listen/04_narrator.mp3": {
+  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "who": "narrator",
+  "text": "Ooo... ooo..."
+ },
+ "just_listen/choices.mp3": {
+  "hash": "5d99f2b5fc23df13158ee1b5955760265f51e7dc",
+  "who": "narrator",
+  "text": "TAKA opens its eyes. The sun is up, big and round."
+ },
+ "climax/01_narrator.mp3": {
+  "hash": "0902629cccb53f318ff08a74bd374877650f289d",
+  "who": "narrator",
+  "text": "The Sun rises. It shines on TAKA. It shines on the seagull."
+ },
+ "climax/02_narrator.mp3": {
+  "hash": "ecde9bb0c11a3fa428c594bfd8c1464e5e6ea94b",
+  "who": "narrator",
+  "text": "TAKA's battery is low."
+ },
+ "climax/03_narrator.mp3": {
+  "hash": "1112df247e6c06cab536dff5259ae44e69e61d53",
+  "who": "narrator",
+  "text": "The Old Machine calls, weak and far."
+ },
+ "climax/04_oldmachine.mp3": {
+  "hash": "92002782c76c05b9a2aa4720133967e2086974e0",
+  "who": "oldmachine",
+  "text": "Come back."
+ },
+ "climax/05_narrator.mp3": {
+  "hash": "d2257dc1e97f760860dd1f700e26e022ee4a58b1",
+  "who": "narrator",
+  "text": "TAKA looks at the surface. The wind is still here."
+ },
+ "climax/06_narrator.mp3": {
+  "hash": "85c9abcd2fd18a743f7ff71a14b00b82c1b10523",
+  "who": "narrator",
+  "text": "The seagull says,"
+ },
+ "climax/07_seagull.mp3": {
+  "hash": "1d68ac64d4d3ea9e892427d2a2ddc97de4e87220",
+  "who": "seagull",
+  "text": "You choose. I will not choose for you."
+ },
+ "climax/08_narrator.mp3": {
+  "hash": "3382caa4b4cd572b69f46f00f88977ce3ab43fb3",
+  "who": "narrator",
+  "text": "TAKA's light blinks. One. Two. Three."
+ },
+ "climax/choices.mp3": {
+  "hash": "542773426cae3288c83c113fc06e46a652e06eb9",
+  "who": "narrator",
+  "text": "You choose. A. Dive back to recharge. B. Listen one more minute. "
+ },
+ "ending_a/01_narrator.mp3": {
+  "hash": "32abcd80e0df975069de4358c125eaa82c680403",
+  "who": "narrator",
+  "text": "TAKA dives back down."
+ },
+ "ending_a/02_narrator.mp3": {
+  "hash": "f2096e6487b3bb2b21b76b360fc6503d99bfb439",
+  "who": "narrator",
+  "text": "TAKA plugs in."
+ },
+ "ending_a/03_narrator.mp3": {
+  "hash": "3cdabfcdae09e9b0574e9bb1ecf0f9dab040802b",
+  "who": "narrator",
+  "text": "TAKA saves the wind song in the Memory Bank."
+ },
+ "ending_a/04_narrator.mp3": {
+  "hash": "6cf22b2b120f5c31bf599b11461da1a75be8d85b",
+  "who": "narrator",
+  "text": "The next day, TAKA is full of power."
+ },
+ "ending_a/05_narrator.mp3": {
+  "hash": "d66811df4dcdff5f3285d62eb50c7d2eeb269d36",
+  "who": "narrator",
+  "text": "TAKA plays the song for the Old Machine."
+ },
+ "ending_a/06_narrator.mp3": {
+  "hash": "a1af474723b23b59f622920fb59325d0e6b16efe",
+  "who": "narrator",
+  "text": "For the first time, the Old Machine's light blinks."
+ },
+ "ending_a/07_oldmachine.mp3": {
+  "hash": "4b7f4c6d45f689e80339a8d279bf098f213ee2e8",
+  "who": "oldmachine",
+  "text": "Sounds good,"
+ },
+ "ending_a/08_narrator.mp3": {
+  "hash": "f9afebd188a34c66c23c765176d65af851a9e12e",
+  "who": "narrator",
+  "text": "says the Old Machine."
+ },
+ "ending_a/choices.mp3": {
+  "hash": "f9aa57b516324e1791aff91e1d6a8bd30d683ca7",
+  "who": "narrator",
+  "text": "Restart the story. "
+ },
+ "ending_b/01_narrator.mp3": {
+  "hash": "0d87569bbf5cdc327054ca98c23e07808864c3f2",
+  "who": "narrator",
+  "text": "TAKA does not move."
+ },
+ "ending_b/02_narrator.mp3": {
+  "hash": "3fdd62c058019c4c76fd867eabc9319a1161baad",
+  "who": "narrator",
+  "text": "One minute. Two minutes."
+ },
+ "ending_b/03_narrator.mp3": {
+  "hash": "bcd058ba9c7ef9d51f6d43be26f3f5602b527cc4",
+  "who": "narrator",
+  "text": "TAKA hears the whole song."
+ },
+ "ending_b/04_narrator.mp3": {
+  "hash": "1d8c5e57ac9544fb776477e8463168c35ee49485",
+  "who": "narrator",
+  "text": "Click."
+ },
+ "ending_b/05_narrator.mp3": {
+  "hash": "3fa8be236f4072f4ca730e6e1520882b2b56130d",
+  "who": "narrator",
+  "text": "TAKA's power goes out."
+ },
+ "ending_b/06_narrator.mp3": {
+  "hash": "eea140cec173a5b6d4b20234291d97343b4ebeb3",
+  "who": "narrator",
+  "text": "Little by little, the seagull pushes TAKA back down to the sea with big wings."
+ },
+ "ending_b/07_narrator.mp3": {
+  "hash": "6a130d637d8b175882b38980d73cd8c949dfd848",
+  "who": "narrator",
+  "text": "TAKA wakes up at sunset."
+ },
+ "ending_b/08_narrator.mp3": {
+  "hash": "b6dcd8669d0098ba5abcf55cade126866f898b3c",
+  "who": "narrator",
+  "text": "Battery: 0%."
+ },
+ "ending_b/09_narrator.mp3": {
+  "hash": "b81bc953e3bc09a2f6d64ae7c3410b58de253a70",
+  "who": "narrator",
+  "text": "But in TAKA's Memory Bank, there is one finished wind song."
+ },
+ "ending_b/10_taka.mp3": {
+  "hash": "a66b1e912fd6eed764d771197afaa57f888d5bb7",
+  "who": "taka",
+  "text": "Worth it,"
+ },
+ "ending_b/11_narrator.mp3": {
+  "hash": "3964e8411ec63a2e47d85e9013546f4d587e5cc1",
+  "who": "narrator",
+  "text": "says TAKA."
+ },
+ "ending_b/12_narrator.mp3": {
+  "hash": "e39aef5e7610903b7226bd77d04957a83defffc2",
+  "who": "narrator",
+  "text": "The seagull sits close by."
+ },
+ "ending_b/choices.mp3": {
+  "hash": "f9aa57b516324e1791aff91e1d6a8bd30d683ca7",
+  "who": "narrator",
+  "text": "Restart the story. "
+ },
+ "codex/coral.science.mp3": {
+  "hash": "fa5cd147809cb0712079f4a287761758eea9f506",
+  "who": "narrator",
+  "text": "Coral looks like stone, but it is actually a huge family of tiny animals.Each tiny animal is called a coral polyp, only the size of a sesame seed.Generation after generation, polyps live together and build hard little houses.A coral reef is home to so many sea animals."
+ },
+ "codex/coral.taka.mp3": {
+  "hash": "8cf0c9b1903d7af03e03749f631b7091c6d0c7f8",
+  "who": "taka",
+  "text": "Coral is not stone. It is a house built by many little bugs. What I clean every day is their home."
+ },
+ "codex/seagull.science.mp3": {
+  "hash": "62000b7ae76dfc9246442eac091136edff675ac1",
+  "who": "narrator",
+  "text": "A seagull is a bird that loves living by the sea.It has big wings and can ride the wind for a long, long time.Seagulls are not picky eaters. Fish, little shrimp, shells — they eat them all.Its call is very loud, 'ah—ah—', like saying hello."
+ },
+ "codex/seagull.taka.mp3": {
+  "hash": "cbe74f6bceadfb3489560ed8baa8d9c65fa9f5eb",
+  "who": "taka",
+  "text": "The seagull has wings. I do not. But I have a propeller."
+ }
+}

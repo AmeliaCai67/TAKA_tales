@@ -8,11 +8,12 @@ import { session, selectedChild } from "./session";
 import { selectChild, openParentModal } from "./auth";
 import { openArchive } from "./archive";
 import { openCodexPanel } from "./codex";
+import { switchLang } from "./main";
+import { lang, t } from "./i18n";
 import { loadLocalProgress } from "./progress";
 import { speechPref } from "./settings";
 import { renderBadges, clearBadge } from "./badge";
-
-const ACH_KEY = "taka_achievements";
+import { unlockedAchievementIds } from "./achievements";
 
 let pickHandler: (s: StoryMeta) => void = () => {};
 
@@ -37,16 +38,11 @@ export function showShelf(): void {
     void render(el);
 }
 
-function unlockedIds(): string[] {
-    try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]") as string[]; }
-    catch { return []; }
-}
-
 function badgeOf(s: StoryMeta): { cls: string; text: string } {
     const p = loadLocalProgress(s.id);
-    if (!p) return { cls: "new", text: "新故事" };
-    if (p.lastEnding) return { cls: "done", text: "已读完 · 再听一遍" };
-    return { cls: "going", text: "进行中" };
+    if (!p) return { cls: "new", text: t("shelf.badge_new") };
+    if (p.lastEnding) return { cls: "done", text: t("shelf.badge_done") };
+    return { cls: "going", text: t("shelf.badge_going") };
 }
 
 async function render(el: HTMLElement): Promise<void> {
@@ -55,21 +51,24 @@ async function render(el: HTMLElement): Promise<void> {
 
     const child = selectedChild();
     const chip = session.token
-        ? `<button class="shelf-child" id="shelf-child-btn"><span class="sc-fish">${ICON_CHILD}</span>${child ? child.nickname : "选择孩子"} ▾</button>`
+        ? `<button class="shelf-child" id="shelf-child-btn"><span class="sc-fish">${ICON_CHILD}</span>${child ? child.nickname : t("shelf.pick_child")} ▾</button>`
         : "";
-    const unlocked = new Set(unlockedIds());
+    const unlocked = new Set(unlockedAchievementIds());
     const cards = stories.map(s => {
+        // i18n：en 模式用 index.json 的 alt.en 字段（sync-content 内联）
+        const title = lang === "en" ? (s.alt?.en?.title || s.title) : s.title;
+        const summary = lang === "en" ? (s.alt?.en?.summary || s.summary) : s.summary;
         const b = badgeOf(s);
         const got = s.achIds.filter(id => unlocked.has(id)).length;
         const ach = s.achIds.length ? `<span class="sc-ach">🏅 ${got}/${s.achIds.length}</span>` : "";
         const cover = s.cover
-            ? `<img class="sc-cover" src="${s.cover}" alt="${s.title} 封面">`
-            : `<div class="sc-cover sc-cover-empty">塔 卡</div>`;
+            ? `<img class="sc-cover" src="${s.cover}" alt="${title} cover">`
+            : `<div class="sc-cover sc-cover-empty">${t("shelf.cover_fallback")}</div>`;
         return `<button class="shelf-card" data-id="${s.id}">
             ${cover}
             <div class="sc-body">
-                <div class="sc-title">${s.title}</div>
-                <div class="sc-summary">${s.summary || ""}</div>
+                <div class="sc-title">${title}</div>
+                <div class="sc-summary">${summary || ""}</div>
                 <div class="sc-foot"><span class="sc-badge ${b.cls}">${b.text}</span>${ach}</div>
             </div>
         </button>`;
@@ -79,16 +78,17 @@ async function render(el: HTMLElement): Promise<void> {
         <div class="shelf-topbar">
             <div class="st-actions">
                 ${chip}
-                <button data-act="books">如我所书</button>
-                <button data-act="codex">记忆库</button>
-                <button data-act="ach">成 就</button>
-                <button data-act="speech">语音 · ${speechPref.on ? "开" : "关"}</button>
-                <button data-act="settings">设 置</button>
-                ${session.token ? "" : '<button data-act="parent">家 长</button>'}
+                <button data-act="books">${t("shelf.books")}</button>
+                <button data-act="codex">${t("shelf.codex")}</button>
+                <button data-act="ach">${t("shelf.ach")}</button>
+                <button data-act="speech">${speechPref.on ? t("shelf.speech_on") : t("shelf.speech_off")}</button>
+                <button data-act="settings">${t("shelf.settings")}</button>
+                <button class="lang-toggle" data-act="lang">中 / EN</button>
+                ${session.token ? "" : `<button data-act="parent">${t("shelf.parent")}</button>`}
             </div>
         </div>
         <div class="shelf-inner">
-            <div class="shelf-title">想听哪个故事？</div>
+            <div class="shelf-title">${t("shelf.title")}</div>
             <div class="shelf-grid">${cards}</div>
         </div>`;
 
@@ -98,6 +98,7 @@ async function render(el: HTMLElement): Promise<void> {
     el.querySelector('[data-act="ach"]')!.addEventListener("click", () => { clearBadge("ach"); document.getElementById("ach-btn")!.click(); });
     el.querySelector('[data-act="settings"]')!.addEventListener("click", () => document.getElementById("settings-btn")!.click());
     el.querySelector('[data-act="parent"]')?.addEventListener("click", () => void openParentModal());
+    el.querySelector('[data-act="lang"]')!.addEventListener("click", () => void switchLang(lang === "zh" ? "en" : "zh"));
     el.querySelector('[data-act="speech"]')!.addEventListener("click", () => {
         document.getElementById("speech-btn")!.click();
         showShelf(); // 重渲刷新「语音 · 开/关」文案
@@ -144,7 +145,7 @@ function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     // 「＋ 添加孩子」→ 家长弹窗（管理面：添加孩子/退出登录）。已登录时 chip 下拉是唯一家长枢纽（spec §2.2）
     const add = document.createElement("button");
     add.className = "scm-add";
-    add.innerText = "＋ 添加孩子";
+    add.innerText = t("shelf.add_child");
     add.onclick = (e) => {
         e.stopPropagation();
         menu.remove();
@@ -157,7 +158,7 @@ function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     menu.appendChild(divider);
     const dash = document.createElement("button");
     dash.className = "scm-dash";
-    dash.innerText = "家长后台 →";
+    dash.innerText = t("shelf.dashboard");
     dash.onclick = (e) => {
         e.stopPropagation();
         menu.remove();

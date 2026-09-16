@@ -52,6 +52,27 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 | `cover` | | 书架封面图（相对包根，如 `"cover.jpg"`） |
 | `summary` | | 书架一句话简介 |
 | `ttsAliases` | | 读音别名：`{"757": "七五七"}`——显示文本不动，只改喂给 TTS 的文案（管线 + 播放器统一生效） |
+| `characters` | | 绘本模式角色 SVG 注册表：`{"seagull": "characters/seagull.svg"}`（相对包根）。hotspot 的 `actor` 引用这里的键 |
+
+## 绘本模式（横屏书页布局，2026-08-31）
+
+视口宽度 ≥768px 自动进入（设置面板可强制开关）。场景不写 `book` 字段也能玩：左页 = `background` 图 + 塔卡默认位，选项退化为右页气泡按钮。`book` 字段只是构图微调，**全部可选**：
+
+```jsonc
+"book": {
+  "art": "backgrounds/xxx.jpg",   // 左页画面；缺省 = scene.background
+  "taka": { "x": 14, "y": 34, "rotate": 0 },  // 塔卡在左页的位置（%）与旋转
+  "decor": ["waves", "sun"],      // 氛围件：waves 波纹 / sun 太阳 / bubbles 气泡
+  "hotspots": [                    // 选项物化：长在画面里的发光可点物
+    { "choice": 0, "actor": "seagull", "x": 70, "y": 20, "size": 15 }
+  ]
+}
+```
+
+- `hotspot.choice` 对齐 `choices` 下标；`actor` 用 `characters` 注册名或内置件 `light`（光斑）/ `coral` / `deep`（回海底）/ `shell` / `sun` / `waves`
+- **叙事自洽红线**：hotspot 物化对象必须在该场景「在场」（例：海底场景不得出现海鸥）
+- 未物化的选项自动在右页出气泡按钮兑底；自由输入（选项 C）在右页为虚线气泡，两种布局行为一致
+- 译文包（story.en.json）的 `book` / `characters` 与中文包**深一致**（校验器强制——构图无文案，原样复制）
 
 ## 场景字段
 
@@ -88,6 +109,9 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 
 - 正文按**空行分段**，每段一句或短句组；管线逐段渲染 `01_<声线>.mp3`
 - 台词归属：**先解析引号归属，再清理引号**（"值了" bug 的教训）；无引号段落归 narrator
+- **中文归属窗口**：`角色名 + ≤8 字引语 + 冒号 + 引号台词` 才认（如 `757："…"`、`塔卡小声说："…"`）。引语超过 8 字（如 `757 沉默了三秒，才说："…"`）整段掉回 narrator——**长引语请拆两行**：叙述一行（`757 沉默了三秒。`）+ 台词一行（`757："…"`），节奏也更好
+- **插话式台词（中英均支持，2026-09-07）**：`757："而且，"757 的声音变得很轻，"我会看着你……"` 一行内「台词+叙述插条+续台词」会自动拆三段，续台词归同一说话人。注意引号必须成对；插条里不要再出现「名+冒号+引号」
+- **英文归属**：必须名字锚定（`757 said: "…"` / `757: "…"`），**代词不认**（`Then it said:` 会掉回 narrator）；长引语同样建议拆行
 - 声线 id 定义在 `packages/tts-pipeline/tts_pipeline/voices.py`（narrator / taka / seagull / oldmachine……新角色在那里登记）
 - 声线可带 `fx` 后期链（ffmpeg 滤镜，如小钉的机械感：7bit 压碎 + 窄带 + 颤音）——管线与服务器动态 TTS 走同一条链，Docker 镜像已装 ffmpeg
 - 选项朗读：`choices.mp3` 由场景 `choices[].text` 顺序拼接生成；聆听条场景由 `listenLabel` 生成

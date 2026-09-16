@@ -9,17 +9,14 @@ import { setDialogueListener } from "./engine";
 import type { DialogueEv } from "./engine";
 import { showStatus } from "./settings";
 import { ICON_LOG } from "./icons";
+import { t, lang } from "./i18n";
 
 function esc(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function roleLabel(role: string): string {
-    const m: Record<string, string> = {
-        child: "你", taka: "塔卡", narrator: "旁白", seagull: "海鸥",
-        oldmachine: "老机器", whale: "抹香鲸", rivet: "小钉", "rivet-calm": "小钉（平静）", recording: "录音",
-    };
-    return m[role] || role;
+    return t(`archive.roles.${role}`) === `archive.roles.${role}` ? role : t(`archive.roles.${role}`);
 }
 
 // ===== 旅程日志抽屉（故事页） =====
@@ -52,7 +49,7 @@ function toggleDrawer(): void {
         d.id = "journey-drawer";
         d.className = "journey-drawer";
         d.innerHTML = `
-            <div class="jd-head"><span class="jd-title">旅 程</span><button class="jd-close">✕</button></div>
+            <div class="jd-head"><span class="jd-title">${t("archive.journey_title")}</span><button class="jd-close">✕</button></div>
             <div class="jd-body"></div>`;
         (d.querySelector(".jd-close") as HTMLElement).onclick = (e) => {
             e.stopPropagation();
@@ -93,8 +90,8 @@ function renderLog(): void {
             <span class="jd-text">${esc(e.text)}</span>
         </div>`;
     }).join("");
-    body.innerHTML = `<div class="jd-story">《${esc(story)}》<span class="jd-writing">书写中...</span></div>`
-        + (rows || '<div class="jd-empty">旅途还没开始。</div>');
+    body.innerHTML = `<div class="jd-story">《${esc(story)}》<span class="jd-writing">${t("archive.writing")}</span></div>`
+        + (rows || `<div class="jd-empty">${t("archive.journey_empty")}</div>`);
 }
 
 // ===== 我的书架（主界面） =====
@@ -116,7 +113,7 @@ export function initArchive(): void {
 /** 主界面顶栏「我的书架」→ 书书架（游客提示登录） */
 export async function openArchive(): Promise<void> {
     if (!session.token || !session.childId) {
-        showStatus("登录后就能看到你和塔卡写下的书了", 3000);
+        showStatus(t("archive.login_hint"), 3000);
         return;
     }
     try {
@@ -139,7 +136,7 @@ function renderShelf(): void {
     const box = document.getElementById("archive-body");
     if (!box) return;
     if (!currentBooks.length) {
-        box.innerHTML = '<div class="ar-empty">还没有写完的书——<br>听完一个完整的故事，它就会出现在这里。</div>';
+        box.innerHTML = `<div class="ar-empty">${t("archive.empty_books")}</div>`;
         return;
     }
     const groups: { storyId: string; name: string; cover: string; books: BookInfo[] }[] = [];
@@ -157,16 +154,16 @@ function renderShelf(): void {
             <div class="ar-group-head">
                 ${g.cover ? `<img class="ar-group-cover" src="stories/${g.storyId}/${g.cover}" alt="">` : ""}
                 <span class="ar-group-name">《${esc(g.name)}》</span>
-                <span class="ar-group-count">${g.books.length} 个版本</span>
+                <span class="ar-group-count">${t("archive.versions", { n: g.books.length })}</span>
             </div>
             ${g.books.map(b => `
             <div class="ar-row" data-id="${b.id}">
                 <button class="ar-row-main" data-id="${b.id}">
-                    <span class="ar-edition">第 ${b.edition} 版</span>
-                    <span class="ar-row-meta">${fmtDate(b.finished_at)} · ${b.total_events} 句</span>
+                    <span class="ar-edition">${t("archive.edition", { n: b.edition })}</span>
+                    <span class="ar-row-meta">${fmtDate(b.finished_at)} · ${t("archive.sentences", { n: b.total_events })}</span>
                     <span class="ar-state ${b.audio_status}">${stateLabel(b.audio_status)}</span>
                 </button>
-                <button class="ar-dl" data-id="${b.id}" title="导出有声书 MP3">导 出</button>
+                <button class="ar-dl" data-id="${b.id}" title="${t("archive.export_title")}">${t("archive.export")}</button>
             </div>`).join("")}
         </div>`).join("");
     box.querySelectorAll<HTMLElement>(".ar-row-main").forEach(row => {
@@ -178,9 +175,9 @@ function renderShelf(): void {
 }
 
 function stateLabel(s: string): string {
-    return s === "ready" ? "🎧 已装订"
-         : s === "pending" ? "装订中..."
-         : s === "failed" ? "装订失败·点导出重试" : "待装订";
+    return s === "ready" ? t("archive.state_ready")
+         : s === "pending" ? t("archive.state_pending")
+         : s === "failed" ? t("archive.state_failed") : t("archive.state_none");
 }
 
 /** 行内导出（2026-08-25）：ready 直接下载；pending/failed → 触发装订后轮询，好了自动下载 */
@@ -194,11 +191,11 @@ async function exportBookRow(id: number): Promise<void> {
         renderShelf();
         if (r.audio_status === "ready") { void downloadBookAudio(id, b.title); return; }
         void pollAndDownload(id, b.title);
-    } catch { showStatus("导出失败，请重试", 3000); }
+    } catch { showStatus(t("archive.export_fail"), 3000); }
 }
 
 async function pollAndDownload(id: number, title: string): Promise<void> {
-    showStatus("装订中，好了自动开始下载", 3000);
+    showStatus(t("archive.binding"), 3000);
     for (let i = 0; i < 40; i++) {
         await new Promise(r => setTimeout(r, 3000));
         try {
@@ -207,18 +204,18 @@ async function pollAndDownload(id: number, title: string): Promise<void> {
             if (b) b.audio_status = d.audio_status;
             if (d.audio_status === "ready") {
                 if (archiveOpen) renderShelf();
-                showStatus("装订完成", 2000);
+                showStatus(t("archive.bind_done"), 2000);
                 void downloadBookAudio(id, title);
                 return;
             }
             if (d.audio_status === "failed") {
                 if (archiveOpen) renderShelf();
-                showStatus("装订失败，点导出可重试", 3500);
+                showStatus(t("archive.bind_failed"), 3500);
                 return;
             }
         } catch { /* 网络抖动，继续等 */ }
     }
-    showStatus("装订时间较长，稍后点导出即可", 3500);
+    showStatus(t("archive.bind_long"), 3500);
 }
 
 /** 连续书页阅读器（2026-08-25 改版：一页一句 → 按场景分节的段落流，上下滚动） */
@@ -227,8 +224,8 @@ async function openBook(id: number): Promise<void> {
     if (!box) return;
     let detail: BookDetail;
     try { detail = await api.bookDetail(id); }
-    catch { showStatus("这本书打不开了", 3000); return; }
-    const nickname = selectedChild()?.nickname || "你";
+    catch { showStatus(t("archive.book_broken"), 3000); return; }
+    const nickname = selectedChild()?.nickname || t("archive.you");
     // 正文：按场景分节；角色前缀着色（你=蓝 / 塔卡=暖黄 / 其他=灰）
     let body = "";
     let lastScene = "";
@@ -237,21 +234,21 @@ async function openBook(id: number): Promise<void> {
             if (lastScene) body += '<div class="rl-break"></div>';
             lastScene = e.scene_key;
         }
-        const who = e.role === "child" ? "你" : roleLabel(e.role);
+        const who = e.role === "child" ? t("archive.you") : roleLabel(e.role);
         const cls = e.role === "child" ? "rl child" : e.role === "taka" ? "rl taka" : "rl";
         body += `<p class="${cls}"><span class="rl-who">${esc(who)}</span>${esc(e.text)}</p>`;
     }
     box.innerHTML = `<div class="ar-reader2">
         <div class="ar-r-head">
-            <button class="ar-back">← 书架</button>
+            <button class="ar-back">← ${t("engine.back_shelf")}</button>
             <div class="ar-r-title">${esc(detail.title)}</div>
-            <div class="ar-r-meta">${fmtDate(detail.finished_at)} · ${detail.total_events} 句 · <span class="ar-state ${detail.audio_status}">${stateLabel(detail.audio_status)}</span></div>
-            <button class="pg-export" data-id="${id}">🎧 导出有声书（MP3）</button>
+            <div class="ar-r-meta">${fmtDate(detail.finished_at)} · ${t("archive.sentences", { n: detail.total_events })} · <span class="ar-state ${detail.audio_status}">${stateLabel(detail.audio_status)}</span></div>
+            <button class="pg-export" data-id="${id}">${t("archive.export_btn")}</button>
         </div>
-        <div class="ar-r-body">${body || '<div class="jd-empty">这本书还没有内容。</div>'}</div>
+        <div class="ar-r-body">${body || `<div class="jd-empty">${t("archive.book_empty")}</div>`}</div>
         <div class="ar-r-foot">
-            <div class="pg-end-title">本书由 ${esc(nickname)} 与塔卡共同书写</div>
-            <button class="pg-export" data-id="${id}">🎧 导出有声书（MP3）</button>
+            <div class="pg-end-title">${t("archive.made_by", { name: esc(nickname) })}</div>
+            <button class="pg-export" data-id="${id}">${t("archive.export_btn")}</button>
         </div>
     </div>`;
     box.querySelector(".ar-back")!.addEventListener("click", () => renderShelf());
@@ -262,7 +259,7 @@ async function openBook(id: number): Promise<void> {
 
 /** 有声书下载：fetch + Bearer token 拿 blob 再触发下载（window.open 新标签不带 header → 401，且移动端易被拦截） */
 async function downloadBookAudio(id: number, title: string): Promise<void> {
-    if (!session.token) { showStatus("请先登录", 3000); return; }
+    if (!session.token) { showStatus(t("archive.login_first"), 3000); return; }
     try {
         const res = await fetch(api.bookAudioUrl(id), {
             headers: { "Authorization": "Bearer " + session.token },
@@ -272,20 +269,21 @@ async function downloadBookAudio(id: number, title: string): Promise<void> {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = (title || "有声书") + ".mp3";
+        a.download = (title || t("archive.mp3_default")) + ".mp3";
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        showStatus("有声书已开始下载", 2500);
+        showStatus(t("archive.download_started"), 2500);
     } catch {
-        showStatus("下载失败，请重试", 3000);
+        showStatus(t("archive.download_fail"), 3000);
     }
 }
 
 function fmtDate(iso: string | null): string {
     if (!iso) return "";
     const d = new Date(iso);
+    if (lang === "en") return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
 

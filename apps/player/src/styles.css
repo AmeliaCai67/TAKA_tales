@@ -15,93 +15,128 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        /* 儿童产品：UI 文本全局禁选中（华为手机长按弹「复制」菜单是高频误触，2026-09-01 Mate 60 实测）；
+           输入框例外放行 */
+        body { -webkit-user-select: none; user-select: none; }
+        input, textarea { -webkit-user-select: text; user-select: text; }
+
         body {
             background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
             color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 华为/荣耀设备无 -apple-system：显式补 PingFang / HarmonyOS Sans / 雅黑 */
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
             height: 100vh;
+            height: 100dvh; /* 动态视口高：地址栏/手势条收放不顶跑底部（不支持的浏览器吃上一行兜退） */
             overflow: hidden;
+        }
+
+        /* 场景背景图：双层交叉淡化（无背景的故事保持原渐变底） */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-layer.show { opacity: 1; }
+        /* 压暗层：保证对话框/立绘可读性，海底氛围不丢 */
+        .bg-shade {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(4, 18, 38, 0.35) 0%, rgba(4, 18, 38, 0.55) 100%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         #stage {
             position: relative;
             width: 100%;
             height: 100vh;
+            height: 100dvh;
             max-width: 1200px;
             margin: 0 auto;
+            z-index: 1;
         }
 
         /* HUD：右上角，极小，不抢眼 */
         .hud {
             position: absolute;
-            top: 14px;
-            right: 20px;
+            top: calc(14px + env(safe-area-inset-top, 0px));
+            right: calc(20px + env(safe-area-inset-right, 0px)); /* 横屏刘海/灵动岛让位 */
             font-size: 11px;
             color: var(--text-secondary);
             letter-spacing: 2px;
             display: flex;
             align-items: center;
             gap: 8px;
+            z-index: 70; /* 绘本舞台（book-stage 同在 #stage 内、DOM 靠后）也要压住 */
         }
 
-        /* 电量条：小电池图标，填充随档位变色 */
-        .battery-icon {
-            width: 34px;
-            height: 13px;
-            border: 1px solid var(--text-secondary);
-            border-radius: 3px;
-            position: relative;
-            padding: 1px;
+        /* 空心能量环（2026-09）：塔卡的能源核心——淡色空心外圈 + 从顶部绕环的电量弧。
+           颜色贴近塔卡的暖黄能源系（不用蓝，蓝已被记忆库图鉴专属），档位色由 JS 写 --core 变量驱动。
+           空心小圈 + 顶部指示弧 = 极简仪表感，明确区别于「手机电量」。 */
+        .core-ico { --core: #ffc24b; width: 20px; height: 20px; flex: none; line-height: 0; }
+        .core-ico svg { width: 100%; height: 100%; overflow: visible; }
+        .core-ring { fill: none; stroke: currentColor; stroke-width: 2; opacity: .26; }
+        .core-arc {
+            fill: none; stroke: var(--core); stroke-width: 2.5; stroke-linecap: round;
+            transform-box: fill-box; transform-origin: center; transform: rotate(-90deg); /* 从 12 点开始 */
+            transition: stroke .4s ease, stroke-dasharray .4s ease;
         }
-        .battery-icon::after {  /* 电池正极凸起 */
-            content: "";
-            position: absolute;
-            right: -4px;
-            top: 3px;
-            width: 3px;
-            height: 5px;
-            background: var(--text-secondary);
-            border-radius: 0 1px 1px 0;
+        .core-bolt { fill: currentColor; opacity: .9; } /* 闪电随文字色（文字随背景深浅自适应，闪电始终可读） */
+
+        /* ===== 亮底色背景自动适配（setBackground 采样顶部条带亮度 → body.on-light-bg） =====
+           顶栏图标/HUD 换深海蓝，SVG 里的暖黄点缀两色底都读得出，不动 */
+        body.on-light-bg .settings-btn, body.on-light-bg .log-btn, body.on-light-bg .ach-btn,
+        body.on-light-bg .speech-btn, body.on-light-bg .parent-btn {
+            color: #16324a;
+            opacity: .9;
         }
-        .battery-fill {
-            height: 100%;
-            width: 100%;
-            background: var(--ok-green);
-            border-radius: 1px;
-            transition: width .4s ease, background .4s ease;
-        }
+        body.on-light-bg .hud { color: #16324a; }
+        body.on-light-bg .lang-toggle { color: #16324a; border-color: rgba(22, 50, 74, .45); }
+        body.on-light-bg .lang-toggle:hover { color: #b07800; border-color: #b07800; }
 
         /* 设置按钮：左上角，与右上 HUD 对称 */
         .settings-btn {
             position: absolute;
-            top: 8px;
-            left: 14px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
+            left: calc(14px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             color: var(--text-secondary);
             font-size: 15px;
             cursor: pointer;
-            opacity: .7;
+            opacity: .85;
             z-index: 70;
         }
         .settings-btn:hover { opacity: 1; }
         /* 如我所书：旅程日志入口（故事页左上角 📖，设置右邻） */
         .log-btn {
             position: absolute;
-            top: 8px;
-            left: 56px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
+            left: calc(56px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             color: var(--text-secondary);
             font-size: 15px;
             cursor: pointer;
-            opacity: .7;
+            opacity: .85;
             z-index: 70;
         }
         .log-btn:hover { opacity: 1; }
+        /* 语言切换钮：顶栏右侧（书架模式也有自己的语言钮，在按钮组里） */
+        .lang-toggle {
+            background: none; border: 1px solid rgba(235, 245, 250, .4); border-radius: 999px;
+            color: rgba(235, 245, 250, .95); font-size: 12px; letter-spacing: 1px;
+            padding: 3px 10px; cursor: pointer;
+        }
+        .lang-toggle:hover { color: var(--accent-warm); border-color: var(--accent-warm); }
         /* 自定义 SVG 图标：跟随 currentColor，统一 17px；
-           五个按钮统一设色（emoji 时代只有 .settings-btn 设了 color，其余继承成黑色看不见） */
-        .settings-btn, .ach-btn, .speech-btn, .parent-btn, .log-btn { color: var(--text-secondary); }
+           深色底用带蓝暖白（同正文色），亮底由 body.on-light-bg 覆写为深海蓝 */
+        .settings-btn, .ach-btn, .speech-btn, .parent-btn, .log-btn { color: rgba(235, 245, 250, .95); }
         .settings-btn svg, .ach-btn svg, .speech-btn svg, .parent-btn svg, .log-btn svg {
             width: 26px; height: 26px; display: block;
         }
@@ -113,13 +148,13 @@
         /* 语音开关：左上角，🏅 右邻 */
         .speech-btn {
             position: absolute;
-            top: 8px;
-            left: 140px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
+            left: calc(140px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
-            opacity: .7;
+            opacity: .85;
             z-index: 70;
         }
         .speech-btn:hover { opacity: 1; }
@@ -127,13 +162,13 @@
         /* 成就按钮：左上角，⚙ 与 🔊 之间 */
         .ach-btn {
             position: absolute;
-            top: 8px;
-            left: 98px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
+            left: calc(98px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
-            opacity: .7;
+            opacity: .85;
             z-index: 70;
         }
         .ach-btn:hover { opacity: 1; }
@@ -205,13 +240,13 @@
         /* 家长入口：左上角，🔊 右邻 */
         .parent-btn {
             position: absolute;
-            top: 8px;
-            left: 182px;
+            top: calc(8px + env(safe-area-inset-top, 0px));
+            left: calc(182px + env(safe-area-inset-left, 0px));
             background: none;
             border: none;
             font-size: 15px;
             cursor: pointer;
-            opacity: .7;
+            opacity: .85;
             z-index: 70;
         }
         .parent-btn:hover { opacity: 1; }
@@ -383,13 +418,21 @@
         /* AI 状态提示：顶部居中，小字 */
         .ai-status {
             position: absolute;
-            top: 14px;
+            top: calc(14px + env(safe-area-inset-top, 0px));
             left: 50%;
             transform: translateX(-50%);
-            font-size: 11px;
-            color: var(--text-secondary);
-            letter-spacing: 2px;
+            font-size: 13px;
+            color: rgba(235, 245, 250, .95); /* 与顶栏图标同暖白（2026-09-01：灰色在亮底上完全看不见） */
+            letter-spacing: 1px;
             z-index: 25;
+            /* 有内容时才出黑底药丸（空字符串不占位） */
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .ai-status:not(:empty) {
+            background: rgba(6, 18, 34, .82);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
         }
 
         /* 启动门：Chrome/Safari 都要求用户手势后才能发声，把第一次点击变成仪式 */
@@ -474,26 +517,34 @@
             animation: floatY 5.5s ease-in-out infinite;
         }
         @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-        .taka-figure svg { height: 300px; display: block; }
+        .taka-figure svg {
+            height: 300px;
+            display: block;
+            /* 光线描边：贴轮廓一圈暖黄——塔卡的灯就是光源，亮边叙事自洽 */
+            filter: drop-shadow(0 0 6px rgba(255, 200, 80, .9));
+        }
 
-        /* 对话框：纯文本。固定高度——文本再长也不顶跑选项，内部滚动 */
+        /* 对话框：半透明深海蓝 + 背景模糊，透出手绘笔触，不再是黑贴片 */
         .dialog {
             position: absolute;
             left: 24px;
             right: 24px;
-            bottom: 24px;
+            bottom: calc(24px + env(safe-area-inset-bottom, 0px)); /* 横屏手势条别压对话框 */
             height: 220px;
             display: flex;
             flex-direction: column;
-            background: var(--bg-dialog);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            background: rgba(10, 35, 60, .78);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(150, 200, 230, .25);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .35);
             padding: 16px 20px;
         }
 
         .speaker {
             font-size: 11px;
-            color: var(--accent-dim);
+            color: var(--accent-warm); /* 塔卡灯暖黄，与立绘描边呼应 */
             letter-spacing: 4px;
             margin-bottom: 8px;
         }
@@ -502,7 +553,7 @@
             font-size: 17px;
             line-height: 2;
             letter-spacing: 1px;
-            color: var(--text-primary);
+            color: rgba(235, 245, 250, .95); /* 带蓝的暖白，纯白在深蓝上太刺眼 */
             white-space: pre-line;
             flex: 1;
             min-height: 0;
@@ -708,9 +759,16 @@
         /* ===== 竖屏降级：上下堆叠，选项通栏（低频场景） ===== */
         @media (orientation: portrait) {
             body { overflow: auto; }
+            /* 竖屏背景：与横屏一样 cover 铺满全屏（2026-08-31 产品定案：裁切两侧也要满屏，
+               顶部一条图 + 底部渐隐的方案废弃——视觉上像「没加载完」） */
+            .bg-layer {
+                background-size: cover;
+                background-position: center;
+            }
             #stage {
                 height: auto;
                 min-height: 100vh;
+                min-height: 100dvh;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -742,7 +800,8 @@
         body.on-shelf .ach-btn,
         body.on-shelf .speech-btn,
         body.on-shelf .parent-btn,
-        body.on-shelf .log-btn { display: none; }
+        body.on-shelf .log-btn,
+        body.on-shelf .hud { display: none; } /* 书架页不显示右上电量 HUD 与「中 / EN」圆角钮（顶栏导航已含语言切换） */
         .shelf-topbar {
             max-width: 880px;
             margin: 0 auto 30px;
@@ -1137,3 +1196,515 @@
     align-self: flex-start; /* 不撑满整行 */
 }
 .pg-export:hover { opacity: .9; }
+
+/* ================================================================
+   横屏绘本模式（2026-08-31，plan: docs/superpowers/plans/2026-08-31-landscape-book-mode.md）
+   body.book-mode 命名空间；VN 布局零改动。原型：experiments/landscape mode/index.html
+   ================================================================ */
+
+/* VN 呈现件退场（聆听条/立绘是 DOM 借用，不靠显隐） */
+body.book-mode .dialog,
+body.book-mode #choices { display: none; }
+
+/* 书架页/浮层上时绘本舞台退场 */
+body.on-shelf #book-stage { display: none; }
+
+#book-stage {
+    display: none; /* 由 body.book-mode 开启（不用 hidden 属性，防 class 与属性打架） */
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding-top: calc(30px + env(safe-area-inset-top, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 1;
+}
+body.book-mode #book-stage { display: flex; }
+
+/* 书台模式：顶栏/HUD 浮在书台两侧的整屏背景上，该背景被书壳阴影 + 压暗层压低、整体偏暗；
+   on-light-bg 采样的是背景图「原图」顶部（偏亮），会把图标误判成深色、在暗背景上糊掉。
+   书台模式统一用浅色图标/浅色 HUD 最稳（能量环的暖黄本身醒目，不受影响）。 */
+body.book-mode .hud { color: rgba(235, 245, 250, .95); }
+body.book-mode .settings-btn, body.book-mode .log-btn, body.book-mode .ach-btn,
+body.book-mode .speech-btn, body.book-mode .parent-btn { color: rgba(235, 245, 250, .95); }
+body.book-mode .lang-toggle { color: rgba(235, 245, 250, .95); border-color: rgba(235, 245, 250, .4); }
+body.book-mode .lang-toggle:hover { color: #ffd670; border-color: #ffd670; }
+
+/* 书本：16:9，宽度自适应（矮屏等比缩小兜底） */
+body.book-mode #book-stage .spread {
+    position: absolute;
+    width: min(94vw, calc((96vh - 60px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .06);
+    background: #0e1e30;
+    display: flex;
+    transform-origin: left center;
+    transition: transform 1s cubic-bezier(.6, .05, .25, 1), opacity .8s;
+    backface-visibility: hidden;
+}
+body.book-mode #book-stage .spread.turned { transform: rotateY(-40deg) translateX(-12%); opacity: 0; pointer-events: none; }
+
+/* ---------- 左页：画面 ---------- */
+body.book-mode .page-scene {
+    width: 58%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+/* 蜡笔噪点纹理（与手绘背景同源的颗粒感） */
+body.book-mode .crayon::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: .5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* 氛围件：太阳 / 波纹 / 气泡 */
+body.book-mode .decor { position: absolute; inset: 0; pointer-events: none; }
+body.book-mode .decor-sun::before {
+    content: ""; position: absolute; left: 62%; top: 26%; width: 16%; aspect-ratio: 1;
+    border-radius: 50%; transform: translate(-50%, -50%);
+    background: radial-gradient(circle at 42% 38%, #fff3cf, #ffd670 55%, #f0a83e);
+    box-shadow: 0 0 40px 14px rgba(255, 205, 100, .7), 0 0 120px 50px rgba(255, 180, 80, .3);
+    animation: bookSunBreathe 5s ease-in-out infinite;
+}
+@keyframes bookSunBreathe { 50% { box-shadow: 0 0 55px 20px rgba(255, 205, 100, .85), 0 0 140px 60px rgba(255, 180, 80, .4); } }
+body.book-mode .decor-waves i {
+    position: absolute; width: 200%; height: 12%; left: -50%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, .26), transparent 70%);
+    border-radius: 50%;
+    animation: bookWave 7s ease-in-out infinite;
+}
+body.book-mode .decor-waves i:nth-child(1) { bottom: 30%; }
+body.book-mode .decor-waves i:nth-child(2) { bottom: 16%; animation-delay: -2.3s; opacity: .7; }
+body.book-mode .decor-waves i:nth-child(3) { bottom: 4%;  animation-delay: -4.6s; opacity: .45; }
+@keyframes bookWave { 50% { transform: translateX(4%) scaleY(.8); } }
+body.book-mode .decor-bubbles i {
+    position: absolute; bottom: -30px; border-radius: 50%;
+    background: rgba(200, 230, 250, .35); border: 1px solid rgba(220, 240, 255, .5);
+    animation: bookRise linear infinite;
+}
+@keyframes bookRise { to { transform: translateY(-70vh); opacity: 0; } }
+
+/* 塔卡：立绘 % 定位（坐标由 book.taka 内联）；大小按左页宽 */
+body.book-mode #taka-figure {
+    position: absolute;
+    width: 34%;
+    left: 14%;
+    top: 34%;
+    z-index: 2;
+}
+body.book-mode #taka-figure svg { width: 100%; height: auto; }
+
+/* ---------- hotspot：长在画面里的发光选项 ---------- */
+body.book-mode .hotspot {
+    position: absolute; transform: translate(-50%, -50%);
+    cursor: pointer; border: none; background: none; padding: 0; z-index: 3;
+    min-width: 64px; min-height: 64px; /* 小孩手指粗：触控热区保底（光晕是纯视觉，不吃点击） */
+    animation: bookBob 5s ease-in-out infinite;
+}
+@keyframes bookBob { 50% { margin-top: -2%; } }
+body.book-mode .hotspot .actor { display: block; }
+body.book-mode .hotspot .actor svg { width: 100%; height: auto; display: block; }
+/* 常驻角色（非交互演出件，2026-09-03）：纯展示，不吃点击；位置/尺寸/镜像由 story.json 的 book.actors 内联样式给 */
+body.book-mode .scene-actor { position: absolute; pointer-events: none; }
+body.book-mode .scene-actor svg { width: 100%; height: auto; display: block; }
+body.book-mode .hotspot .halo {
+    position: absolute; inset: -45%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 240, 190, .9) 0%, rgba(255, 220, 130, .35) 45%, transparent 70%);
+    animation: bookHalo 2.4s ease-in-out infinite;
+}
+@keyframes bookHalo { 50% { transform: scale(1.25); opacity: .65; } }
+body.book-mode .hotspot .label {
+    position: absolute; left: 50%; bottom: 108%; transform: translateX(-50%);
+    width: max-content;            /* 跳出按钮窄容器（hotspot 宽只有左页的 ~11%），按内容撑开 */
+    max-width: 13em;               /* 长文案换行收拢，防顶出左页 */
+    white-space: normal; text-align: center;
+    background: rgba(255, 251, 240, .94);
+    color: #4a3a20; font-size: clamp(11px, 1.15vw, 15px); font-weight: 600;
+    padding: .45em 1em; border-radius: 2em;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+    border: 1.5px solid rgba(255, 255, 255, .9);
+}
+body.book-mode .hotspot .label::after {
+    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: rgba(255, 251, 240, .94);
+}
+/* 上半页 hotspot：标签放下方，箭头朝上 */
+body.book-mode .hotspot .label.below { bottom: auto; top: 108%; }
+body.book-mode .hotspot .label.below::after {
+    top: auto; bottom: 100%;
+    border-top-color: transparent; border-bottom-color: rgba(255, 251, 240, .94);
+}
+body.book-mode .hotspot:hover .label { background: #fff; transform: translateX(-50%) scale(1.06); }
+body.book-mode .hotspot:hover { z-index: 5; }
+body.book-mode .hotspot:disabled { opacity: .55; pointer-events: none; }
+
+body.book-mode .flip-hint {
+    position: absolute; bottom: 4%; left: 50%; transform: translateX(-50%);
+    color: rgba(255, 255, 255, .9); font-size: clamp(11px, 1vw, 14px);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .4);
+    animation: bookHintFloat 2s ease-in-out infinite;
+    pointer-events: none; z-index: 9;
+}
+@keyframes bookHintFloat { 50% { transform: translateX(-50%) translateY(-4px); } }
+
+/* ---------- 右页：文字 ---------- */
+body.book-mode .page-text {
+    width: 42%;
+    height: 100%;
+    position: relative;
+    background: rgba(250, 246, 235, .96);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .9em;
+    padding: 4% 4.5%;
+    box-shadow: inset 24px 0 30px -22px rgba(60, 40, 20, .35); /* 中缝阴影 */
+    cursor: pointer;
+}
+body.book-mode .page-text::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: .4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)' opacity='0.08'/%3E%3C/svg%3E");
+}
+body.book-mode .bubbles {
+    display: flex; flex-direction: column; gap: .85em;
+    flex: 1; min-height: 0;          /* 可收缩：气泡多了内部滚动，不顶出纸面 */
+    overflow-y: auto;
+    padding-top: 2em;                /* 顶部给书名（pagenum 左上角）留位 + 第一颗气泡 who 名牌 -.9em 探头防裁切 */
+    scrollbar-width: thin;
+}
+body.book-mode .bubble {
+    position: relative;
+    background: #fff;
+    border-radius: 1.1em;
+    padding: .75em 1.05em;
+    font-size: clamp(12px, 1.3vw, 17px);
+    line-height: 1.7;
+    color: #33455a;
+    box-shadow: 0 4px 14px rgba(90, 110, 140, .14);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .5s ease, transform .5s ease;
+}
+body.book-mode .bubble.in { opacity: 1; transform: none; }
+body.book-mode .bubble .who {
+    position: absolute; top: -.9em; left: 1em;
+    font-size: .72em; font-weight: 700; letter-spacing: .08em;
+    background: #5b9bc4; color: #fff; border-radius: 2em; padding: .2em .8em;
+}
+body.book-mode .bubble.taka-b { border: 1.5px solid rgba(240, 168, 62, .5); }
+body.book-mode .bubble.taka-b .who { background: #f0a83e; }
+body.book-mode .bubble.char-b { border: 1.5px solid rgba(91, 155, 196, .55); }
+body.book-mode .bubble.narr { background: transparent; box-shadow: none; color: #6b7f95; font-style: italic; padding-left: .3em; }
+/* 记忆库关键词在纸面上的高亮（米白纸底，虚线改深金） */
+body.book-mode .codex-link { color: #b07800; border-bottom-color: rgba(176, 120, 0, .6); }
+body.book-mode .pagenum {
+    position: absolute; top: 3.5%; left: 6%;   /* 2026-09-01：从右下角挪到左上——离话筒太近，小孩老误长按 */
+    font-size: clamp(10px, .95vw, 13px); color: #a39072; font-style: italic;
+}
+
+/* 右页选项区：气泡按钮 + 自由输入（虚线邀请气泡） */
+body.book-mode .book-choices { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; margin-top: .4em; }
+body.book-mode .book-choices .choice-btn {
+    background: rgba(255, 251, 240, .96);
+    border: 1.5px solid rgba(91, 155, 196, .5);
+    color: #3a4a5c;
+    border-radius: 2em;
+    padding: .5em 1.2em;
+    font-size: clamp(12px, 1.15vw, 15px);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(90, 110, 140, .12);
+}
+body.book-mode .book-choices .choice-btn:hover { background: #fff; border-color: var(--accent-warm); }
+body.book-mode .book-choices .choice-input {
+    border: 2px dashed rgba(91, 155, 196, .65);
+    border-radius: 1.1em;
+    padding: .55em .9em;
+    background: rgba(255, 255, 255, .55);
+    animation: bookDashBlink 2.2s ease-in-out infinite;
+}
+@keyframes bookDashBlink { 50% { border-color: rgba(240, 168, 62, .8); background: rgba(255, 248, 235, .8); } }
+body.book-mode .book-choices .choice-input input { color: #33455a; }
+body.book-mode .book-choices .choice-input button { color: #5b9bc4; }
+
+/* 聆听条在绘本右页底部 */
+body.book-mode .listen-bar { margin-top: .4em; }
+
+/* ---------- 窄屏旋转提示弹窗 ---------- */
+.rotate-hint {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(4, 12, 24, .72);
+    backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+}
+.rotate-hint:not([hidden]) { display: flex; }
+.rotate-hint[hidden] { display: none; }
+.rh-card {
+    background: rgba(250, 246, 235, .97);
+    border-radius: 18px;
+    padding: 28px 32px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    max-width: 78vw;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+.rh-phone {
+    width: 34px; height: 56px;
+    border: 3px solid #4a5a6a; border-radius: 8px;
+    animation: rhRotate 2.4s ease-in-out infinite;
+}
+@keyframes rhRotate {
+    0%, 25% { transform: rotate(0); }
+    60%, 100% { transform: rotate(90deg); }
+}
+.rh-text { color: #33455a; font-size: 16px; letter-spacing: 2px; font-weight: 600; }
+.rh-ok {
+    background: #f0a83e; color: #fff; border: none; border-radius: 2em;
+    padding: .55em 1.6em; font-size: 15px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
+}
+.rh-ok:hover { filter: brightness(1.05); }
+.rh-never { color: #8a97a5; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+/* ================================================================
+   自由输入 v2：微信式语音交互（2026-09-01）
+   小话筒常驻右下角；短按展开打字行；长按录音、松开发送、上滑转文字
+   ================================================================ */
+
+/* 绘本模式书外背景：跟随场景切换，不模糊不加重——与竖屏同一层 bg-shade（2026-09-01 回退磨砂方案） */
+
+.free-input-v2 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+.fi-row[hidden] { display: none; } /* .choice-input 的 display:flex 会盖 hidden 语义 */
+.fi-row { width: 100%; }
+
+
+.fi-hint {
+    align-self: center;
+    background: rgba(10, 30, 56, .88);
+    color: #eaf3fa;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(150, 200, 230, .3);
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}
+.fi-hint.slide { border-color: var(--accent-warm); color: var(--accent-warm); }
+
+/* 绘本模式：话筒与打字行约束在右页内（修复 Mate 60 实测的溢出到左页问题） */
+body.book-mode .book-choices .free-input-v2 { max-width: 100%; }
+body.book-mode .book-choices .fi-row { max-width: 100%; box-sizing: border-box; }
+
+/* ===== 语音输入悬浮钮（FAB）：固定屏幕右下角，远离文字区（2026-09-01 Mate 60 误触治理） ===== */
+.mic-fab {
+    position: fixed;
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    z-index: 75;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(150, 200, 230, .3);
+    background: rgba(10, 35, 60, .82);
+    backdrop-filter: blur(8px);
+    color: rgba(235, 245, 250, .95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+    touch-action: none; /* 按住滑动不滚屏（上滑手势需要） */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.mic-fab svg { width: 24px; height: 24px; }
+.mic-fab[hidden] { display: none; } /* class 的 display:flex 会盖 hidden 语义（同一个坑第四次，这次先写在这） */
+.mic-fab:active { transform: scale(.93); }
+.mic-fab.recording {
+    border-color: var(--accent-warm);
+    color: var(--accent-warm);
+    box-shadow: 0 0 0 8px rgba(255, 183, 3, .18), 0 0 0 16px rgba(255, 183, 3, .07), 0 6px 20px rgba(0,0,0,.4);
+    animation: fiMicPulse 1.2s ease-in-out infinite;
+}
+@keyframes fiMicPulse {
+    50% { box-shadow: 0 0 0 12px rgba(255, 183, 3, .26), 0 0 0 22px rgba(255, 183, 3, .1), 0 6px 20px rgba(0,0,0,.4); }
+}
+/* 亮底背景时 FAB 深色化（on-light-bg 与顶栏同一套） */
+body.on-light-bg .mic-fab {
+    background: rgba(22, 50, 74, .88);
+    color: #eaf3fa;
+    border-color: rgba(22, 50, 74, .45);
+}
+/* 书架页不显示 */
+body.on-shelf .mic-fab { display: none; }
+
+/* 设置面板 v2（2026-09-02）：即改即存 + 点外自动关闭；底部导航行 */
+.sp-nav { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+#sp-logout {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-secondary); font-size: 12px; letter-spacing: 1px;
+    padding: 7px 0; cursor: pointer;
+}
+#sp-logout:hover { color: var(--low-orange); border-color: var(--low-orange); }
+#sp-logout[hidden] { display: none; } /* class 样式优先级保险（hidden 坑第五防线） */
+
+/* ===== 收集小游戏节点（2026-09 第四章「你好，757」） =====
+   横屏/整页/塔卡可拖/物化物品可交互收集/集满 N 解锁成就。
+   collect-active 由 engine 在 collect 场景加；即使非 book-mode 也强制展示书台。 */
+.collect-active #book-stage { display: flex; }
+.spread.collect-mode { background: #0e1e30; }
+.spread.collect-mode .collect-page {
+    width: 100%; height: 100%; position: relative; overflow: hidden;
+    background-size: cover; background-position: center;
+}
+.spread.collect-mode .page-text { display: none; } /* 收集模式右页文字区消失 */
+
+/* 收集进度角标 */
+.spread.collect-mode .collect-count {
+    position: absolute; left: 18px; bottom: 16px; z-index: 8;
+    font-size: 13px; letter-spacing: 1px; color: #ffe9b8;
+    background: rgba(10, 35, 60, .72); padding: 5px 14px; border-radius: 999px;
+    border: 1px solid rgba(240, 168, 62, .5);
+}
+
+/* 收集物 */
+.spread.collect-mode .collect-item {
+    position: absolute; transform: translate(-50%, -50%);
+    border: none; background: none; padding: 0; cursor: pointer; z-index: 5;
+}
+.spread.collect-mode .collect-item .actor { display: block; width: 100%; }
+.spread.collect-mode .collect-item .actor svg { width: 100%; height: auto; display: block; }
+.spread.collect-mode .collect-item .halo {
+    position: absolute; inset: -16%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 214, 112, .75), transparent 70%);
+    animation: collectPulse 2.2s ease-in-out infinite;
+}
+@keyframes collectPulse { 50% { opacity: .5; transform: scale(1.14); } }
+.spread.collect-mode .collect-item .label {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    width: max-content; background: rgba(10, 35, 60, .88); color: #ffe9b8;
+    font-size: 12px; letter-spacing: .5px; padding: 4px 9px; border-radius: 8px;
+    border: 1px solid rgba(240, 168, 62, .5); white-space: nowrap; pointer-events: none;
+}
+.spread.collect-mode .collect-item.want .actor { animation: collectWant .5s ease; }
+@keyframes collectWant { 25% { transform: translateY(-6px) } 55% { transform: translateY(2px) } 80% { transform: translateY(-2px) } }
+.spread.collect-mode .collect-item.collected { opacity: .92; }  /* 已收集可再点（重开控制台补录入/回看） */
+.spread.collect-mode .collect-item.recorded .halo { opacity: .9; background: radial-gradient(circle, rgba(255,183,3,.55), transparent 70%); animation: none; }
+.spread.collect-mode .collect-item.recorded::after { content: "✓"; position: absolute; right: -6px; top: -10px; width: 22px; height: 22px; border-radius: 50%; background: #ffb703; color: #16324a; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.spread.collect-mode .collect-item.collected .actor { opacity: .22; filter: grayscale(.7); }
+.spread.collect-mode .collect-item.collected .halo { display: none; }
+.spread.collect-mode .collect-item.collected .label { opacity: .55; }
+
+/* 塔卡：收集反馈时灯闪一下 */
+.spread.collect-mode #taka-figure.collect-flash .eyeGlow { animation: collectFlash .7s ease; }
+@keyframes collectFlash { 35% { opacity: .25; filter: brightness(2.1); } }
+
+/* 集满后「继续」按钮 */
+.spread.collect-mode .collect-continue {
+    position: absolute; bottom: 20px; right: 24px; z-index: 9;
+    background: var(--accent-warm); color: #22303a; border: none; border-radius: 999px;
+    font-size: 16px; letter-spacing: 1px; padding: 12px 24px; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+.spread.collect-mode .collect-continue:hover { filter: brightness(1.06); }
+.spread.collect-mode .collect-continue[hidden] { display: none; }
+
+/* 首次进入收集页：「长按塔卡拖动」提示（深底药丸漂浮，指向操作） */
+.spread.collect-mode .collect-hint {
+    position: absolute; bottom: 13%; left: 50%; transform: translateX(-50%);
+    color: rgba(255, 255, 255, .94); font-size: clamp(11px, 1vw, 14px); white-space: nowrap;
+    background: rgba(10, 35, 60, .55); padding: 6px 14px; border-radius: 999px;
+    border: 1px solid rgba(240, 168, 62, .42); text-shadow: 0 1px 4px rgba(0, 0, 0, .4);
+    animation: collectHintFloat 2s ease-in-out infinite;
+    pointer-events: none; z-index: 9;
+}
+@keyframes collectHintFloat { 50% { transform: translateX(-50%) translateY(-4px); } }
+
+/* 窄屏（手机竖屏）提示横过来 */
+.spread.collect-mode .collect-rotate {
+    position: absolute; inset: 0; z-index: 20; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    background: rgba(6, 22, 40, .82); color: #ffe9b8;
+}
+.cr-phone {
+    width: 44px; height: 78px; border: 3px solid #ffe9b8; border-radius: 9px; position: relative;
+    animation: crRotate 1.8s ease-in-out infinite;
+}
+.cr-phone::after {
+    content: ""; position: absolute; width: 46px; height: 78px; left: -2px; top: 24px;
+    border: 3px solid #ffe9b8; border-radius: 9px;
+}
+@keyframes crRotate { 0% { transform: rotate(0) } 55% { transform: rotate(-90deg) } 100% { transform: rotate(-90deg) } }
+.cr-text { font-size: 15px; letter-spacing: 1px; }
+@media (min-width: 700px) { .spread.collect-mode .collect-rotate { display: none; } }
+
+/* ===== 海底农场收集闭环（2026-09-07）：聊天卡 + 控制台 ===== */
+.cf-chat { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(680px, 92vw); max-height: 46vh; display: flex; flex-direction: column; background: rgba(14,32,46,.94); border: 1px solid rgba(160,200,225,.25); border-radius: 14px; z-index: 60; backdrop-filter: blur(6px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.cf-chat-head { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid rgba(160,200,225,.15); color: #e8f2fa; font-size: 15px; }
+.cf-chat-title { flex: 1; font-weight: 600; }
+.cf-chat-actions { display: flex; gap: 8px; align-items: center; }
+.cf-chat-actions button { background: none; border: 1px solid rgba(160,200,225,.35); color: #cfe0ee; border-radius: 8px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+.cf-chat-actions .cf-meow { border-color: #ffb703; color: #ffb703; }
+.cf-chat-body { padding: 12px 14px; overflow-y: auto; flex: 1; }
+.cf-line { margin-bottom: 10px; display: flex; gap: 8px; align-items: baseline; }
+.cf-line-who { flex: none; font-size: 12px; color: #7a93a8; min-width: 44px; text-align: right; }
+.cf-who-cat .cf-line-who { color: #ffb703; }
+.cf-line-text { color: #e8f2fa; font-size: 16px; line-height: 1.6; }
+.cf-chat-foot { padding: 10px 14px; text-align: center; border-top: 1px solid rgba(160,200,225,.15); }
+.cf-to-console { background: #ffb703; color: #16324a; border: none; border-radius: 10px; padding: 10px 26px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
+
+.cf-console-overlay { position: fixed; inset: 0; background: rgba(4,10,18,.72); z-index: 61; display: flex; align-items: center; justify-content: center; }
+.cf-console { width: min(720px, 94vw); max-height: 84vh; display: flex; flex-direction: column; background: linear-gradient(180deg, #12293a, #0c1c2a); border: 1px solid rgba(160,200,225,.3); border-radius: 16px; color: #e8f2fa; overflow: hidden; }
+.cf-con-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 10px; }
+.cf-con-title { font-size: 17px; font-weight: 700; letter-spacing: 1px; color: #9fd0c8; }
+.cf-con-sub { flex: 1; font-size: 13px; color: #7a93a8; }
+.cf-con-note { padding: 0 16px; font-size: 12px; color: #e8c37a; opacity: .85; letter-spacing: .3px; }
+.cf-con-head .cf-close, .cf-chat .cf-close { background: none; border: none; color: #9db4c6; font-size: 17px; cursor: pointer; }
+.cf-con-tabs { display: flex; gap: 6px; padding: 0 16px; }
+.cf-con-tabs button { background: none; border: none; border-bottom: 2px solid transparent; color: #7a93a8; font-size: 15px; padding: 8px 14px; cursor: pointer; }
+.cf-con-tabs button.on { color: #ffb703; border-bottom-color: #ffb703; }
+.cf-con-page { padding: 16px; overflow-y: auto; flex: 1; min-height: 200px; }
+
+.cf-fact { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+.cf-fact-play { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,183,3,.6); background: none; color: #ffb703; font-size: 13px; cursor: pointer; }
+.cf-fact-text { font-size: 16px; line-height: 1.7; padding-top: 5px; }
+.cf-meow-big { margin: 4px 0 10px; background: none; border: 1px solid #ffb703; color: #ffb703; border-radius: 10px; padding: 8px 18px; font-size: 15px; cursor: pointer; }
+.cf-attr { font-size: 11px; color: #5a738a; margin-top: 8px; }
+
+.cf-qa-log { min-height: 120px; max-height: 34vh; overflow-y: auto; margin-bottom: 12px; }
+.cf-qa-q { text-align: right; margin: 8px 0; color: #ffd670; font-size: 15px; }
+.cf-qa-a { margin: 8px 0; color: #e8f2fa; font-size: 16px; line-height: 1.7; }
+.cf-qa-row { display: flex; gap: 8px; }
+.cf-qa-input { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(160,200,225,.3); border-radius: 10px; padding: 10px 12px; color: #e8f2fa; font-size: 16px; }
+.cf-qa-send { background: #ffb703; color: #16324a; border: none; border-radius: 10px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.cf-qa-hint { margin-top: 8px; font-size: 12px; color: #5a738a; }
+
+.cf-tags-tip { font-size: 15px; color: #9db4c6; margin-bottom: 12px; }
+.cf-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.cf-chip { background: rgba(255,255,255,.06); border: 1.5px solid rgba(160,200,225,.35); color: #cfe0ee; border-radius: 999px; padding: 10px 18px; font-size: 16px; cursor: pointer; transition: border-color .15s, color .15s; }
+.cf-chip.on { border-color: #ffb703; color: #ffb703; background: rgba(255,183,3,.1); }
+.cf-chip.shake { animation: cfShake .5s ease; }
+@keyframes cfShake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-5px) } 75% { transform: translateX(5px) } }
+.cf-tags-feedback { font-size: 15px; margin: 6px 0 12px; line-height: 1.6; }
+.cf-tags-feedback.ok { color: #7dd69a; }
+.cf-tags-feedback.no { color: #ffd670; }
+.cf-tags-submit { background: #ffb703; color: #16324a; border: none; border-radius: 10px; padding: 11px 26px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.cf-tags-submit:disabled { opacity: .35; cursor: default; }
+.cf-tags-recorded { text-align: center; padding: 40px 0; color: #9db4c6; font-size: 15px; }
+.cf-tags-recorded-mark { font-size: 40px; color: #ffb703; margin-bottom: 8px; }
+
+/* 记忆库词条卡：我的标签 */
+.cc-tags { margin-top: 8px; }
+.cc-tags-label { font-size: 12px; color: #7a93a8; margin-right: 8px; }
+.cc-tag { display: inline-block; border: 1px solid rgba(255,183,3,.55); color: #ffb703; border-radius: 999px; padding: 3px 12px; font-size: 13px; margin: 3px 4px 0 0; }

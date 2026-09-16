@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70">
+  <!-- 尾羽：左侧小扇 -->
+  <path d="M22 46 L7 40 L11 48 L7 57 L24 52 Z" fill="#d7e2ea" stroke="#87a0b2" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- 后翅：上扬，在身体后面 -->
+  <path d="M48 40 C44 26 36 13 22 6 C37 6 51 17 58 33 Z" fill="#c3d2dd" stroke="#87a0b2" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- 身体：右向水滴 -->
+  <path d="M18 47 C18 39 33 33 49 34 C63 35 73 39 78 44 C72 52 55 57 41 56 C28 55 18 53 18 47 Z" fill="#f4f7f9" stroke="#87a0b2" stroke-width="2.5"/>
+  <!-- 前翅：从肩部上扬（主翼，盖在身体前），翅尖圆收 -->
+  <path d="M52 42 C50 26 44 12 32 4 Q29 2 31 6 C42 13 56 24 61 37 C63 43 58 46 52 42 Z" fill="#eef3f6" stroke="#87a0b2" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- 头（略下移与身体衔接） -->
+  <circle cx="73" cy="37" r="9.5" fill="#f4f7f9" stroke="#87a0b2" stroke-width="2.5"/>
+  <!-- 喙：暖黄，呼应塔卡灯 -->
+  <path d="M81.5 34 L94.5 38 L81.5 42 Z" fill="#ffb703" stroke="#d89a10" stroke-width="2" stroke-linejoin="round"/>
+  <!-- 眼 -->
+  <circle cx="75.5" cy="34.5" r="2" fill="#3a4750"/>
+</svg>

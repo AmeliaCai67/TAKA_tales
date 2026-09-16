@@ -16,6 +16,24 @@ const stories = [];
 for (const dir of readdirSync(dst)) {
     try {
         const j = JSON.parse(readFileSync(dst + dir + "/story.json", "utf-8"));
+        // 多语言（2026-08-28 i18n）：探测 story.<lang>.json，内联各语言 title/summary（书架切换用）
+        const langs = [];
+        const alt = {};
+        for (const f of readdirSync(dst + dir)) {
+            const m = f.match(/^story\.([a-z-]+)\.json$/i);
+            if (!m) continue;
+            try {
+                const tj = JSON.parse(readFileSync(`${dst}${dir}/${f}`, "utf-8"));
+                langs.push(m[1]);
+                alt[m[1]] = {
+                    title: tj.title || j.title,
+                    summary: tj.summary || "",
+                    // 成就墙/记忆库面板的 en 文案（2026-08-28 修：面板按语言取 alt，不再只有中文）
+                    achievements: (tj.achievements || []).map(a => ({ id: a.id, name: a.name, icon: a.icon, desc: a.desc })),
+                    codexEntries: (tj.codex?.entries || []).map(e => ({ ...e, image: `stories/${dir}/${e.image}` })),
+                };
+            } catch { /* 坏译文包不阻塞主包 */ }
+        }
         stories.push({
             id: j.id,
             title: j.title,
@@ -25,7 +43,9 @@ for (const dir of readdirSync(dst)) {
             // 成就墙用：内联成就定义（id/图标/名称/描述），避免整包拉取
             achievements: (j.achievements || []).map(a => ({ id: a.id, name: a.name, icon: a.icon, desc: a.desc })),
             // 记忆库面板用：内联词条（图片路径拼完整），避免整包拉取
-            codexEntries: (j.codex?.entries || []).map(e => ({ ...e, image: `stories/${dir}/${e.image}` }))
+            codexEntries: (j.codex?.entries || []).map(e => ({ ...e, image: `stories/${dir}/${e.image}` })),
+            langs,
+            alt,
         });
     } catch { /* 非故事目录，跳过 */ }
 }
