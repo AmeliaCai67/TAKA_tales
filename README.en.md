@@ -8,7 +8,7 @@
 
 ![Status](https://img.shields.io/badge/status-live-brightgreen) ![i18n](https://img.shields.io/badge/language-%E4%B8%AD%2FEN-blue)
 
-**Live product (3 bilingual chapters, continuously updated)**: [takatales.com](https://takatales.com) — plays directly in mobile/tablet browsers.
+**Live product (4 bilingual chapters, continuously updated)**: [takatales.com](https://takatales.com) — plays directly in mobile/tablet browsers.
 
 ---
 
@@ -110,16 +110,16 @@ This repo is the open part of the product; core content assets and generation-co
 
 - [x] Single-file demo prototype (branches / battery / achievements / dual endings)
 - [x] Multi-story player engine: content packs decoupled from the engine + validator
-- [x] Three chapters live (Chinese & English content packs)
+- [x] Four chapters live (Chinese & English content packs)
 - [x] Memory bank + Our Books (journey log / audiobook export)
 - [x] Landscape picture-book mode (16:9 book stage + hotspot choices + page turns)
 - [x] Voice input v2 (hold to talk / slide-up-to-edit; auto-degrades on unsupported devices)
 - [x] Live operations (accounts / child profiles / cloud progress / parent dashboard)
-- [ ] Chapter 4 (in production)
+- [x] Chapter 4 — Hello, 757 (undersea farm collect + console Q&A + tunnel acts)
 - [ ] Mobile app store release (in preparation)
 - [ ] Content library expansion and more story templates
 
 ---
 
-*Status: live at [takatales.com](https://takatales.com) with three bilingual chapters; chapter 4 in production. License TBD.*
+*Status: live at [takatales.com](https://takatales.com) with four bilingual chapters. License TBD.*
 *TAKA's battery reads: remaining lifespan, unknown. But today, it wants to hear the wind above.*

@@ -8,7 +8,7 @@
 
 ![Status](https://img.shields.io/badge/status-%E5%B7%B2%E4%B8%8A%E7%BA%BF%E8%BF%90%E8%90%A5-brightgreen) ![i18n](https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%2FEN-blue)
 
-**线上版（三章双语，持续更新）**：[takatales.com](https://takatales.com) · 手机/平板浏览器直接可玩
+**线上版（四章双语，持续更新）**：[takatales.com](https://takatales.com) · 手机/平板浏览器直接可玩
 
 ---
 
@@ -110,16 +110,16 @@ git clone https://github.com/AmeliaCai67/TAKA_tales.git
 
 - [x] 单文件 demo 原型（分支/电量/成就/双结局）
 - [x] 多故事播放器引擎化：内容包与引擎解耦 + 校验器
-- [x] 三章上线（国际范儿的中英双语内容包）
+- [x] 四章上线（国际范儿的中英双语内容包）
 - [x] 记忆库图鉴 + 如我所书（旅程日志/有声书导出）
 - [x] 横屏绘本模式（16:9 书台 + 热点选项 + 翻页转场）
 - [x] 语音输入 v2（长按说话/上滑转文字，不支持语音的设备自动降级）
 - [x] 线上运营（账号/孩子档案/进度云同步/家长后台）
-- [ ] 第四章（制作中）
+- [x] 第四章《你好，757》（海底农场收集玩法 + 控制台 AI 问答 + 隧道多幕）
 - [ ] 移动应用上架（筹备中）
 - [ ] 内容库扩充与更多故事模板
 
 ---
 
-*项目状态：已上线运营（takatales.com），三章中英双语可玩，第四章制作中。License 待确认。*
+*项目状态：已上线运营（takatales.com），四章中英双语可玩。License 待确认。*
 *塔卡的电池显示：剩余寿命，未知。但今天，它想听听上面的风声。*
