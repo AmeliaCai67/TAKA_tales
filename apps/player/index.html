@@ -7,8 +7,51 @@
     <link rel="alternate icon" href="./favicon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="./favicon-192.png">
     <title data-i18n="misc.doc_title">塔卡 (TAKA)</title>
+    <style>
+        /* 启动闪屏 critical CSS（2026-09-28 boot-preload）：首帧即见，不依赖打包 CSS。
+           视觉与启动门同源：深海渐变底 + 塔卡眼睛呼吸灯。显隐不用 hidden 属性，
+           用 .bs-out 类（opacity + visibility 双断，防 class display 盖 hidden 的老坑）。 */
+        #boot-splash {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+            background: linear-gradient(180deg, #0a141f 0%, #13283a 100%);
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Segoe UI", Roboto, sans-serif;
+            opacity: 1; visibility: visible;
+            transition: opacity .45s ease, visibility 0s; /* 进场：visibility 立即生效 + 淡入 */
+        }
+        /* 退场：淡出完成后才切 visibility（transition 取目标态值，所以离场曲线写在这里） */
+        #boot-splash.bs-out {
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity .45s ease, visibility 0s linear .45s;
+        }
+        .bs-eye {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: radial-gradient(circle at 45% 40%, #fff6d8 0%, #ffb703 55%, #9c7108 100%);
+            animation: bs-breathe 3.2s infinite alternate ease-in-out;
+        }
+        @keyframes bs-breathe {
+            from { opacity: .55; box-shadow: 0 0 8px rgba(255, 183, 3, .3); }
+            to   { opacity: 1;   box-shadow: 0 0 28px rgba(255, 183, 3, .6); }
+        }
+        .bs-title { font-size: 22px; letter-spacing: 12px; }
+        .bs-track { width: min(280px, 62vw); height: 4px; border-radius: 2px; background: rgba(150, 200, 230, .15); overflow: hidden; }
+        .bs-fill { height: 100%; width: 0%; background: #ffb703; border-radius: 2px; transition: width .25s ease; }
+        .bs-status { font-size: 12px; color: #8d99a8; letter-spacing: 2px; min-height: 1.5em; text-align: center; padding: 0 24px; }
+        .bs-pct { font-size: 11px; color: #8d99a8; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+    </style>
 </head>
 <body>
+
+<!-- 启动闪屏：boot 期间盖全屏（z-index 高于启动门），加载进度由 main.ts 驱动；
+     进故事（异包）时复用为「故事加载」模式。完成后加 .bs-out 淡出。 -->
+<div id="boot-splash">
+    <div class="bs-eye"></div>
+    <div class="bs-title" data-i18n="gate.title">塔 卡</div>
+    <div class="bs-track"><div class="bs-fill" id="bs-fill"></div></div>
+    <div class="bs-status" id="bs-status" data-i18n="boot.loading">塔卡正在醒来…</div>
+    <div class="bs-pct" id="bs-pct"></div>
+</div>
 
 <div class="bg-layer" id="bg-a"></div>
 <div class="bg-layer" id="bg-b"></div>

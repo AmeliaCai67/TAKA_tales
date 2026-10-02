@@ -51,6 +51,12 @@ dist/
 # API 运行时产物（TTS 缓存等）
 /apps/api/data/
 
-# 测试体系（数据集/结果/密钥，本地保留）
-/test/
+# 测试体系：test/ 已入私有库（2026-09-22，防再次丢失）。
+# .env / .venv / node_modules / __pycache__ / .DS_Store 由上方全局规则覆盖。
+# 仍排除的可再生大文件：
+test/e2e/*.png
+test/review/*.html
 apps/*/.vite/
+
+# demo 目录里的打包产物（源文件在 demo/ 里，zip 不发公开库）
+demo/*.zip

@@ -493,5 +493,10 @@
   "hash": "cbe74f6bceadfb3489560ed8baa8d9c65fa9f5eb",
   "who": "taka",
   "text": "The seagull has wings. I do not. But I have a propeller."
+ },
+ "onboarding/voice-guide.mp3": {
+  "hash": "3d06c7f025019f42876d8a9bcc08b398a547d106",
+  "who": "taka",
+  "text": "I'm listening. Tap the microphone, or press and hold it. Talk to me."
  }
 }

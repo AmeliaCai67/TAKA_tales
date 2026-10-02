@@ -3,19 +3,20 @@
 import { pack } from "./pack";
 import { ICON_MIC } from "./icons";
 import type { Scene } from "./story";
-import { loadSettings, showStatus } from "./settings";
+import { loadSettings, showStatus, speechPref } from "./settings";
 import { unlockForScene, showToast, unlock } from "./achievements";
 import {
-    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs
+    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs, queueClip
 } from "./speech";
 import { api, ApiError } from "./api";
 import { session, selectedChild, clearSession } from "./session";
 import { saveLocalProgress } from "./progress";
 import { reportAnonEvent, ensureAnonId } from "./anon";
+import { reportVoiceEvent } from "./events";
 import { discoverScene, wrapCodexLinks, resetCodexHighlights } from "./codex";
 import { setBadge } from "./badge";
 import { t, lang } from "./i18n";
-import { bookChoicesEl, renderHotspots, renderSceneBook, renderSceneCollect, parkChromeVN, initBookNav, resetBook, initCollectComplete, cleanupCollectDrag } from "./book";
+import { bookChoicesEl, renderHotspots, renderSceneBook, renderSceneCollect, parkChromeVN, initBookNav, initBookVoice, resetBook, initCollectComplete, cleanupCollectDrag } from "./book";
 
 /** 选项 C 生成上下文（生成在服务端完成，玩家端只传参） */
 export interface GenCtx {
@@ -197,7 +198,10 @@ export function getCurrentSceneKey(): string {
 }
 
 function setFigureState(state: string): void {
-    document.getElementById("taka-figure")!.className = "taka-figure " + state;
+    const f = document.getElementById("taka-figure")!;
+    // 保留场景级类（2026-09-28：collect 场景的像素塔卡 px-mode/px-swim/px-scan/px-interested 不被眼部状态机冲掉）
+    const keep = [...f.classList].filter(c => c.startsWith("px-")).join(" ");
+    f.className = ("taka-figure " + state + " " + keep).trim();
 }
 
 // 双模式：水下 = 收腿悬浮（takaBodySwim），陆地 = 伸腿站立（takaBody）
@@ -271,6 +275,17 @@ function typeText(text: string, onDone: () => void): void {
 const isEnding = (scene: Scene): boolean => scene.setBattery != null || scene.ending === true;
 
 let activeRec: { abort(): void; stop(): void } | null = null; // 进行中的语音识别（切场景时打断）
+let fiCleanup: (() => void) | null = null; // freeInput 引导/兜底 timer 与气泡清理（mountChoices 开头统一调用）
+
+// 已知不可用平台（2026-09-01 实测）：HarmonyOS/华为（无 Google 语音后端）、iPhone/iPad（WKWebView 不可靠）
+const KNOWN_BAD_UA = /HarmonyOS|HUAWEI|HuaweiBrowser|iPhone|iPad|iPod/i.test(navigator.userAgent);
+/** 语音输入能力判定（fab/chip/hotspot 共用入口条件）：SR 存在 + 非黑名单 + 未被本机标记降级 */
+function voiceCapable(): boolean {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    return !!SR && !KNOWN_BAD_UA && localStorage.getItem("taka_voice_broken") !== "1";
+}
+/** 当前场景的语音控制器（绘本模式话筒 hotspot 点按=开始/停止录音）；mountFreeInput 注册，fiCleanup 清除 */
+let activeVoice: { toggle(): void } | null = null;
 
 // 结局场景的「回到书架」按钮：由 main.ts 注入（书架是壳层概念，引擎只留钩子）
 let shelfReturn: (() => void) | null = null;
@@ -311,16 +326,14 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
     let startY = 0;
     let rec: any = null;
     let gotResult = false; // 本会话是否收到过任何识别结果（区分「服务不可用」与「没听清」）
-    // 已知不可用平台（2026-09-01 实测）：
-    //   - HarmonyOS/华为浏览器：无 Google 语音后端，僵尸识别（start 后无事件）
-    //   - iPhone/iPad 全部浏览器（WKWebView）：webkitSpeechRecognition 不可靠
-    // 进章节即检测并隐藏话筒，只留打字框（产品决定 2026-09-01）
-    const KNOWN_BAD_UA = /HarmonyOS|HUAWEI|HuaweiBrowser|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    // 华为等无语音后端的内核：constructor 能建、start 静默无果/只报错——诚实降级为纯打字
+    let viaVoice = false;  // 本次提交文本是否源自语音（漏斗区分 voice_submit / text_submit）
+    // KNOWN_BAD_UA 已上提模块级（voiceCapable 共用）；华为等无语音后端的内核：constructor 能建、
+    // start 静默无果/只报错——诚实降级为纯打字（产品决定 2026-09-01）
     let voiceBroken = KNOWN_BAD_UA || localStorage.getItem("taka_voice_broken") === "1";
     const markBroken = () => {
         voiceBroken = true;
         localStorage.setItem("taka_voice_broken", "1"); // 持久化：下次进来直接不出话筒
+        reportVoiceEvent({ type: "voice_mark_broken", scene_key: currentSceneKey }); // 漏斗分母修正
         const f = document.getElementById("mic-fab");
         if (f) f.hidden = true; // 立即藏话筒
         row.hidden = false;     // 打字行常驻
@@ -368,6 +381,15 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
     const submit = async () => {
         const text = input.value.trim();
         if (!text) return;
+        // 漏斗转化事件：语音/打字分流（2026-09-28）；voice_first_submit 保留兼容旧聚合
+        reportVoiceEvent({ type: viaVoice ? "voice_submit" : "text_submit", scene_key: currentSceneKey });
+        viaVoice = false;
+        // 语音引导退出条件之一：完成任意一次提交（语音或打字），永不再引导（2026-09-22）
+        if (localStorage.getItem("taka_voice_guided") !== "1") {
+            localStorage.setItem("taka_voice_guided", "1");
+            reportVoiceEvent({ type: "voice_first_submit", scene_key: currentSceneKey });
+        }
+        dismissGuide?.(true); // 提交即摘引导气泡（不重复计 dismissed）
         if (activeRec) { try { activeRec.abort(); } catch {} }
         box.querySelectorAll("button, input").forEach(b => ((b as HTMLButtonElement | HTMLInputElement).disabled = true));
 
@@ -429,6 +451,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
             return;
         }
         input.value = text;
+        viaVoice = true; // 文本源自语音转写（含 edit 后再改再提交——语音始发的都算 voice_submit）
         if (action === "edit") {
             row.hidden = false;
             input.focus();
@@ -443,9 +466,72 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
         fab.innerHTML = ICON_MIC;
         fab.dataset.iconSet = "1";
     }
-    fab.hidden = !SR || voiceBroken; // 不支持/已知不可用：话筒不出现，只留打字框
-    if (!SR || voiceBroken) {
+    // 绘本模式：语音入口物化为左页 hotspot（renderHotspots 注入）——FAB 与 hotspot 互斥，只出现一个
+    const micAsHotspot = bookMode && voiceCapable();
+    fab.hidden = !SR || voiceBroken || micAsHotspot; // 不支持/已知不可用/已有 hotspot：话筒不出现，只留打字框
+    if (!SR || voiceBroken || micAsHotspot) {
         row.hidden = false; // 打字行常驻
+    }
+
+    /* ===== 语音可发现性（2026-09-22 三层 + 2026-09-28 发现率优化）=====
+       awaiting 待机呼吸光（fab 可见即挂）→ 引导（气泡图标化+塔卡语音：**每天一次**，完成首次提交后永不再播——展会拍板）
+       → 自由输入专属场景 20s 无操作兜底（自动展开打字行）。
+       漏斗事件：voice_fab_shown 曝光 / voice_guide_shown / voice_guide_dismissed。 */
+    let dismissGuide: ((silent?: boolean) => void) | null = null;
+    {
+        const cleanupTasks: (() => void)[] = [];
+        fiCleanup = () => { cleanupTasks.forEach(fn => fn()); fab.classList.remove("awaiting", "guiding"); activeVoice = null; };
+        const solo = !(scene.choices && scene.choices.length); // 专属场景：话筒是唯一推进通路
+        const guided = localStorage.getItem("taka_voice_guided") === "1";
+        // 漏斗顶层：曝光（进 freeInput 场景且语音入口可见——FAB 或绘本 hotspot 任一）。
+        // hotspot 模式 payload 带 hotspot:true，漏斗分母含绘本入口（FAB 隐藏不等于入口不存在）
+        reportVoiceEvent({ type: "voice_fab_shown", scene_key: currentSceneKey,
+                           payload: { solo, book: bookMode, guided, hotspot: micAsHotspot } });
+        if (!fab.hidden) {
+            fab.classList.add("awaiting"); // 待机微光：等待输入时常驻（保留，不随首次提交关闭）
+            const today = new Date().toLocaleDateString("sv"); // YYYY-MM-DD 本地日
+            if (!guided && localStorage.getItem("taka_voice_guide_day") !== today) {
+                localStorage.setItem("taka_voice_guide_day", today);
+                reportVoiceEvent({ type: "voice_guide_shown", scene_key: currentSceneKey });
+                fab.classList.add("guiding");
+                const bubble = document.createElement("div");
+                bubble.className = "mic-guide-bubble";
+                const anim = document.createElement("div"); // 图标化：手指按住圆钮的循环动画（3-6 岁不识字也能懂）
+                anim.className = "mgb-anim";
+                anim.setAttribute("aria-hidden", "true");
+                const main = document.createElement("div");
+                main.textContent = t(solo ? "engine.voice_guide_solo" : "engine.voice_guide");
+                const sub = document.createElement("div");
+                sub.className = "mgb-sub";
+                sub.textContent = t("engine.voice_guide_sub");
+                bubble.append(anim, main, sub);
+                document.body.appendChild(bubble);
+                const dismiss = (silent?: boolean) => {
+                    if (!bubble.isConnected) return;
+                    bubble.classList.add("bye");
+                    setTimeout(() => bubble.remove(), 400);
+                    fab.classList.remove("guiding");
+                    if (!silent) reportVoiceEvent({ type: "voice_guide_dismissed", scene_key: currentSceneKey });
+                };
+                dismissGuide = dismiss;
+                const t8 = setTimeout(() => dismiss(), 8000);
+                const onDocDown = () => dismiss();
+                const tArm = setTimeout(() => document.addEventListener("pointerdown", onDocDown, { once: true }), 300); // 延迟武装，防当前点击即触发
+                cleanupTasks.push(() => { clearTimeout(t8); clearTimeout(tArm); document.removeEventListener("pointerdown", onDocDown); bubble.remove(); });
+                // 塔卡声线引导音频（包内预渲染 onboarding/voice-guide.mp3）：接在故事/选项朗读链尾
+                if (speechPref.on) {
+                    queueClip(pack().baseUrl + (lang === "en" ? "audio-en/" : "audio/") + "onboarding/voice-guide.mp3");
+                }
+            }
+            if (solo) { // 兜底：专属场景 20s 无输入 → 自动展开打字行（防「没看见话筒」卡死）
+                const rescue = setTimeout(() => {
+                    row.hidden = false;
+                    hint.textContent = t("engine.voice_rescue");
+                    hint.hidden = false;
+                }, 20000);
+                cleanupTasks.push(() => clearTimeout(rescue));
+            }
+        }
     }
 
     if (SR && rec) {
@@ -459,6 +545,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
             try {
                 rec.start();
                 activeRec = rec;
+                reportVoiceEvent({ type: "voice_record_start", scene_key: currentSceneKey }); // 漏斗：尝试
                 fab.classList.add("recording");
                 hint.textContent = t("engine.voice_hint_hold");
                 hint.hidden = false;
@@ -483,47 +570,72 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
             finalizeTimer = setTimeout(finalize, 1000);
         };
 
-        fab.oncontextmenu = (e) => e.preventDefault(); // 长按别弹系统菜单
-        fab.onpointerdown = (e) => {
-            e.preventDefault();
-            // 指针捕获：手指按住后哪怕滑出按钮，move/up 事件也必定送达本元素
-            // （2026-09-01 Mate 60 实测 bug：无捕获时手指微漂 → pointerup 落空 → 录音悬挂不发送）
-            try { fab.setPointerCapture(e.pointerId); } catch {}
-            startY = e.clientY;
-            pressTimer = setTimeout(startRec, 350); // 350ms 内松开 = 短按（250ms 在手机上误触发录音率高）
-        };
-        fab.onpointermove = (e) => {
-            if (!recording) return;
-            const up = startY - e.clientY > 50;
-            if (up !== slideUp) {
-                slideUp = up;
-                hint.textContent = up ? t("engine.voice_hint_slide") : t("engine.voice_hint_hold");
-                hint.classList.toggle("slide", up);
-            }
-        };
-        fab.onpointerup = () => {
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-            if (!recording) {
-                // 短按：展开/收起打字行。不自动 focus（防软键盘弹顶，孩子点输入框才弹）；
-                // 展开后点页面空白处可收起（2026-09-01 Mate 60 实测：没有取消路径很挫败）
-                row.hidden = !row.hidden;
-                if (!row.hidden) {
-                    setTimeout(() => document.addEventListener("pointerdown", function closeOnOut(ev) {
-                        if (!row.contains(ev.target as Node) && !fab.contains(ev.target as Node)) {
-                            row.hidden = true;
-                            document.removeEventListener("pointerdown", closeOnOut);
-                        }
-                    }), 0); // setTimeout：本次 pointerup 的后续事件不能触发刚挂的监听
+        // 按压手势接线（fab 与 VN chip 共用同一套）：短按=展开/收起打字行，长按=录音，
+        // 松开=发送，按住上滑=转文字可改。pointer 捕获防手指微漂落空（2026-09-01 Mate 60 实测）。
+        const wirePress = (el: HTMLElement) => {
+            el.oncontextmenu = (e) => e.preventDefault(); // 长按别弹系统菜单
+            el.onpointerdown = (e) => {
+                e.preventDefault();
+                try { el.setPointerCapture(e.pointerId); } catch {}
+                startY = e.clientY;
+                pressTimer = setTimeout(startRec, 350); // 350ms 内松开 = 短按（250ms 在手机上误触发录音率高）
+            };
+            el.onpointermove = (e) => {
+                if (!recording) return;
+                const up = startY - e.clientY > 50;
+                if (up !== slideUp) {
+                    slideUp = up;
+                    hint.textContent = up ? t("engine.voice_hint_slide") : t("engine.voice_hint_hold");
+                    hint.classList.toggle("slide", up);
                 }
-                return;
+            };
+            el.onpointerup = () => {
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                if (!recording) {
+                    // 短按：展开/收起打字行。不自动 focus（防软键盘弹顶，孩子点输入框才弹）；
+                    // 展开后点页面空白处可收起（2026-09-01 Mate 60 实测：没有取消路径很挫败）
+                    reportVoiceEvent({ type: "voice_fab_tap", scene_key: currentSceneKey }); // 漏斗：尝试·轻
+                    row.hidden = !row.hidden;
+                    if (!row.hidden) {
+                        setTimeout(() => document.addEventListener("pointerdown", function closeOnOut(ev) {
+                            if (!row.contains(ev.target as Node) && !fab.contains(ev.target as Node)) {
+                                row.hidden = true;
+                                document.removeEventListener("pointerdown", closeOnOut);
+                            }
+                        }), 0); // setTimeout：本次 pointerup 的后续事件不能触发刚挂的监听
+                    }
+                    return;
+                }
+                pendingAction = slideUp ? "edit" : "send"; // 落地动作交给 onend/超时兜底
+                stopRec();
+            };
+            el.onpointercancel = () => {
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                if (recording) { pendingAction = null; stopRec(); }
+            };
+        };
+        wirePress(fab);
+
+        // 绘本话筒 hotspot 的点按入口（engine 尾部 initBookVoice 注入给 book.ts）：点按=开始/停止录音
+        activeVoice = {
+            toggle: () => {
+                reportVoiceEvent({ type: "voice_fab_tap", scene_key: currentSceneKey, payload: { via: "hotspot" } });
+                if (recording) { pendingAction = "send"; stopRec(); }
+                else startRec();
             }
-            pendingAction = slideUp ? "edit" : "send"; // 落地动作交给 onend/超时兜底
-            stopRec();
         };
-        fab.onpointercancel = () => {
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-            if (recording) { pendingAction = null; stopRec(); }
-        };
+
+        // VN 模式语音 chip（2026-09-28 发现率优化）：与 A/B 选项同排同视觉权重。
+        // 手势与 fab 一致（点按=打字行，误触零代价；按住=录音）。绘本模式的对应物=左页话筒 hotspot。
+        if (!bookMode && !voiceBroken) {
+            const chip = document.createElement("button");
+            chip.className = "choice-btn voice-chip";
+            chip.innerHTML = ICON_MIC + "<span></span>";
+            chip.querySelector("span")!.textContent = t("engine.voice_chip");
+            chip.title = t("engine.mic_title");
+            wirePress(chip);
+            box.appendChild(chip); // 先于 row 被挂（row 由调用方在 mountFreeInput 返回后 append）→ 顺序：选项…、chip、打字行
+        }
     }
 
     const send = document.createElement("button");
@@ -585,10 +697,12 @@ function mountChoices(scene: Scene, sceneKey: string): void {
         box.appendChild(btn);
     }
     // 悬浮钮默认隐藏；有 freeInput 且条件允许时由 mountFreeInput 显示
+    fiCleanup?.(); fiCleanup = null; // 清掉上一场景的引导气泡/兜底计时器（防串场景）
     document.getElementById("mic-fab")!.hidden = true;
     // 选项 C 渲染条件：本机开关开 + 家长后台未关该孩子自由发挥；游客也可用（2026-08-20 展示 AI 能力）
     const childOff = selectedChild()?.prefs?.ai_enabled === false;
-    if (scene.freeInput && loadSettings().enabled && !childOff) {
+    const fiAllowed = !!(scene.freeInput && loadSettings().enabled && !childOff);
+    if (fiAllowed) {
         box.appendChild(mountFreeInput(scene, box));
     }
     // 结局场景：追加「回到书架」
@@ -604,7 +718,9 @@ function mountChoices(scene: Scene, sceneKey: string): void {
         };
         box.appendChild(btn);
     }
-    if (bookMode) renderHotspots(scene); // 绘本：物化选项上左页（打字播完才出现，与气泡按钮同步）
+    // 绘本：物化选项上左页（打字播完才出现，与气泡按钮同步）；
+    // 第二参=freeInput 且本机语音可用时追加话筒 hotspot（2026-09-28 发现率优化，引擎内置件不进包数据）
+    if (bookMode) renderHotspots(scene, fiAllowed && voiceCapable());
     speakChoices(scene.choices, scene.freeInput); // 排队在正文朗读之后
 }
 
@@ -767,6 +883,10 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
 // 绘本 hotspot 的导航回调注入（book.ts 不反向 import engine，防循环依赖）；
 // currentText 在点击当下惰性读取，与 VN 选项路径的 prevText 语义一致
 initBookNav((next, choiceText) => navChoice(next, { prevText: currentText, choiceText }));
+
+// 绘本话筒 hotspot 的点按回调注入（同 initBookNav 模式，2026-09-28 发现率优化）：
+// activeVoice 由 mountFreeInput 在场景内注册、切场景清除；无控制器时点按静默无效
+initBookVoice(() => activeVoice?.toggle());
 
 // 收集小游戏节点：集满要求数量时解锁对应成就（collect.achievement）
 initCollectComplete((ach) => {

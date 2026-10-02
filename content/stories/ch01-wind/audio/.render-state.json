@@ -383,5 +383,10 @@
   "hash": "d19f9419fe945a2faeb8a561cc28fd3851f8b96b",
   "who": "taka",
   "text": "海鸥有翅膀。我没有。 但我有螺旋桨。"
+ },
+ "onboarding/voice-guide.mp3": {
+  "hash": "52da6e5d0c142a2bb49ea3b7b93ccd125a7af904",
+  "who": "taka",
+  "text": "我在听哦。点一点话筒，或者按住它，跟我说话。"
  }
 }

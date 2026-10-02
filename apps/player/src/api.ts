@@ -146,5 +146,14 @@ export const api = {
             method: "POST",
             body: { events },
             headers: { "X-Anon-ID": anonId },
+        }),
+    /** 语音漏斗统一事件（2026-09-28 voice-input-discoverability §3）：登录记 parent/child 维度（Bearer 由 req 自动带），
+     *  游客走 X-Anon-ID 设备维度；两边都没有后端 401，调用方 catch 静默 */
+    postEvents2: (events: { story_id: string; type: string; scene_key?: string; payload?: Record<string, unknown> }[],
+                  childId?: number, anonId?: string) =>
+        req("/api/events", {
+            method: "POST",
+            body: { events, child_id: childId },
+            headers: anonId ? { "X-Anon-ID": anonId } : undefined,
         })
 };

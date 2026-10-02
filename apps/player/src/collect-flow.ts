@@ -92,6 +92,7 @@ function openChatCard(item: CollectItem, cb: FlowCallbacks): void {
     let idx = 0;
 
     // 三句一批：先把一批字幕全打出来，再连播这批的语音（单句节奏太慢，2026-09-16 用户反馈）
+    // 2026-09-28 弱网容错：单段音频 6s 超时跳过（不等 buffering）；「连接控制台」字幕打完即出，不等音频齐
     const BATCH = 3;
     const next = async (): Promise<void> => {
         if (dead) return;
@@ -104,9 +105,13 @@ function openChatCard(item: CollectItem, cb: FlowCallbacks): void {
             await typewrite(rows[i].querySelector(".cf-line-text") as HTMLElement, batch[i].line);
             if (dead) return;
         }
+        if (idx >= lines.length) foot.hidden = false; // 字幕完即放行控制台（音频后台继续，进控制台 kill 会停）
         for (let i = 0; i < batch.length; i++) {
             if (dead) return;
-            await playSrc(`${audioBase()}collect/${item.id}.observe_${String(start + i + 1).padStart(2, "0")}.mp3`);
+            await Promise.race([
+                playSrc(`${audioBase()}collect/${item.id}.observe_${String(start + i + 1).padStart(2, "0")}.mp3`),
+                new Promise(r => setTimeout(r, 6000)),
+            ]);
         }
         void next();
     };

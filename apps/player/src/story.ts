@@ -49,7 +49,7 @@ export interface Scene {
    2026-09-07 海底农场闭环：收集 → 观察小剧本 → 控制台（信息/问一问/打标签）→ 录入记忆库。 */
 export interface CollectItem {
     id: string;        // 收集物唯一 id（去重）
-    actor: string;     // 物化件：pack.characters 注册的角色，或内置件（grass/cat/bee/butterfly）
+    actor: string;     // 物化件：pack.characters 注册的角色，或引擎内置件（apps/player/public/characters/）
     x: number;         // 左页内位置 %（左上原点）
     y: number;
     size?: number;     // 宽度占左页 %（缺省 16）
@@ -73,7 +73,7 @@ export type EyeState = "st-standby" | "st-thinking" | "st-pondering" | "st-liste
 /* ===== 横屏绘本模式（2026-08-31，plan: docs/superpowers/plans/2026-08-31-landscape-book-mode.md） ===== */
 export interface BookHotspot {
     choice: number;      // 对齐 choices 下标
-    actor: string;       // pack.characters 注册的角色，或内置件（light/coral/deep/shell）
+    actor: string;       // pack.characters 注册的角色，或引擎内置件（public/characters/）
     x: number;           // 左页内位置 %（左上原点）
     y: number;
     size?: number;       // 宽度占左页 %（缺省 14）
@@ -81,7 +81,7 @@ export interface BookHotspot {
 
 /* 场景常驻角色（2026-09-03 演出效果）：非交互，随场景渲染即在画面里；与 hotspot 的区别是不绑选项、不可点 */
 export interface BookActor {
-    actor: string;       // pack.characters 注册的角色，或内置件
+    actor: string;       // pack.characters 注册的角色，或引擎内置件（public/characters/）
     x: number;           // 左页内位置 %（左上原点）
     y: number;
     size?: number;       // 宽度占左页 %（缺省 20）

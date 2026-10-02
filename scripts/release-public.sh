@@ -8,6 +8,7 @@
 # 私有边界（永远不在下方允许清单里）：
 #   content/stories/ch02-* 及以后的故事包（核心内容资产）
 #   packages/prompts/（生成约束、红线词库——M4 起在此沉淀）
+#   test/（红线压测体系：校验器用例、judge 提示、内测评测数据——2026-09-22 起入私有库）
 #   任何内测数据 / 密钥（本来也不入库）
 #
 # 用法：scripts/release-public.sh "发布说明"
@@ -32,6 +33,17 @@ ALLOWED=(
     ".gitignore"
     ".nojekyll"
 )
+
+# 红线二次校验：下列私有路径即使被误加进上方白名单，也直接中止发布。
+# 背景：test/ 曾因不入库整目录丢失（2026-09-22 靠会话转录才恢复），故入私有库；
+# 它含红线词库用例与评测数据，永远不公开——用这条硬校验防将来手滑。
+FORBIDDEN=("test" "docs" "AGENTS.md" "experiments" "packages/prompts" "apps/api" "apps/parent")
+for f in "${FORBIDDEN[@]}"; do
+    if printf '%s\n' "${ALLOWED[@]}" | grep -qx "$f"; then
+        echo "✗ 白名单包含私有路径「$f」，中止发布"
+        exit 1
+    fi
+done
 
 # 构造白名单正则（用于漂移检查）
 PATTERN="^($(printf '%s|' "${ALLOWED[@]}" | sed 's/|$//' | sed 's/\./\\./g'))"

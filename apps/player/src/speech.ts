@@ -154,6 +154,11 @@ function startChain(urls: string[], duck?: boolean): void {
 }
 
 /** 续接到当前链尾（选项朗读跟在正文之后）；链已结束则新开一条 */
+/** 接到播放链尾（链空则直接开播）。语音引导音频等「排在故事之后」的短 clip 用这条 */
+export function queueClip(url: string): void {
+    appendChain([url]);
+}
+
 function appendChain(urls: string[]): void {
     if (chainActive) {
         scenePlaylist.push(...urls);

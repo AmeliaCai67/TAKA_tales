@@ -18,6 +18,8 @@ import { initJourneyLog, initArchive } from "./archive";
 import { initCodex, hydrateCodex } from "./codex";
 import { api } from "./api";
 import { session } from "./session";
+import { collectPackImages, preloadImages, idlePreload } from "./preload";
+import { ENGINE_PIECE_URLS } from "./book";
 
 // 内测远程诊断：?debug=1 动态加载 eruda 控制台（不进正式用户的关键路径，脚本加载失败静默）
 if (new URLSearchParams(location.search).get("debug") === "1") {
@@ -25,6 +27,47 @@ if (new URLSearchParams(location.search).get("debug") === "1") {
     s.src = "https://cdn.jsdelivr.net/npm/eruda@3";
     s.onload = () => (window as any).eruda?.init();
     document.head.appendChild(s);
+}
+
+/* ===== 启动闪屏（2026-09-28，spec: docs/superpowers/specs/2026-09-28-boot-preload-loading-ux.md）=====
+   元素在 index.html 静态就位（内联 CSS，首帧即见）；显隐用 .bs-out 类而非 hidden 属性
+   （本仓老坑：class 的 display 会盖掉 hidden 语义，.bs-out 用 opacity+visibility 双断）。 */
+let bootStories: StoryMeta[] = []; // boot 时拉到的书架索引（boot 预载封面 + 闲时预取其余包用）
+
+function splashProgress(pct: number): void {
+    const fill = document.getElementById("bs-fill");
+    const label = document.getElementById("bs-pct");
+    if (fill) fill.style.width = pct + "%";
+    if (label) label.textContent = pct > 0 && pct < 100 ? pct + "%" : "";
+}
+function splashShow(statusText: string): void {
+    const el = document.getElementById("boot-splash");
+    if (!el) return;
+    el.classList.remove("bs-out");
+    splashProgress(0);
+    const st = document.getElementById("bs-status");
+    if (st) st.textContent = statusText;
+}
+function splashHide(): void {
+    document.getElementById("boot-splash")?.classList.add("bs-out");
+}
+
+/** 书架/大门展示期间闲时预取其余故事的图片（低并发、不 pin；与 splash 预载共享去重集合） */
+function scheduleIdlePrefetch(): void {
+    const others = bootStories.filter(s => s.id !== pack().id);
+    let i = 0;
+    const ric: (cb: () => void) => void = (window as any).requestIdleCallback
+        ? (cb) => (window as any).requestIdleCallback(cb, { timeout: 5000 })
+        : (cb) => setTimeout(cb, 2000);
+    const next = () => {
+        const s = others[i++];
+        if (!s) return;
+        void loadPack(s.id)
+            .then(p => idlePreload(collectPackImages(p)))
+            .catch(() => { /* 闲时预取失败静默：进故事时 splash 路径会再拉 */ })
+            .finally(() => ric(next));
+    };
+    ric(next);
 }
 
 /** 加载当前语言的包（en 优先 story.en.json，缺失回退中文） */
@@ -140,9 +183,19 @@ function pickStory(s: StoryMeta): void {
         return;
     }
     void (async () => {
+        // 异包换装：闪屏切「故事加载」模式，pack + manifest + 该包图片齐活后才进第一个场景
+        const title = lang === "en" ? (s.alt?.en?.title || s.title) : s.title;
+        splashShow(t("boot.loading_story", { title }));
         try {
+            splashProgress(5);
             setPack(await loadPack(s.id));
+            splashProgress(15);
             await Promise.race([initAudioAssets(), new Promise(r => setTimeout(r, 3000))]);
+            splashProgress(25);
+            await preloadImages(collectPackImages(pack()), (done, total) => {
+                if (total > 0) splashProgress(25 + Math.round((done / total) * 70));
+            });
+            splashProgress(96);
             initAchievementData();
             if (session.token && session.childId) { // 异包的云端断点
                 try {
@@ -154,8 +207,11 @@ function pickStory(s: StoryMeta): void {
             } else {
                 seedGuestResume(s.id);
             }
+            splashProgress(100);
+            splashHide();
             renderScene(pack().startScene);
         } catch {
+            splashHide();
             showStatus(t("engine.story_not_ready"), 3000);
             showShelf();
         }
@@ -163,14 +219,20 @@ function pickStory(s: StoryMeta): void {
 }
 
 async function boot(): Promise<void> {
+    splashProgress(5);
     await initI18n();          // i18n 最先：后续所有 UI 文案都要 t()
     applyStatic();             // index.html 静态文案
+    splashProgress(10);
     let first: StoryMeta | undefined;
     try {
         const stories = await loadStoriesIndex();
+        bootStories = stories;
+        splashProgress(15);
         first = stories[0];
         setPack(await loadPack(first ? first.id : "ch01-wind"));
+        splashProgress(20);
     } catch (e) {
+        splashHide();
         showStatus(t("engine.pack_load_fail"), 0);
         throw e;
     }
@@ -187,6 +249,13 @@ async function boot(): Promise<void> {
         initAudioAssets(),
         new Promise(r => setTimeout(r, 3000))
     ]);
+    splashProgress(25);
+    // 图片预载（25%→90%）：全部封面 + 首包全部图。失败/超时在 preload 内部兜底，不阻塞
+    const covers = bootStories.map(s => s.cover).filter(Boolean);
+    await preloadImages([...ENGINE_PIECE_URLS, ...covers, ...collectPackImages(pack())], (done, total) => {
+        if (total > 0) splashProgress(25 + Math.round((done / total) * 65));
+    });
+    splashProgress(90);
     initSettingsPanel();
     initSpeech();
     initAchievementData();   // 成就表来自故事包
@@ -196,6 +265,7 @@ async function boot(): Promise<void> {
     initArchive();           // 如我所书：我的书架浮层（关闭按钮）
     initCodex();             // 记忆库：关键词点击委托
     await initAuth();        // 静默恢复登录态；选中孩子则拉断点与成就
+    splashProgress(95);
     void hydrateCodex();     // 记忆库：登录拉后端 / 游客拉本地
     if (!session.token) void ensureAnonId(); // 游客预注册匿名设备 ID（静默失败，本地照玩）
 
@@ -226,6 +296,9 @@ async function boot(): Promise<void> {
     // 书架上的孩子切换即时反映；记忆库状态同步水合（孩子 × 词条隔离）
     setAfterChildSelect(() => { void hydrateCodex(); if (shelfVisible()) showShelf(); });
     initStartGate();
+    splashProgress(100);
+    splashHide();
+    scheduleIdlePrefetch(); // 大门/书架展示期间闲时预取其余故事图片
 
     // 首次交互补读：起播竞态漏读时兜住（播放链空闲才补，避免重复）
     document.addEventListener("pointerdown", function once() {
