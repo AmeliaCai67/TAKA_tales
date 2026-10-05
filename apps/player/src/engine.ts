@@ -16,7 +16,7 @@ import { reportVoiceEvent } from "./events";
 import { discoverScene, wrapCodexLinks, resetCodexHighlights } from "./codex";
 import { setBadge } from "./badge";
 import { t, lang } from "./i18n";
-import { bookChoicesEl, renderHotspots, renderSceneBook, renderSceneCollect, parkChromeVN, initBookNav, initBookVoice, resetBook, initCollectComplete, cleanupCollectDrag } from "./book";
+import { bookChoicesEl, renderHotspots, renderSceneBook, renderSceneMechanic, cleanupMechanic, initMechanicAchievement, parkChromeVN, initBookNav, initBookVoice, resetBook } from "./book";
 
 /** 选项 C 生成上下文（生成在服务端完成，玩家端只传参） */
 export interface GenCtx {
@@ -487,8 +487,10 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
         // hotspot 模式 payload 带 hotspot:true，漏斗分母含绘本入口（FAB 隐藏不等于入口不存在）
         reportVoiceEvent({ type: "voice_fab_shown", scene_key: currentSceneKey,
                            payload: { solo, book: bookMode, guided, hotspot: micAsHotspot } });
-        if (!fab.hidden) {
-            fab.classList.add("awaiting"); // 待机微光：等待输入时常驻（保留，不随首次提交关闭）
+        // 语音入口存在才做可发现性（VN=FAB / 绘本=左页 hotspot，两入口互斥只出现一个）。
+        // ⚠ be738a0 曾把整段门在 !fab.hidden 上——绘本模式话筒走 hotspot、FAB 恒隐藏，主模式的每日引导自此永不出现（2026-10-03 修复）
+        if (!fab.hidden || micAsHotspot) {
+            if (!fab.hidden) fab.classList.add("awaiting"); // 待机微光：等待输入时常驻（FAB 专属；hotspot 自带 halo）
             const today = new Date().toLocaleDateString("sv"); // YYYY-MM-DD 本地日
             if (!guided && localStorage.getItem("taka_voice_guide_day") !== today) {
                 localStorage.setItem("taka_voice_guide_day", today);
@@ -506,6 +508,23 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
                 sub.textContent = t("engine.voice_guide_sub");
                 bubble.append(anim, main, sub);
                 document.body.appendChild(bubble);
+                // 绘本模式：气泡锚到左页话筒 hotspot。hotspot 由 mountChoices 尾部的 renderHotspots 物化，
+                // 此刻还没进 DOM——rAF 后按实际 rect 定位（指向三角落在话筒上方）；只认可见 spread 里的那个
+                // （翻页双缓冲的隐藏页可能残留上一 freeInput 场景的同名节点），rAF 前不落笔无闪跳
+                if (micAsHotspot) {
+                    requestAnimationFrame(() => {
+                        if (!bubble.isConnected) return;
+                        const h = [...document.querySelectorAll<HTMLElement>(".mic-hotspot")]
+                            .find(el => getComputedStyle(el).visibility === "visible");
+                        if (!h) return; // 理论不发生（防御）：退 CSS 默认位
+                        const r = h.getBoundingClientRect();
+                        const w = bubble.offsetWidth || 240;
+                        const cx = r.left + r.width / 2;
+                        bubble.style.right = "auto";
+                        bubble.style.left = Math.max(12, Math.min(window.innerWidth - w - 12, cx - w + 26)) + "px"; // 三角（右缘内 22px）对准话筒中心
+                        bubble.style.bottom = Math.max(70, window.innerHeight - r.top + 10) + "px";
+                    });
+                }
                 const dismiss = (silent?: boolean) => {
                     if (!bubble.isConnected) return;
                     bubble.classList.add("bye");
@@ -523,7 +542,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
                     queueClip(pack().baseUrl + (lang === "en" ? "audio-en/" : "audio/") + "onboarding/voice-guide.mp3");
                 }
             }
-            if (solo) { // 兜底：专属场景 20s 无输入 → 自动展开打字行（防「没看见话筒」卡死）
+            if (!fab.hidden && solo) { // 兜底：专属场景 20s 无输入 → 自动展开打字行（VN 打字行默认收起才需要；绘本打字行常驻可见）
                 const rescue = setTimeout(() => {
                     row.hidden = false;
                     hint.textContent = t("engine.voice_rescue");
@@ -764,6 +783,7 @@ export function exitToShelf(): void {
     stopSpeech();
     stopWind();
     resetBook(); // 绘本：清掉气泡揭示计时器（防回书架后还在翻页）
+    cleanupMechanic(); // 玩法组件：还原立绘/卸监听（从收集等玩法页退出书架）
     if (activeRec) { try { activeRec.abort(); } catch {} activeRec = null; }
     if (shelfReturn) shelfReturn();
 }
@@ -773,9 +793,8 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     if (!scene) return;
     currentSceneKey = key;
     if (listenTimer) { clearInterval(listenTimer); listenTimer = null; }
-    // 收集小游戏节点：控制整页布局开关 + 卸掉上一 collect 场景遗留的塔卡拖拽监听
-    document.body.classList.toggle("collect-active", !!scene.collect);
-    cleanupCollectDrag();
+    // 玩法场景（mechanic）：卸载上一场景的玩法组件（还原立绘/卸监听/摘布局类；无玩法时为空操作）
+    cleanupMechanic();
 
     // --- 电量结算：先扣后回，太阳救不了已经耗尽的电量；续玩跳场跳过 ---
     if (key === pack().restartScene) { // 每个故事开始回满、开新会话、清空路径
@@ -831,8 +850,8 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const usedAI = !!(ctx && ctx.generated);
 
     // 如我所书：场景文本按说话人切句入对话流（固定场景=beat，AI 生成=ai；含开场/序章）。
-    // 收集小游戏节点：文本只是 UI 提示，不朗读、不入对话流。
-    if (text && !scene.collect) {
+    // 玩法场景（mechanic）：文本只是 UI 提示，不朗读、不入对话流。
+    if (text && !scene.mechanic) {
         const segs = parseTextSegs(text, scene.voiceOverrides);
         collectDialogue(segs.map(s => ({
             story_id: pack().id, scene_key: key, role: s.who, text: s.text, type: usedAI ? "ai" : "beat"
@@ -847,9 +866,9 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     currentText = text;
     discoverScene(scene); // 记忆库：读到即「发现」（面板出现剪影）
     // 语音双轨：固定文本 → 预渲染 mp3 包（定稿声线）；AI 生成 → 浏览器 TTS 实时念
-    // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐；收集节点静默（无旁白）
-    const played = !usedAI && !scene.collect && playSceneAudio(key, scene.isSpecialListen);
-    if (!played && !scene.collect) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
+    // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐；玩法场景静默（无旁白）
+    const played = !usedAI && !scene.mechanic && playSceneAudio(key, scene.isSpecialListen);
+    if (!played && !scene.mechanic) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
 
     // 打字播完后的统一收尾：codex 高亮（绘本内部逐气泡已包，VN 在这里整段包）→ 灯光归位 → 选项/聆听条
     const onTextDone = () => {
@@ -867,10 +886,10 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
         }
     };
 
-    if (scene.collect) {
-        // 收集小游戏节点（横屏整页）：右页隐藏、塔卡可拖、物化物品收集计数
-        // 窄屏时 collect 场景自行叠加「横过来」提示；玩法仍渲染（横屏后即可玩）
-        renderSceneCollect(scene, onTextDone);
+    if (scene.mechanic) {
+        // 玩法场景（mechanic 声明 → registry 分发，如第四章收集）：宿主建画布，组件接管左页
+        // 窄屏「横过来」提示由组件自理；玩法仍渲染（横屏后即可玩）
+        renderSceneMechanic(key, scene, onTextDone);
         return;
     }
     if (bookMode) {
@@ -888,8 +907,8 @@ initBookNav((next, choiceText) => navChoice(next, { prevText: currentText, choic
 // activeVoice 由 mountFreeInput 在场景内注册、切场景清除；无控制器时点按静默无效
 initBookVoice(() => activeVoice?.toggle());
 
-// 收集小游戏节点：集满要求数量时解锁对应成就（collect.achievement）
-initCollectComplete((ach) => {
+// 玩法组件成就回调（如收集「录满」→ mechanics 声明里的 achievement）：解锁 + toast
+initMechanicAchievement((ach) => {
     if (!ach) return;
     const a = unlock(ach);
     if (a) {

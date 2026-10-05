@@ -98,6 +98,62 @@
     "characters": {
       "type": "object",
       "description": "绘本模式角色 SVG 注册表（可选）：actor 名 → 相对故事包根的 SVG 路径，如 {\"seagull\": \"characters/seagull.svg\"}"
+    },
+    "mechanics": {
+      "type": "object",
+      "description": "包级玩法声明表（2026-10-03 组件化）：声明 id → { type: 组件注册名, ...参数 }；场景用 mechanic 字段引用。新玩法 = 这里加一条声明 + 播放器 mechanics/ 注册一个组件 + 校验器补结构检查",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "组件注册名（apps/player/src/mechanics/registry.ts）；当前已知：collect"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "description": "collect：可交互收集物（塔卡贴近玻璃扫描收集）",
+            "items": {
+              "type": "object",
+              "required": ["id", "actor", "x", "y"],
+              "properties": {
+                "id": { "type": "string", "description": "收集物唯一 id（去重用）" },
+                "actor": { "type": "string", "description": "物化件：pack.characters 注册名或内置件（grass/cat/bee/butterfly 等）" },
+                "x": { "type": "number", "description": "左页内横向位置 %" },
+                "y": { "type": "number", "description": "左页内纵向位置 %" },
+                "size": { "type": "number", "description": "宽度占左页 %（缺省 16）" },
+                "label": { "type": "string", "description": "收集揭晓文案（如「拍打墙壁的猫猫」；收集前显示？？？）" }
+              }
+            }
+          },
+          "required": { "type": "integer", "minimum": 1, "description": "collect：集满多少个触发成就/继续" },
+          "achievement": { "type": "string", "description": "collect：录满 required 时解锁的成就 id（须在根 achievements 表）" },
+          "next": { "type": "string", "description": "collect：集满后跳转的目标场景" },
+          "takaSkin": { "type": "string", "description": "collect：塔卡换装件（loadActor 两级解析：包 characters 注册 > 引擎内置件；缺省不换装，ch04 = pixel-taka）" },
+          "bounds": {
+            "type": "object",
+            "description": "collect：禁入区椭圆（拱门/玻璃罩同源，页面 % 坐标；缺省 = ch04 拱门 50/90/45/70）",
+            "properties": {
+              "cx": { "type": "number" },
+              "cy": { "type": "number" },
+              "rx": { "type": "number" },
+              "ry": { "type": "number" }
+            }
+          },
+          "bypass": {
+            "type": "array",
+            "description": "collect：长途游动绕行点 [x,y]（页 %；路径不穿禁入区；缺省 = ch04 三点）",
+            "items": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "glass": { "type": "boolean", "description": "collect：禁入区玻璃罩光学处理（缺省不画）" }
+        }
+      }
     }
   },
   "definitions": {
@@ -229,32 +285,9 @@
           "maximum": 800,
           "description": "该场景 AI 生成正文的字数硬上限（默认取 redlines.max_length=300）；对话密集型场景可放宽，如 ask-rivet=450"
         },
-        "collect": {
-          "type": "object",
-          "description": "收集小游戏节点（2026-09 第四章）：横屏/整页/塔卡可拖动/物化物品可交互收集/集满 N 解锁成就。仅横屏模式；右页文字区隐藏，左页占满。",
-          "required": ["items", "required", "next"],
-          "properties": {
-            "items": {
-              "type": "array",
-              "minItems": 1,
-              "description": "可交互收集物：塔卡走近后点击即可收集",
-              "items": {
-                "type": "object",
-                "required": ["id", "actor", "x", "y"],
-                "properties": {
-                  "id": { "type": "string", "description": "收集物唯一 id（去重用）" },
-                  "actor": { "type": "string", "description": "物化件：pack.characters 注册名或内置件（grass/cat/bee/butterfly 等）" },
-                  "x": { "type": "number", "description": "左页内横向位置 %" },
-                  "y": { "type": "number", "description": "左页内纵向位置 %" },
-                  "size": { "type": "number", "description": "宽度占左页 %（缺省 16）" },
-                  "label": { "type": "string", "description": "收集提示文案（如「混着水稻的草坪」）" }
-                }
-              }
-            },
-            "required": { "type": "integer", "minimum": 1, "description": "集满多少个触发成就/继续" },
-            "achievement": { "type": "string", "description": "集满 required 时解锁的成就 id（须在根 achievements 表）" },
-            "next": { "type": "string", "description": "集满后跳转的目标场景" }
-          }
+        "mechanic": {
+          "type": "string",
+          "description": "玩法声明引用（2026-10-03 组件化）：指向顶层 mechanics 表的声明 id（如第四章收集「farm-collect」）。带 mechanic 的场景由玩法组件接管整页，不应有 choices；声明缺失或类型未注册时引擎 fail-soft 退化普通书页"
         },
         "book": {
           "type": "object",

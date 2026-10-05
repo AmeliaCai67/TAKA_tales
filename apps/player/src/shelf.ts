@@ -14,6 +14,7 @@ import { loadLocalProgress } from "./progress";
 import { speechPref } from "./settings";
 import { renderBadges, clearBadge } from "./badge";
 import { unlockedAchievementIds } from "./achievements";
+import { ICON_ACHIEVEMENT_SM } from "./icons";
 
 let pickHandler: (s: StoryMeta) => void = () => {};
 
@@ -60,7 +61,7 @@ async function render(el: HTMLElement): Promise<void> {
         const summary = lang === "en" ? (s.alt?.en?.summary || s.summary) : s.summary;
         const b = badgeOf(s);
         const got = s.achIds.filter(id => unlocked.has(id)).length;
-        const ach = s.achIds.length ? `<span class="sc-ach">🏅 ${got}/${s.achIds.length}</span>` : "";
+        const ach = s.achIds.length ? `<span class="sc-ach"><span class="sc-ach-ico">${ICON_ACHIEVEMENT_SM}</span>${got}/${s.achIds.length}</span>` : "";
         const cover = s.cover
             ? `<img class="sc-cover" src="${s.cover}" alt="${title} cover">`
             : `<div class="sc-cover sc-cover-empty">${t("shelf.cover_fallback")}</div>`;

@@ -1,4 +1,5 @@
 // 故事包类型契约（与 packages/story-schema/schema.json 对应）+ 加载器
+import type { MechanicDecl } from "./mechanics/types";
 
 export interface Choice {
     text: string;
@@ -41,31 +42,7 @@ export interface Scene {
     next?: string;
     choices?: Choice[];
     codex?: CodexLink[]; // 记忆库：本场景可点的关键词（打字机播完后高亮）
-    collect?: CollectLayout; // 收集小游戏节点（2026-09 第四章）
-}
-
-/* ===== 收集小游戏节点（2026-09 第四章「你好，757」） =====
-   横屏/整页/塔卡可拖/物化物品可交互收集/集满 N 解锁成就。
-   2026-09-07 海底农场闭环：收集 → 观察小剧本 → 控制台（信息/问一问/打标签）→ 录入记忆库。 */
-export interface CollectItem {
-    id: string;        // 收集物唯一 id（去重）
-    actor: string;     // 物化件：pack.characters 注册的角色，或引擎内置件（apps/player/public/characters/）
-    x: number;         // 左页内位置 %（左上原点）
-    y: number;
-    size?: number;     // 宽度占左页 %（缺省 16）
-    label?: string;    // 收集提示文案（如「混着水稻的草坪」）
-    observe?: { who: string; line: string }[];  // (a) 聊天卡小剧本（who=声线 id，逐条打字机）
-    facts?: string[];                           // (b) 控制台信息卡（基础事实）
-    tags?: { pool: string[]; correct: string[]; pick: number }; // (d) 标签池（correct 机制判定）
-    meowSfx?: string;  // 活猫叫声音效（相对 audio[-en]/ 路径）
-    meowLicense?: { title: string; author: string; license: string; url: string };
-    codexId?: string;  // (e) 录入的记忆库词条 id
-}
-export interface CollectLayout {
-    items: CollectItem[];   // 可交互收集物
-    required: number;       // 集满多少触发成就/继续
-    achievement?: string;   // 集满时解锁的成就 id（须在根 achievements 表）
-    next: string;           // 集满后跳转目标场景
+    mechanic?: string; // 玩法声明引用（2026-10-03 组件化）：指向包级 mechanics 表的声明 id（如第四章收集 "farm-collect"）
 }
 
 export type EyeState = "st-standby" | "st-thinking" | "st-pondering" | "st-listening" | "st-low" | "st-off";
@@ -119,6 +96,7 @@ export interface StoryPack {
     speakers: Record<string, string>; // 台词归属表：角色中文名 → 声线 id
     achievements: AchievementDef[];
     codex?: { entries: CodexEntry[] }; // 记忆库词条表（2026-08-25）
+    mechanics?: Record<string, MechanicDecl>; // 玩法声明表（2026-10-03 组件化）：声明 id → { type: 组件注册名, ...参数 }；场景用 mechanic 字段引用
     scenes: Record<string, Scene>;
     baseUrl: string; // 故事包根路径（音频等资产相对它解析），加载时注入
     langs?: string[]; // 可用语言（由 sync-content 探测 story.<lang>.json 写入 index.json；包本体不带）

@@ -53,6 +53,7 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 | `summary` | | 书架一句话简介 |
 | `ttsAliases` | | 读音别名：`{"757": "七五七"}`——显示文本不动，只改喂给 TTS 的文案（管线 + 播放器统一生效） |
 | `characters` | | 绘本模式角色 SVG 注册表：`{"seagull": "characters/seagull.svg"}`（相对包根）。hotspot 的 `actor` 引用这里的键 |
+| `mechanics` | | 玩法声明表（2026-10-03）：`{"farm-collect": {"type": "collect", ...}}`——每章独特玩法独立组件，场景用 `mechanic` 字段引用；详见下方「玩法系统」章 |
 
 ## 绘本模式（横屏书页布局，2026-08-31）
 
@@ -93,14 +94,49 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 | `isSpecialListen` | false | 聆听条场景：风声 BGM 起、人声 duck 到 0.55、4 秒聆听条 |
 | `listenLabel` | 「睁开眼睛，太阳升起来了」 | 聆听条结束按钮文案（**写管线会渲成 choices.mp3**，不写则静默回退浏览器 TTS） |
 | `next` | 无 | 聆听条场景的跳转目标 |
+| `mechanic` | 无 | 玩法声明引用（2026-10-03）：指向包级 `mechanics` 表的声明 id（如 `"farm-collect"`）。带此字段的场景由玩法组件接管整页，**不应有 `choices`**；声明缺失/类型未注册时引擎退化普通书页（fail-soft） |
 | `ai` | — | ⚠️ 历史遗留字段，**无任何代码读取**，新故事不要写 |
+
+## 玩法系统（mechanics，2026-10-03）
+
+每章的独特玩法（如第四章海底隧道收集）是**可声明的组件**，与叙事引擎解耦：story.json 声明用什么玩法、配什么参数，播放器按 `type` 分发到对应组件。**新玩法 = 加一条 JSON 声明 + 注册一个组件**，引擎与旧章节零改动。
+
+```jsonc
+// story.json 顶层（与 codex 同构：场景引用 → 包级声明表）
+"mechanics": {
+  "farm-collect": {                        // 声明 id（场景引用它）
+    "type": "collect",                     // 组件注册名（apps/player/src/mechanics/registry.ts）
+    "items": [ /* 收集物：{id, actor, x, y, size?, label?, observe?, facts?, tags?, codexId?} */ ],
+    "required": 3,                         // 集满多少触发成就/继续
+    "achievement": "ch04_remember",        // 录满时解锁的成就 id（须在 achievements 表）
+    "next": "j-vortex",                    // 集满后跳转场景
+    "takaSkin": "pixel-taka",              // 塔卡换装件（可选；包 characters 注册 > 引擎内置件两级解析）
+    "bounds": { "cx": 50, "cy": 90, "rx": 45, "ry": 70 },  // 禁入区椭圆（拱门/玻璃罩同源，页 %）
+    "bypass": [[15,10], [50,4], [85,10]],  // 长途游动绕行点（路径不穿禁入区）
+    "glass": true                          // 禁入区玻璃罩光学处理
+  }
+}
+// 场景侧：一行引用（原 collect 内联数据整体迁入声明）
+"collect": { "text": "...", "background": "...", "book": { "...": "..." }, "mechanic": "farm-collect" }
+```
+
+- 带 `mechanic` 的场景由组件接管整页（横屏），`text` 只作 UI 提示：不朗读、不入对话流
+- 引擎认不得声明或类型未注册时**退化普通书页**（fail-soft，不白屏）——内容正确性由校验器把守
+- 译文包 parity（校验器强制）：机制/几何字段（`required/next/achievement/takaSkin/bounds/bypass/glass` + 物品 id/坐标/actor/codexId）两包必须一致；`label/observe/facts/tags` 文案各归各语言，条数与声线序列一致
+
+**新玩法接入三步**：
+
+1. **写组件**：`apps/player/src/mechanics/<type>.ts` 导出 `mountXxx(ctx): MechanicHandle`——ctx 给画布（`host` 左页/`spread` 整页）、导航 `nav`、成就 `unlockAchievement`、收尾 `onDone`；返回 cleanup 句柄（还原立绘/卸监听）。注册在 `registry.ts` **显式**完成（import 组件 + `registerMechanic("<type>", mountXxx)` 两行）——⚠️ 不要在组件侧 import 回注册表「自注册」，会成模块环 TDZ 崩溃（boot 白屏的实 crash 教训，2026-10-03）
+2. **写数据**：story.json 顶层 `mechanics` 加声明 + 宿主场景加 `"mechanic": "<id>"`；中英双包同步
+3. **补校验**：`validate_story.py` 的 `KNOWN_MECHANIC_TYPES` 加类型名 + 该类型结构检查分支；schema.json 补字段描述
 
 ## 成就
 
 ```json
-{ "id": "listen_to_wind", "name": "且听风吟", "icon": "🌬️", "desc": "什么都不做，只听。", "unlockScene": "just_listen" }
+{ "id": "listen_to_wind", "name": "且听风吟", "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" ...>…</svg>", "desc": "什么都不做，只听。", "unlockScene": "just_listen" }
 ```
 
+- `icon`：**内联 SVG 字符串**（2026-10-03 起换自绘图标；`stroke=currentColor` 继承文字色，**不要写 width/height 属性**——播放器按 1.3em 约束渲染，写了也会被盖）。单个 emoji 仍兼容
 - `unlockScene`：进入该场景即解锁（含电量耗尽被动跳入）
 - id 全库唯一（多故事共存时建议带故事前缀，如 `ch02_xxx`）
 - 书架卡片自动显示「🏅 已解锁/总数」
@@ -123,6 +159,9 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 3. **分支闭合**：所有 `choices[].next` / `next` / `startScene` / `restartScene` / `depletedScene` 指向存在的场景
 4. **可达性**：从 startScene 出发所有场景可达（死场景报错）
 5. **音频覆盖**：每个场景 manifest 有条目、文本段与 mp3 段数一致（防"值了"式漏句）
+6. **玩法声明（mechanics，2026-10-03）**：类型已注册（`KNOWN_MECHANIC_TYPES`，与播放器 registry 对齐）、场景 `mechanic` 引用闭合、collect 物品/几何/闭环字段合法、双包 parity
+
+（更多检查——记忆库词条/绘本构图/成就 icon 格式等——见 validate_story.py 源内分节注释）
 
 ## 内容红线（私有）
 

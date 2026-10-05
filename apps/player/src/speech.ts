@@ -7,7 +7,9 @@ import { ICON_SOUND_ON, ICON_SOUND_OFF } from "./icons";
 import { speechPref, saveSpeechPref } from "./settings";
 import { TTS_ENDPOINT } from "./config";
 import { acquireAudio } from "./audioPriority";
+import { reportEvent } from "./events";
 import { t, lang } from "./i18n";
+import { splitSentences } from "./tts-sentence";
 
 /* ===== 台词归属（与 packages/tts-pipeline/tts_pipeline/segments.py 严格镜像） ===== */
 // 角色名 + 最多 8 字引语 + 冒号 + 闭引号定界的台词；先解析后清洗；引语后允许跟旁白
@@ -174,6 +176,8 @@ export function stopSpeech(): void {
     scenePlaylist = [];
     chainActive = false;
     choicesQueued = false;
+    revokeBlobs(); // 句级接力链：吊销未播完链的 blob（新链会重建）
+    blobLaunched = 0; blobSettled = 0; latT0 = null; playbackStarted = false;
     if (storyRelease) { storyRelease(); storyRelease = null; } // 释放故事层焦点
 }
 
@@ -183,14 +187,222 @@ export function sceneAudioIdle(): boolean {
 }
 
 /* ===== 动态文本朗读（服务端 TTS） ===== */
+
+/* ----- 句级接力播放（2026-10-03 v2，plan: docs/superpowers/plans/2026-10-03-tts-serial-relay-playback.md） -----
+   v1（纯预取+80ms 轮询）的两大问题：①advance 下一句除了正常 ended 还有「error 重试耗尽也放行」，
+   内核虚假 error/解码失败时句子被截断就进下一句（用户真机确认）；②等待语义与播放结束无关。
+   v2 接力模型（用户拍板）：t0 只发首句（最快出声）→ 首句开播后其余句最大并发预取 → 每句 ended 后
+   才进入下一句的等待窗口（1s×5 → 2s×5 ≈15s，覆盖服务端 3 次退避重试最坏 12s → 重渲一次 → 跳句）；
+   **advance 只认 ended**：error 升级链 = 同 blob 重播（ArkWeb 虚假 error 零成本）→ 重渲整句 → 跳句。 */
+const TTS_FETCH_CAP = 3;      // 对齐服务端 _sem=3（客户端超开只是排队）
+const TTS_FETCH_TIMEOUT = 15000; // 必须覆盖服务端 3 次退避重试的最坏 ~11s（6s 会掐死正在重试的请求，弱网雪崩）
+
+let blobs: (string | null | undefined)[] = []; // 句 → blob URL（undefined=渲染中 / null=失败）
+let blobLaunched = 0, blobSettled = 0;         // 预取池水位
+let playbackStarted = false;                   // 首句开播前只预取首句（用户拍板 t0 单发）
+let latT0: number | null = null;               // 首声埋点基准（本次链第一个请求发出时刻）
+
+const sleep = (ms: number): Promise<void> => new Promise(r => setTimeout(r, ms));
+
+function revokeBlobs(): void {
+    for (const b of blobs) if (b) URL.revokeObjectURL(b);
+}
+
+/** 单句 tts → blob URL；15s 超时 + 失败重试 1 次（退避 0.9s——服务端 502 多是到微软的瞬时抖动，
+ *  立即重试还在风暴窗口内），双败返回 null（调用方跳句）。服务端 render_tts 自身另有 3 次退避重试。
+ *  ⚠ 尺寸防御（2026-10-03）：空/残废 mp3（曾因缓存毒化出现 0B）会 200 但秒 ended=吞句，<1KB 视为失败。 */
+async function fetchTtsBlob(url: string): Promise<string | null> {
+    for (let attempt = 0; attempt < 2; attempt++) {
+        if (attempt > 0) await sleep(900);
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), TTS_FETCH_TIMEOUT);
+        try {
+            const res = await fetch(url, { signal: ctl.signal });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const blob = await res.blob();
+            if (blob.size < 1024) throw new Error("空音频 " + blob.size + "B");
+            return URL.createObjectURL(blob);
+        } catch { /* 超时/网络/HTTP 错/坏音频 → 重试或放弃 */ }
+        finally { clearTimeout(timer); }
+    }
+    return null;
+}
+
+/** 句级 tts URL 批量预取（并发池 cap）：返回与 urls 对齐的 promise 数组（null=该句失败）。
+ *  播放链（startStreamChain）与自带播放器的调用方（控制台问答）共用。 */
+export function prefetchTts(urls: string[]): Promise<string | null>[] {
+    const ps: Promise<string | null>[] = new Array(urls.length);
+    let launched = 0, settled = 0;
+    const launch = (): void => {
+        while (launched < urls.length && launched - settled < TTS_FETCH_CAP) {
+            const i = launched++;
+            ps[i] = fetchTtsBlob(urls[i]).finally(() => { settled++; launch(); });
+        }
+    };
+    launch();
+    return ps;
+}
+
+/** 播放链专用池：预取 scenePlaylist 里的句子。首句开播前只放行首句（t0 单发最快出声）；
+ *  开播后其余句最大并发补齐（appendChain 追加的由接力循环补调）。 */
+function launchPrefetch(): void {
+    const limit = playbackStarted ? scenePlaylist.length : Math.min(1, scenePlaylist.length);
+    while (blobLaunched < limit && blobLaunched - blobSettled < TTS_FETCH_CAP) {
+        const i = blobLaunched++;
+        fetchTtsBlob(scenePlaylist[i]).then(u => {
+            blobs[i] = u;
+            if (i === 0 && latT0 !== null) { // 首声埋点：首句 blob 就绪耗时 ≈ 出声前等待（不含 LLM 段）
+                reportEvent({ type: "tts_latency", payload: { first_ms: Date.now() - latT0, sents: scenePlaylist.length } });
+                latT0 = null;
+            }
+        }).catch(() => { blobs[i] = null; })
+          .finally(() => { blobSettled++; launchPrefetch(); });
+    }
+}
+
+/** 单句播放：resolve **true=自然播完（ended）**；false=失败（error / play 拒绝耗尽 / gen 切换 /
+ *  **看门狗超时**）。⚠ 2026-10-03 v2：error 不在本层重试或放行下一句——升级链（同 blob 重播→重渲→
+ *  跳句）在 playBlobStrict；本层只忠实上报「这句放完了吗」。 */
+function playBlob(url: string, gen: number): Promise<boolean> {
+    return new Promise(resolve => {
+        const done = (ok: boolean) => {
+            clearTimeout(playingWatchdog); clearTimeout(hardCap);
+            scenePlayer.onended = null; scenePlayer.onerror = null; scenePlayer.onpause = null;
+            scenePlayer.onplaying = null;
+            resolve(ok);
+        };
+        if (gen !== speechGen) { resolve(false); return; }
+        scenePlayer.src = url;
+        scenePlayer.load(); // 移动内核换 src 不 load 会静默丢段（2026-09-01 Mate 60 实测）
+        scenePlayer.playbackRate = speechPref.rate || 1; // 家长语速滑块
+        let playTries = 2;
+        // 看门狗（真机僵死保险）：①8s 内没有 playing 事件（play() 挂起/被静默拒绝）→ 失败上交；
+        // ②单句硬上限 60s（正常句 1-6s）——任何事件缺席的媒体僵死都不能让链永久卡死
+        let started = false;
+        const playingWatchdog = setTimeout(() => { if (!started) done(false); }, 8000);
+        const hardCap = setTimeout(() => done(false), 60000);
+        const tryPlay = () => {
+            if (gen !== speechGen) { done(false); return; }
+            scenePlayer.play().catch(() => {
+                if (playTries-- > 0) setTimeout(tryPlay, 300);
+                else done(false); // 起不来（如自动播放策略）：失败上交，链层决定升级
+            });
+        };
+        scenePlayer.onplaying = () => {
+            started = true;
+            clearTimeout(playingWatchdog);
+            scenePlayer.onplaying = null;
+        };
+        scenePlayer.onended = () => done(true);
+        scenePlayer.onerror = () => {
+            if (gen !== speechGen) { done(false); return; }
+            done(false); // 解码/加载失败：升级链接手（修复「句子被截断就进下一句」）
+        };
+        // stopSpeech（gen++ 先于 pause）借 pause 解锁 await；自然结束也发 pause，但 gen 未变不 resolve
+        scenePlayer.onpause = () => { if (gen !== speechGen) done(false); };
+        tryPlay();
+    });
+}
+
+/** 播放结束后等待第 i 句渲染就绪：1s×5 → 2s×5 → 3s×5（≈30s，覆盖服务端 3 次退避重试最坏 ~11s
+ *  × 并发排队）→ 每轮耗尽后重新渲染一次（fetch 15s 超时×2）→ 两轮重渲仍失败才跳句（最后手段，
+ *  上报 tts_skip 诊断事件——2026-10-03 用户要求宁慢勿丢）。 */
+async function waitBlob(i: number, gen: number): Promise<string | null> {
+    const gaps = [1000, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 2000, 2000, 3000, 3000, 3000, 3000, 3000];
+    for (const gap of gaps) {
+        const b = blobs[i];
+        if (b) return b;
+        if (b === null) break; // 预取双败 → 走重渲
+        if (gen !== speechGen) return null;
+        await sleep(gap);
+    }
+    if (gen !== speechGen) return null;
+    for (let round = 0; round < 2; round++) {
+        const again = await fetchTtsBlob(scenePlaylist[i]);
+        if (gen !== speechGen) return null;
+        if (again) {
+            if (blobs[i] && blobs[i] !== again) URL.revokeObjectURL(blobs[i] as string);
+            blobs[i] = again;
+            return again;
+        }
+        await sleep(2000); // 给服务端缓存/网络一个喘息窗口再试
+    }
+    reportEvent({ type: "tts_skip", payload: { i, text: scenePlaylist[i].slice(0, 120) } });
+    return null;
+}
+
+/** 严格接力：只有自然 ended 才算本句完成（2026-10-03 v2 修复「句子被截断就进下一句」）。
+ *  error → 同 blob 重播一次（ArkWeb 虚假 error 零成本）→ 仍败 → 重新 fetch 整句再播 → 仍败跳句。 */
+async function playBlobStrict(i: number, gen: number): Promise<void> {
+    const first = blobs[i] as string;
+    if (await playBlob(first, gen)) return;
+    if (gen !== speechGen) return;
+    if (await playBlob(first, gen)) return;
+    if (gen !== speechGen) return;
+    const again = await fetchTtsBlob(scenePlaylist[i]);
+    if (gen !== speechGen || !again) return;
+    if (blobs[i] && blobs[i] !== again) URL.revokeObjectURL(blobs[i] as string);
+    blobs[i] = again;
+    await playBlob(again, gen);
+}
+
+/** 接力协程（2026-10-03 v2）：每句 ended 后才进入下一句的等待窗口；等待期间预取在后台继续，
+ *  正常路径零等待（预取早已就绪）。首句开播那一刻才放行其余句的并发预取。 */
+async function runStreamChain(gen: number): Promise<void> {
+    while (gen === speechGen) {
+        launchPrefetch();
+        const i = scenePlayIdx;
+        if (i >= scenePlaylist.length) {
+            chainActive = false;
+            for (const b of blobs) if (b) URL.revokeObjectURL(b);
+            return;
+        }
+        const b = await waitBlob(i, gen);
+        if (gen !== speechGen) return;
+        scenePlayIdx = i + 1;
+        if (!b) continue; // 跳句（重播+重渲都失败的最后手段）
+        if (!playbackStarted) { playbackStarted = true; launchPrefetch(); }
+        await playBlobStrict(i, gen);
+    }
+}
+
+/** 句级接力播放链：与 startChain 共享 scenePlaylist/scenePlayIdx/chainActive——
+ *  speakChoices/queueClip 的 appendChain 续接语义不变。 */
+function startStreamChain(urls: string[], duck?: boolean): void {
+    stopSpeech(); // 停旧链（吊销旧 blob）+ 拿新 speechGen
+    blobs = new Array(urls.length).fill(undefined);
+    blobLaunched = 0; blobSettled = 0;
+    playbackStarted = false;
+    scenePlaylist = urls.slice();
+    scenePlayIdx = 0;
+    scenePlayer.volume = duck ? 0.55 : 1; // 且听风吟：人声 duck 给风声
+    chainActive = true;
+    latT0 = Date.now();
+    storyRelease = acquireAudio("story", () => scenePlayer.pause(), () => scenePlayer.play());
+    launchPrefetch();
+    void runStreamChain(speechGen);
+}
+
+/** 控制台问答等自带播放器的调用方用：句切 + 清洗 + URL 化（alias/lang 已含） */
+export function splitTtsUrls(text: string, who: string): string[] {
+    const urls: string[] = [];
+    for (const s of splitSentences(text)) {
+        const cleaned = cleanForSpeech(s);
+        if (cleaned) urls.push(ttsUrl(cleaned, who));
+    }
+    return urls;
+}
+
 export function speakStory(text: string, volume?: number, overrides?: Record<string, string>): void {
     if (!speechPref.on) return;
-    const urls = text.split(/\n+/)
-        .flatMap(p => parseParagraph(p, overrides)) // 先在原文上归属角色（引号还在，定界精确）
-        .map(seg => ({ who: seg.who, text: cleanForSpeech(seg.text) })) // 再按段清洗
-        .filter(seg => seg.text)
-        .map(seg => ttsUrl(seg.text, seg.who));
-    if (urls.length) startChain(urls, volume !== undefined && volume < 1);
+    const urls: string[] = [];
+    for (const seg of parseTextSegs(text, overrides)) { // 先在原文上归属角色（引号还在，定界精确）
+        for (const s of splitSentences(seg.text)) {     // 段内句切 → 每句继承所在段的 who
+            const cleaned = cleanForSpeech(s);          // 再清洗（去舞台说明/引号字符）
+            if (cleaned) urls.push(ttsUrl(cleaned, seg.who));
+        }
+    }
+    if (urls.length) startStreamChain(urls, volume !== undefined && volume < 1);
 }
 
 // 选项朗读：接在正文链尾；两个选项时前缀“你选。”（呼应海鸥台词）

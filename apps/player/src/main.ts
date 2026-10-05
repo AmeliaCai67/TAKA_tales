@@ -19,7 +19,7 @@ import { initCodex, hydrateCodex } from "./codex";
 import { api } from "./api";
 import { session } from "./session";
 import { collectPackImages, preloadImages, idlePreload } from "./preload";
-import { ENGINE_PIECE_URLS } from "./book";
+import { ENGINE_PIECE_URLS } from "./scene-host";
 
 // 内测远程诊断：?debug=1 动态加载 eruda 控制台（不进正式用户的关键路径，脚本加载失败静默）
 if (new URLSearchParams(location.search).get("debug") === "1") {

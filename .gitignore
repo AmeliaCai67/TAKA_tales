@@ -17,6 +17,11 @@ secrets/
 # macOS
 .DS_Store
 
+# iCloud 同步冲突副本（「文件名 空格 数字」带/不带扩展名；2026-10-03 alembic/versions 副本曾致
+# Alembic Multiple heads、API 启动崩——全仓已清，规则防复发。有差异的副本归档在 docs/_trash/）
+* [2-9].*
+* [2-9]
+
 # Python / FastAPI
 __pycache__/
 *.py[cod]

@@ -201,6 +201,11 @@
         .ach-item .ach-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
         .ach-item.locked { opacity: .35; }
         .ach-item.locked .ach-icon { filter: grayscale(1); }
+        /* 成就 icon 内联 SVG（2026-10-03 换 emoji：currentColor 继承文字色，locked 灰度由父级 filter 覆盖；
+           SVG 无 width/height 属性，不约束会按默认 300×150 渲染炸版式） */
+        .ach-item .ach-icon svg, .aw-icon svg, .toast svg {
+            width: 1.3em; height: 1.3em; vertical-align: -0.26em;
+        }
 
         /* 成就墙：整页覆盖，按故事分节 */
         .ach-wall {
@@ -390,6 +395,14 @@
         }
         .sp-toggle { display: flex; align-items: center; gap: 6px; }
         .settings-panel input[type="range"] { width: 100%; margin-top: 6px; accent-color: var(--accent-dim); }
+        /* 下拉/复选框去系统默认白底：与面板深海蓝统一（亮底场景下白框极突兀） */
+        .settings-panel select {
+            background: var(--choice-bg); color: var(--text-primary);
+            border: 1px solid var(--choice-border); border-radius: 6px;
+            padding: 3px 8px; font-size: 12px; font-family: inherit;
+            margin-left: 6px; cursor: pointer;
+        }
+        .settings-panel input[type="checkbox"] { accent-color: var(--accent-dim); }
         #sp-rate-val { float: right; color: var(--text-primary); }
         #sp-preview {
             width: 100%;
@@ -914,7 +927,9 @@
         .sc-badge.new { color: var(--accent-warm); border-color: var(--accent-dim); }
         .sc-badge.going { color: #8ecae6; border-color: #3a5a70; }
         .sc-badge.done { color: var(--ok-green); border-color: #2f5a3a; }
-        .sc-ach { font-size: 11px; color: var(--text-secondary); }
+        .sc-ach { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+        .sc-ach-ico { display: inline-flex; }
+        .sc-ach-ico svg { width: 12px; height: 12px; display: block; }
         /* 孩子切换：右上角（HUD 在书架下被遮住，位置让出来了） */
         .shelf-child {
             position: fixed;

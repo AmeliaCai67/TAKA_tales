@@ -19,6 +19,7 @@ import sys
 
 EYE_STATES = {"st-standby", "st-thinking", "st-listening", "st-low", "st-off"}
 MODES = {"swim", "land"}
+KNOWN_MECHANIC_TYPES = {"collect"}  # 与 apps/player/src/mechanics/registry.ts 注册表对齐（加玩法两处同步）
 
 
 def validate(pack_dir: str) -> list[str]:
@@ -88,9 +89,9 @@ def validate(pack_dir: str) -> list[str]:
             queue.extend(c["next"] for c in sc.get("choices", []) if c.get("next") in scenes)
             if sc.get("next") in scenes:
                 queue.append(sc["next"])
-            cn = sc.get("collect", {}).get("next")   # 收集小游戏节点（2026-09 第四章）：集满后跳转也构成边
-            if cn in scenes:
-                queue.append(cn)
+            md = (pack.get("mechanics") or {}).get(sc.get("mechanic") or "")  # 玩法声明（2026-10-03 组件化）：集满后跳转也构成边
+            if isinstance(md, dict) and md.get("next") in scenes:
+                queue.append(md["next"])
         depleted = pack.get("depletedScene")
         for sid in scenes:
             if sid not in seen and sid != depleted:  # depletedScene 由引擎电量机制跳入，无需剧情边
@@ -110,6 +111,9 @@ def validate(pack_dir: str) -> list[str]:
         for f in ["id", "name", "icon", "desc", "unlockScene"]:
             if f not in a:
                 errors.append(f"成就缺少字段 {f}: {a}")
+        ic = a.get("icon", "")
+        if not (ic.startswith("<svg") or len(ic) <= 4):
+            errors.append(f"成就 {a.get('id')}: icon 应为内联 SVG（<svg 开头）或单个 emoji: {ic[:40]}")
         if a.get("unlockScene") not in scenes:
             errors.append(f"成就 {a.get('id')} 的 unlockScene 不存在: {a.get('unlockScene')}")
     if not pack["speakers"]:
@@ -169,8 +173,9 @@ def validate(pack_dir: str) -> list[str]:
                 errors.append(f"场景 {sid}: 关键词「{link.get('word')}」不在场景文本里")
     for e in entries:
         linked = any(l.get("entry") == e["id"] for sc in scenes.values() for l in sc.get("codex", []))
-        # 收集闭环 codexId 也是发现路径（2026-09-07 海底农场：录入即解锁，不走场景关键词标注）
-        collected = any(it.get("codexId") == e["id"] for sc in scenes.values() for it in (sc.get("collect") or {}).get("items", []))
+        # 收集闭环 codexId 也是发现路径（2026-09-07 海底农场：录入即解锁，不走场景关键词标注；2026-10-03 改读 mechanics 声明）
+        collected = any(it.get("codexId") == e["id"] for d in (pack.get("mechanics") or {}).values()
+                        if d.get("type") == "collect" for it in d.get("items", []))
         if not linked and not collected:
             warn.append(f"词条 {e['id']} 没有被任何场景标注（永远不会被发现）")
 
@@ -184,9 +189,13 @@ def validate(pack_dir: str) -> list[str]:
                     warn.append(f"{adir}/{rel} 缺失（词条卡将回退实时 TTS）")
 
     # --- 8. 译文包 parity（2026-08-28 i18n spec §7）：story.<lang>.json 必须与基准包同骨架 ---
-    import glob
-    for tp in glob.glob(os.path.join(pack_dir, "story.*.json")):
-        lang = os.path.basename(tp)[len("story."):-len(".json")]
+    # lang 只认字母/连字符（与 sync-content.mjs 同一正则）——天然排除「story.en 2.json」之类 iCloud 副本
+    import glob, re
+    for tp in sorted(glob.glob(os.path.join(pack_dir, "story.*.json"))):
+        m = re.match(r"^story\.([a-z-]+)\.json$", os.path.basename(tp))
+        if not m:
+            continue
+        lang = m.group(1)
         try:
             with open(tp, encoding="utf-8") as f:
                 tr = json.load(f)
@@ -210,7 +219,7 @@ def validate(pack_dir: str) -> list[str]:
             if sc.get("next") != ts.get("next"):
                 errors.append(f"[{lang}] {sid}: next 不一致")
             # 结构标记一致
-            for flag in ["freeInput", "isSpecialListen", "setBattery", "ending", "mode", "outputMaxLength", "background"]:
+            for flag in ["freeInput", "isSpecialListen", "setBattery", "ending", "mode", "outputMaxLength", "background", "mechanic"]:
                 if sc.get(flag) != ts.get(flag):
                     errors.append(f"[{lang}] {sid}: 结构标记 {flag} 不一致（zh={sc.get(flag)} {lang}={ts.get(flag)}）")
             # codex 标注：entry 引用一致，word 必须真的出现在译文文本里
@@ -250,6 +259,39 @@ def validate(pack_dir: str) -> list[str]:
                             errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」tags 结构不一致")
         if tr.get("characters", {}) != characters:
             errors.append(f"[{lang}] characters 注册表不一致")
+        # 玩法声明 parity（2026-10-03 组件化）：机制/几何一致，文案条数一致（场景级 mechanic 引用已入 flags 对比）
+        zm, tm = pack.get("mechanics") or {}, tr.get("mechanics") or {}
+        if set(zm) != set(tm):
+            errors.append(f"[{lang}] mechanics 声明键不一致：多 {sorted(set(zm)-set(tm))} / 缺 {sorted(set(tm)-set(zm))}")
+        for mid, zd in zm.items():
+            td = tm.get(mid)
+            if not td:
+                continue
+            if zd.get("type") != td.get("type"):
+                errors.append(f"[{lang}] mechanics.{mid}: type 不一致")
+                continue
+            if zd.get("type") != "collect":
+                continue
+            for k in ("required", "next", "achievement", "takaSkin", "bounds", "bypass", "glass"):
+                if zd.get(k) != td.get(k):
+                    errors.append(f"[{lang}] mechanics.{mid}: {k} 不一致")
+            zi, ti = zd.get("items", []), td.get("items", [])
+            if [i.get("id") for i in zi] != [i.get("id") for i in ti]:
+                errors.append(f"[{lang}] mechanics.{mid}: collect.items id 序列不一致")
+            else:
+                for a, b in zip(zi, ti):
+                    for geo in ("actor", "x", "y", "size", "codexId", "meowSfx"):
+                        if a.get(geo) != b.get(geo):
+                            errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」{geo} 不一致")
+                    if len(a.get("observe", [])) != len(b.get("observe", [])):
+                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」observe 条数不一致")
+                    elif [o["who"] for o in a["observe"]] != [o["who"] for o in b["observe"]]:
+                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」observe 声线序列不一致")
+                    if len(a.get("facts", [])) != len(b.get("facts", [])):
+                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」facts 条数不一致")
+                    zt, tt = a.get("tags", {}), b.get("tags", {})
+                    if zt.get("pick") != tt.get("pick") or len(zt.get("pool", [])) != len(tt.get("pool", [])) or len(zt.get("correct", [])) != len(tt.get("correct", [])):
+                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」tags 结构不一致")
         # 成就/词条 id 集合一致
         if {a["id"] for a in tr.get("achievements", [])} != {a["id"] for a in pack["achievements"]}:
             errors.append(f"[{lang}] 成就 id 集合不一致")
@@ -273,7 +315,8 @@ def validate(pack_dir: str) -> list[str]:
 
     # --- 9. 绘本模式 book 字段（2026-08-31）---
     BUILTIN_ACTORS = {"light", "coral", "deep", "shell", "sun", "waves", "screen", "green", "door",
-                      "grass", "cat", "bee", "butterfly"}  # 引擎内置 hotspot/收集件（2026-09 第四章收集物）
+                      "mic", "pixel-taka",
+                      "grass", "cat", "bee", "butterfly"}  # 引擎内置 hotspot/收集件（2026-09 第四章收集物；2026-10-03 补 mic/pixel-taka 与 PIECES 表对齐）
     for actor, rel in characters.items():
         if not rel.endswith(".svg"):
             errors.append(f"characters.{actor}: 只支持 .svg（{rel}）")
@@ -308,58 +351,77 @@ def validate(pack_dir: str) -> list[str]:
                 if not isinstance(a.get(k), (int, float)):
                     errors.append(f"{sid}: 常驻角色「{actor}」缺 {k} 坐标")
 
-    # --- 9.5 收集小游戏节点（collect，2026-09 第四章）---
+    # --- 9.5 玩法声明（mechanics，2026-10-03 组件化；原 collect 节点检查平移至此）---
     ach_ids = {a["id"] for a in pack["achievements"]}
-    for sid, sc in scenes.items():
-        col = sc.get("collect")
-        if not col:
+    codex_entry_ids = {e["id"] for e in (pack.get("codex") or {}).get("entries", [])}
+    voice_ids = set(pack.get("speakers", {}).values())
+    mechanics = pack.get("mechanics") or {}
+    for mid, decl in mechanics.items():
+        dtype = decl.get("type")
+        if dtype not in KNOWN_MECHANIC_TYPES:
+            errors.append(f"mechanics.{mid}: 未注册的玩法类型「{dtype}」（校验器/播放器 registry 均不认识）")
             continue
-        items = col.get("items") or []
+        if dtype != "collect":
+            continue
+        items = decl.get("items") or []
         if not items:
-            errors.append(f"{sid}: collect 缺少 items")
-        if not isinstance(col.get("required", 0), int) or col["required"] < 1:
-            errors.append(f"{sid}: collect.required 必须 >=1")
-        if col.get("next") not in scenes:
-            errors.append(f"{sid}: collect.next 指向不存在的场景 {col.get('next')}")
-        ach = col.get("achievement")
+            errors.append(f"mechanics.{mid}: collect 缺少 items")
+        if not isinstance(decl.get("required", 0), int) or decl["required"] < 1:
+            errors.append(f"mechanics.{mid}: collect.required 必须 >=1")
+        if decl.get("next") not in scenes:
+            errors.append(f"mechanics.{mid}: collect.next 指向不存在的场景 {decl.get('next')}")
+        ach = decl.get("achievement")
         if ach and ach not in ach_ids:
-            errors.append(f"{sid}: collect.achievement「{ach}」不在成就表")
-        if sc.get("choices"):
-            errors.append(f"{sid}: collect 节点不应有普通 choices（收集是唯一推进）")
+            errors.append(f"mechanics.{mid}: collect.achievement「{ach}」不在成就表")
+        skin = decl.get("takaSkin")
+        if skin and skin not in characters and skin not in BUILTIN_ACTORS:
+            errors.append(f"mechanics.{mid}: takaSkin「{skin}」未在 characters 注册，也不是内置件 {sorted(BUILTIN_ACTORS)}")
+        b = decl.get("bounds")
+        if b is not None and (not isinstance(b, dict) or any(not isinstance(b.get(k), (int, float)) for k in ("cx", "cy", "rx", "ry"))):
+            errors.append(f"mechanics.{mid}: bounds 必须是含 cx/cy/rx/ry 数值的椭圆（禁入区）")
+        bp = decl.get("bypass")
+        if bp is not None and (not isinstance(bp, list) or not all(
+                isinstance(p, (list, tuple)) and len(p) == 2 and all(isinstance(v, (int, float)) for v in p) for p in bp)):
+            errors.append(f"mechanics.{mid}: bypass 必须是 [x,y] 点列表（绕行点）")
         col_ids: set[str] = set()
         for it in items:
             if not it.get("id") or it.get("id") in col_ids:
-                errors.append(f"{sid}: 收集物 id 缺失或重复: {it.get('id')}")
+                errors.append(f"mechanics.{mid}: 收集物 id 缺失或重复: {it.get('id')}")
             col_ids.add(it.get("id"))
             actor = it.get("actor", "")
             if actor not in characters and actor not in BUILTIN_ACTORS:
-                errors.append(f"{sid}: 收集物 actor「{actor}」未在 characters 注册，也不是内置件 {sorted(BUILTIN_ACTORS)}")
+                errors.append(f"mechanics.{mid}: 收集物 actor「{actor}」未在 characters 注册，也不是内置件 {sorted(BUILTIN_ACTORS)}")
             for k in ("x", "y"):
                 if not isinstance(it.get(k), (int, float)):
-                    errors.append(f"{sid}: 收集物「{it.get('id')}」缺 {k} 坐标")
+                    errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」缺 {k} 坐标")
             # --- 海底农场闭环字段（2026-09-07 spec）---
             obs = it.get("observe") or []
             if not obs or any(not o.get("who") or not o.get("line") for o in obs):
-                errors.append(f"{sid}: 收集物「{it.get('id')}」observe 缺失或缺 who/line")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」observe 缺失或缺 who/line")
             else:
-                voice_ids = set(pack.get("speakers", {}).values())
                 for o in obs:
                     if o["who"] not in voice_ids and o["who"] not in BUILTIN_ACTORS:
-                        errors.append(f"{sid}: 收集物「{it.get('id')}」observe.who「{o['who']}」不在 speakers 声线表/内置件")
+                        errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」observe.who「{o['who']}」不在 speakers 声线表/内置件")
             if not it.get("facts") or any(not f.strip() for f in it["facts"]):
-                errors.append(f"{sid}: 收集物「{it.get('id')}」facts 缺失或为空")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」facts 缺失或为空")
             tags = it.get("tags") or {}
             pool, correct, pick = tags.get("pool") or [], tags.get("correct") or [], tags.get("pick", 0)
             if len(pool) < 3:
-                errors.append(f"{sid}: 收集物「{it.get('id')}」tags.pool 至少 3 枚")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」tags.pool 至少 3 枚")
             if not correct or not set(correct) <= set(pool):
-                errors.append(f"{sid}: 收集物「{it.get('id')}」tags.correct 必须非空且 ⊆ pool")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」tags.correct 必须非空且 ⊆ pool")
             if not isinstance(pick, int) or pick < 1 or pick > len(correct):
-                errors.append(f"{sid}: 收集物「{it.get('id')}」tags.pick 必须在 1..len(correct) 内")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」tags.pick 必须在 1..len(correct) 内")
             cxid = it.get("codexId")
-            codex_entry_ids = {e["id"] for e in (pack.get("codex") or {}).get("entries", [])}
             if not cxid or cxid not in codex_entry_ids:
-                errors.append(f"{sid}: 收集物「{it.get('id')}」codexId「{cxid}」不在 codex.entries")
+                errors.append(f"mechanics.{mid}: 收集物「{it.get('id')}」codexId「{cxid}」不在 codex.entries")
+    for sid, sc in scenes.items():
+        if not sc.get("mechanic"):
+            continue
+        if sc["mechanic"] not in mechanics:
+            errors.append(f"{sid}: mechanic 引用了不存在的声明 {sc['mechanic']}")
+        if sc.get("choices"):
+            errors.append(f"{sid}: mechanic 场景不应有普通 choices（玩法是唯一推进）")
 
     for w in warn:
         print("WARN:", w)
