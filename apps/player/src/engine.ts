@@ -12,7 +12,7 @@ import { api, ApiError } from "./api";
 import { session, selectedChild, clearSession } from "./session";
 import { saveLocalProgress } from "./progress";
 import { reportAnonEvent, ensureAnonId } from "./anon";
-import { reportVoiceEvent } from "./events";
+import { reportEvent, reportVoiceEvent } from "./events";
 import { discoverScene, wrapCodexLinks, resetCodexHighlights } from "./codex";
 import { setBadge } from "./badge";
 import { t, lang } from "./i18n";
@@ -290,6 +290,18 @@ let activeVoice: { toggle(): void } | null = null;
 // 结局场景的「回到书架」按钮：由 main.ts 注入（书架是壳层概念，引擎只留钩子）
 let shelfReturn: (() => void) | null = null;
 export function setShelfReturn(fn: (() => void) | null): void { shelfReturn = fn; }
+
+// 结局场景的「下一章」主行动按钮（2026-10-07 章节衔接，spec: docs/superpowers/specs/2026-10-07-chapter-flow-and-shelf-journey.md）：
+// main.ts boot 时注入一次取值函数，引擎渲染结局选项时才求值——标题语言、当前 pack、索引缺失都在调用时决定，
+// 中英切换/异包跳转零额外接线。返回 null（末章/索引缺失）则不渲染。
+export interface NextChapterAction {
+    id: string;    // 下一章包 id（仅供埋点 payload）
+    title: string; // 当前语言标题（展示用）
+    cover: string; // 封面完整路径（stories/<id>/cover.jpg，boot 已预载）
+    go(): void;    // 壳层导航（内部走 pickStory）
+}
+let nextChapter: (() => NextChapterAction | null) | null = null;
+export function setNextChapter(fn: (() => NextChapterAction | null) | null): void { nextChapter = fn; }
 
 // 选项/ hotspot 统一点选入口：禁用全部可点元素（防双击重复生成）后跳场
 export function navChoice(next: string, ctx?: GenCtx): void {
@@ -691,6 +703,32 @@ function mountChoices(scene: Scene, sceneKey: string): void {
         };
         box.appendChild(btn);
     }
+    // 结局场景「下一章」主行动（D1.2：排在包自带「重新开始故事」之前——3-6 岁只看第一个大按钮）；
+    // 末章/索引缺失时 nextChapter() 返回 null，不渲染（UI 与现状一致）。
+    // 被动结局（depletedScene）不加特判：判定统一走 isEnding，与「回到书架」同条件。
+    if (isEnding(scene) && nextChapter) {
+        const act = nextChapter();
+        if (act) {
+            const btn = document.createElement("button");
+            btn.className = "choice-btn next-chapter";
+            const img = document.createElement("img");
+            img.className = "nc-cover";
+            img.src = act.cover;
+            img.alt = "";
+            const label = document.createElement("span");
+            label.textContent = t("engine.next_chapter", { title: act.title });
+            btn.append(img, label);
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                box.querySelectorAll("button").forEach(b => (b as HTMLButtonElement).disabled = true); // 防双击（pickStory 无幂等保护）
+                stopSpeech();
+                stopWind();
+                reportEvent({ type: "chapter_next_click", scene_key: currentSceneKey, payload: { to: act.id } });
+                act.go(); // 复用 pickStory 通道：闪屏「故事加载模式」/manifest/预载/断点种子全套自带
+            };
+            box.appendChild(btn);
+        }
+    }
     (scene.choices || []).forEach((c, i) => {
         if (hotspotIdx.has(i)) return; // 已物化为左页 hotspot
         const btn = document.createElement("button");
@@ -808,7 +846,9 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
         collectDialogue([{ story_id: pack().id, scene_key: key, role: "child", text: ctx.choiceText,
                            type: ctx.custom ? "freeinput" : "choice" }]);
     }
-    if (!skipCostOnce) {
+    // 开局场景（restartScene）不扣费：回满 100 后立刻被自身 cost 扣掉，「新章初始电量 100%」
+    // 不成立（ch02/ch03/ch04 首景 cost:5 → 一进章就显示 95%）。开局=满电出发，与 line 34 注释一致。
+    if (!skipCostOnce && key !== pack().restartScene) {
         battery = Math.max(0, battery - (scene.cost ?? 10));    // 推进剧情耗电
         if (scene.sun && battery > 0)                           // 太阳回电
             battery = Math.min(100, battery + scene.sun);

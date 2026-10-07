@@ -10,7 +10,8 @@ import {
 } from "./speech";
 import { initAchievementData, initAchievements, migrateLegacyAchievements } from "./achievements";
 import { initAuth, setAfterChildSelect, openParentModal, logoutEverywhere } from "./auth";
-import { renderScene, getCurrentText, getCurrentSceneKey, setResumePoint, setShelfReturn, exitToShelf, setBookMode, isBookMode, refreshCurrentScene } from "./engine";
+import { renderScene, getCurrentText, getCurrentSceneKey, setResumePoint, setShelfReturn, setNextChapter, exitToShelf, setBookMode, isBookMode, refreshCurrentScene } from "./engine";
+import type { NextChapterAction } from "./engine";
 import { initShelf, showShelf, hideShelf, shelfVisible } from "./shelf";
 import { loadLocalProgress } from "./progress";
 import { ensureAnonId } from "./anon";
@@ -173,6 +174,16 @@ function applyLayout(): void {
     if (!isBookMode()) maybeRotateHint();
 }
 
+/** 结局「下一章」取值（2026-10-07 章节衔接）：按 index.json 数组序求当前章的下一章（引擎不认识索引）。
+ *  闭包读 bootStories/lang/pack()——中英切换与异包跳转在调用时天然求值，boot 只注入一次。 */
+function nextChapterAction(): NextChapterAction | null {
+    const i = bootStories.findIndex(s => s.id === pack().id);
+    const next = i >= 0 ? bootStories[i + 1] : undefined;
+    if (!next) return null; // 末章 / 当前章不在索引 / 索引加载失败（bootStories 为 []）
+    const title = lang === "en" ? (next.alt?.en?.title || next.title) : next.title;
+    return { id: next.id, title, cover: next.cover, go: () => pickStory(next) };
+}
+
 // 书架点封面：同包直接开播（保持点击手势内的同步音频起播）；异包异步换装再开播
 function pickStory(s: StoryMeta): void {
     hideShelf();
@@ -271,6 +282,7 @@ async function boot(): Promise<void> {
 
     initShelf(pickStory);
     setShelfReturn(showShelf); // 结局场景「回到书架」
+    setNextChapter(nextChapterAction); // 结局场景「下一章」主行动（2026-10-07 章节衔接）
     setExitToShelfHandler(exitToShelf); // 设置面板「保存并返回书架」
     setLogoutHandler(logoutEverywhere); // 设置面板「退出登录」（2026-09-02）
     setIsLoggedInFn(() => !!session.token);

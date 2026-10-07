@@ -55,25 +55,59 @@ async function render(el: HTMLElement): Promise<void> {
         ? `<button class="shelf-child" id="shelf-child-btn"><span class="sc-fish">${ICON_CHILD}</span>${child ? child.nickname : t("shelf.pick_child")} ▾</button>`
         : "";
     const unlocked = new Set(unlockedAchievementIds());
-    const cards = stories.map(s => {
-        // i18n：en 模式用 index.json 的 alt.en 字段（sync-content 内联）
-        const title = lang === "en" ? (s.alt?.en?.title || s.title) : s.title;
-        const summary = lang === "en" ? (s.alt?.en?.summary || s.summary) : s.summary;
-        const b = badgeOf(s);
+    // i18n：en 模式用 index.json 的 alt.en 字段（sync-content 内联）
+    const titleOf = (s: StoryMeta) => lang === "en" ? (s.alt?.en?.title || s.title) : s.title;
+    const summaryOf = (s: StoryMeta) => lang === "en" ? (s.alt?.en?.summary || s.summary) : s.summary;
+    const achOf = (s: StoryMeta) => {
         const got = s.achIds.filter(id => unlocked.has(id)).length;
-        const ach = s.achIds.length ? `<span class="sc-ach"><span class="sc-ach-ico">${ICON_ACHIEVEMENT_SM}</span>${got}/${s.achIds.length}</span>` : "";
-        const cover = s.cover
-            ? `<img class="sc-cover" src="${s.cover}" alt="${title} cover">`
-            : `<div class="sc-cover sc-cover-empty">${t("shelf.cover_fallback")}</div>`;
-        return `<button class="shelf-card" data-id="${s.id}">
-            ${cover}
+        return s.achIds.length ? `<span class="sc-ach"><span class="sc-ach-ico">${ICON_ACHIEVEMENT_SM}</span>${got}/${s.achIds.length}</span>` : "";
+    };
+    const coverOf = (s: StoryMeta) => s.cover
+        ? `<img class="sc-cover" src="${s.cover}" alt="${titleOf(s)} cover">`
+        : `<div class="sc-cover sc-cover-empty">${t("shelf.cover_fallback")}</div>`;
+    const stepChip = (n: number, hero: boolean) => `<span class="jc-step${hero ? " hero" : ""}">${n}</span>`;
+
+    // 旅程化（2026-10-07，spec: docs/superpowers/specs/2026-10-07-chapter-flow-and-shelf-journey.md）：
+    // hero = 第一个非「已读完」的章（下一步该读哪章的直接翻译）；全部读完 hero 回 ch01 + 祝贺行（D2.3）。
+    // DOM 兼容不变式（D2.5）：hero 排第一、副卡保持 index 数组序 → 冷启动顺序与旧 .shelf-grid 逐位相同，
+    // 既有 e2e 的 .shelf-card nth 选择器零改动成立。
+    const badges = stories.map(s => badgeOf(s));
+    const heroIdx = badges.findIndex(b => b.cls !== "done");
+    const allDone = heroIdx < 0;
+    const heroI = allDone ? 0 : heroIdx;
+    const hero = stories[heroI];
+    const hb = badges[heroI];
+
+    const heroCard = hero ? `<button class="shelf-card journey-hero" data-id="${hero.id}">
+        ${stepChip(heroI + 1, true)}
+        ${coverOf(hero)}
+        <div class="jh-body">
+            <div class="jh-kicker">${t("shelf.chapter_n", { n: heroI + 1 })} · ${t("shelf.up_next")}</div>
+            <div class="jh-title">${titleOf(hero)}</div>
+            <div class="jh-summary">${summaryOf(hero) || ""}</div>
+            <div class="jh-foot"><span class="sc-badge ${hb.cls}">${hb.text}</span>${achOf(hero)}</div>
+            <span class="jh-cta">${t(hb.cls === "going" ? "shelf.hero_continue" : "shelf.hero_start")}</span>
+        </div>
+    </button>` : "";
+
+    // 副卡之间的箭头连接件（≥900px 才显示，CSS 控制）；入场动效按序 +60ms 递增
+    const rowCards = stories
+        .map((s, i) => ({ s, i }))
+        .filter(x => x.i !== heroI)
+        .map((x, k) => {
+            const b = badges[x.i];
+            return `<button class="shelf-card journey-card" data-id="${x.s.id}" style="animation-delay:${60 * (k + 1)}ms">
+            ${stepChip(x.i + 1, false)}
+            ${coverOf(x.s)}
             <div class="sc-body">
-                <div class="sc-title">${title}</div>
-                <div class="sc-summary">${summary || ""}</div>
-                <div class="sc-foot"><span class="sc-badge ${b.cls}">${b.text}</span>${ach}</div>
+                <div class="sc-title">${titleOf(x.s)}</div>
+                <div class="sc-summary">${summaryOf(x.s) || ""}</div>
+                <div class="sc-foot"><span class="sc-badge ${b.cls}">${b.text}</span>${achOf(x.s)}</div>
             </div>
         </button>`;
-    }).join("");
+        });
+    const journeyRow = `<div class="journey-row">${rowCards.join(`<span class="journey-link" aria-hidden="true"></span>`)}</div>`;
+    const doneLine = allDone ? `<div class="journey-done-line"><span class="jdl-ico">${ICON_ACHIEVEMENT_SM}</span>${t("shelf.all_done")}</div>` : "";
 
     el.innerHTML = `
         <div class="shelf-topbar">
@@ -90,7 +124,7 @@ async function render(el: HTMLElement): Promise<void> {
         </div>
         <div class="shelf-inner">
             <div class="shelf-title">${t("shelf.title")}</div>
-            <div class="shelf-grid">${cards}</div>
+            <div class="shelf-journey">${heroCard}${journeyRow}${doneLine}</div>
         </div>`;
 
     // 顶栏按钮复用隐藏 emoji 按钮的既有接线（成就/语音/设置）；「家 长」仅未登录显示（spec §2.4）

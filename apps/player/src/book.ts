@@ -55,11 +55,16 @@ function ensureSpreads(): void {
 /** 翻页转场：旧页翻出 + 双缓冲交换（绘本场景与玩法组件共用；2026-10-03 自 renderSceneBook 尾部抽出） */
 function flipSpread(): void {
     const old = front!;
+    back!.classList.remove("turned"); // 双缓冲复用：1s 内连续翻页时 back 可能还挂着上一轮的 turned（转场未完）
     back!.style.visibility = "visible";
     if (old.innerHTML) {
         old.classList.add("turned");
         const oldRef = old;
-        setTimeout(() => { oldRef.style.visibility = "hidden"; oldRef.classList.remove("turned"); }, 1000);
+        setTimeout(() => {
+            if (front === oldRef) return; // 1s 内又翻了页、该 spread 已被双缓冲复用为当前页——绝不能藏当前页
+            oldRef.style.visibility = "hidden";
+            oldRef.classList.remove("turned");
+        }, 1000);
     }
     const tmp = front; front = back; back = tmp;
 }

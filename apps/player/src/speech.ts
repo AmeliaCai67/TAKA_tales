@@ -196,6 +196,9 @@ export function sceneAudioIdle(): boolean {
    **advance 只认 ended**：error 升级链 = 同 blob 重播（ArkWeb 虚假 error 零成本）→ 重渲整句 → 跳句。 */
 const TTS_FETCH_CAP = 3;      // 对齐服务端 _sem=3（客户端超开只是排队）
 const TTS_FETCH_TIMEOUT = 15000; // 必须覆盖服务端 3 次退避重试的最坏 ~11s（6s 会掐死正在重试的请求，弱网雪崩）
+// 尺寸门槛（与服务端 MIN_MP3_BYTES 同源，apps/api/tests/calibrate_min_mp3.py 实测校准 2026-10-06）：
+// 客户端不区分声线类，取全局下限（fx 阈值 950B）；fx 声线的 1440B 级残片由服务端原子发布+锁内校验拦截
+const MIN_TTS_BYTES = 950;
 
 let blobs: (string | null | undefined)[] = []; // 句 → blob URL（undefined=渲染中 / null=失败）
 let blobLaunched = 0, blobSettled = 0;         // 预取池水位
@@ -210,17 +213,24 @@ function revokeBlobs(): void {
 
 /** 单句 tts → blob URL；15s 超时 + 失败重试 1 次（退避 0.9s——服务端 502 多是到微软的瞬时抖动，
  *  立即重试还在风暴窗口内），双败返回 null（调用方跳句）。服务端 render_tts 自身另有 3 次退避重试。
- *  ⚠ 尺寸防御（2026-10-03）：空/残废 mp3（曾因缓存毒化出现 0B）会 200 但秒 ended=吞句，<1KB 视为失败。 */
-async function fetchTtsBlob(url: string): Promise<string | null> {
+ *  ⚠ 尺寸防御（2026-10-06 与服务端校准门槛对齐）：空/残废 mp3 会 200 但秒 ended=吞句，<MIN_TTS_BYTES 视为失败。
+ *  ⚠ bustCache（2026-10-06 spec §三.4，review 84be133-#1 修订）：重试类请求用 **reload** 而非 no-store——
+ *  /api/tts 带 max-age=86400，坏响应被浏览器缓存后 no-store 只绕过不覆盖，坏条目留存 24h 内
+ *  每次新播放的首请求（default）仍会命中它（多浪费一次失败重试）；reload 绕过**且回写**，
+ *  一次恢复请求即治愈缓存条目。 */
+async function fetchTtsBlob(url: string, bustCache = false): Promise<string | null> {
     for (let attempt = 0; attempt < 2; attempt++) {
         if (attempt > 0) await sleep(900);
         const ctl = new AbortController();
         const timer = setTimeout(() => ctl.abort(), TTS_FETCH_TIMEOUT);
         try {
-            const res = await fetch(url, { signal: ctl.signal });
+            const res = await fetch(url, {
+                signal: ctl.signal,
+                cache: attempt > 0 || bustCache ? "reload" : "default",
+            });
             if (!res.ok) throw new Error("HTTP " + res.status);
             const blob = await res.blob();
-            if (blob.size < 1024) throw new Error("空音频 " + blob.size + "B");
+            if (blob.size < MIN_TTS_BYTES) throw new Error("空音频 " + blob.size + "B");
             return URL.createObjectURL(blob);
         } catch { /* 超时/网络/HTTP 错/坏音频 → 重试或放弃 */ }
         finally { clearTimeout(timer); }
@@ -318,7 +328,7 @@ async function waitBlob(i: number, gen: number): Promise<string | null> {
     }
     if (gen !== speechGen) return null;
     for (let round = 0; round < 2; round++) {
-        const again = await fetchTtsBlob(scenePlaylist[i]);
+        const again = await fetchTtsBlob(scenePlaylist[i], true); // 重渲绕浏览器缓存（spec §三.4）
         if (gen !== speechGen) return null;
         if (again) {
             if (blobs[i] && blobs[i] !== again) URL.revokeObjectURL(blobs[i] as string);
@@ -339,7 +349,7 @@ async function playBlobStrict(i: number, gen: number): Promise<void> {
     if (gen !== speechGen) return;
     if (await playBlob(first, gen)) return;
     if (gen !== speechGen) return;
-    const again = await fetchTtsBlob(scenePlaylist[i]);
+    const again = await fetchTtsBlob(scenePlaylist[i], true); // 重渲绕浏览器缓存（spec §三.4）
     if (gen !== speechGen || !again) return;
     if (blobs[i] && blobs[i] !== again) URL.revokeObjectURL(blobs[i] as string);
     blobs[i] = again;

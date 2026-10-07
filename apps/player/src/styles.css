@@ -870,10 +870,130 @@
             letter-spacing: 6px;
             margin: 4px 0 26px;
         }
-        .shelf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-            gap: 18px;
+        /* ===== 旅程化书架（2026-10-07，spec: docs/superpowers/specs/2026-10-07-chapter-flow-and-shelf-journey.md）
+           主次分层：hero（接下来读）+ 副卡行（章节序）。暖黄只出现在 kicker/CTA/hero 序号 chip（<5% 纪律）；
+           副卡、连接线、祝贺行全部中性色。D2.5：hero 排第一 + 副卡数组序 → 冷启动 DOM 序与旧 .shelf-grid 同位。 */
+        .shelf-journey { display: flex; flex-direction: column; gap: 18px; }
+        .journey-hero {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-color: var(--accent-dim); /* 比 --border 亮一档：主行动卡 */
+            animation: journeyIn .45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .journey-hero .sc-cover { aspect-ratio: 16 / 9; }
+        .jh-body { padding: 16px 18px 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+        .jh-kicker {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--accent-warm);
+        }
+        .jh-title { color: var(--text-primary); font-size: 19px; letter-spacing: 1px; }
+        .jh-summary {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .jh-foot { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 2px; }
+        .jh-cta {
+            display: inline-flex;
+            align-items: center;
+            min-height: 48px; /* 触控 >40px 硬约束 */
+            margin-top: 6px;
+            padding: 0 22px;
+            border: 1.5px solid var(--accent-warm);
+            border-radius: 24px;
+            color: var(--accent-warm);
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+        .journey-hero:hover .jh-cta { box-shadow: 0 0 0 3px rgba(255, 183, 3, .22); }
+        .jc-step {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(10, 35, 60, .72);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        .jc-step.hero { border-color: var(--accent-dim); color: var(--accent-warm); }
+        .journey-row { display: flex; gap: 18px; }
+        .journey-card {
+            flex: 1;
+            position: relative;
+            animation: journeyIn .45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
+        @keyframes journeyIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .journey-link {
+            flex: none;
+            width: 24px;
+            align-self: center;
+            position: relative;
+            height: 1px;
+        }
+        .journey-link::before { /* 渐隐横线 */
+            content: "";
+            position: absolute;
+            left: 0; right: 5px; top: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+        .journey-link::after { /* 箭头三角 */
+            content: "";
+            position: absolute;
+            right: 0; top: -3px;
+            border-left: 6px solid var(--border);
+            border-top: 3.5px solid transparent;
+            border-bottom: 3.5px solid transparent;
+        }
+        .journey-done-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 2px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .jdl-ico { display: inline-flex; }
+        .jdl-ico svg { width: 14px; height: 14px; display: block; }
+        /* hero 横排（≥900px）：左封面右文字 */
+        @media (min-width: 900px) {
+            .journey-hero { flex-direction: row; }
+            .journey-hero .sc-cover {
+                flex: 0 0 52%;
+                aspect-ratio: 16 / 9;
+                border-radius: 14px 0 0 14px;
+            }
+            .jh-body { flex: 1; padding: 22px 26px; }
+        }
+        /* 560–900px：hero 全宽 + 副卡 2 列，箭头隐藏 */
+        @media (max-width: 899px) {
+            .journey-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .journey-link { display: none; }
+        }
+        /* <560px：hero 纵向堆叠（封面上、文字下），副卡行变横向 scroll-snap 轮播（保住「从左到右=章节序」） */
+        @media (max-width: 559px) {
+            .journey-row {
+                display: flex;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                gap: 12px;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 4px;
+            }
+            .journey-card { flex: 0 0 200px; scroll-snap-align: start; }
         }
         .shelf-card {
             background: var(--bg-dialog);
@@ -887,6 +1007,18 @@
             font-family: inherit;
         }
         .shelf-card:hover { border-color: var(--accent-warm); transform: translateY(-2px); }
+        /* 系统级减弱动效（codex 验收⑥）：入场动画/hover 过渡与位移全部关闭（本仓首个 reduced-motion 块）。
+           必须放在 .shelf-card / .shelf-card:hover 之后，且选择器带 .shelf-card 前缀（0,2,0）——
+           同特异性靠后覆盖基类的 transition，并打平 hover 规则（同为 0,2,0，后者胜）压掉 transform，
+           不用 !important。写在前面会被同特异性的后置规则反超（2026-10-07 验收教训）。 */
+        @media (prefers-reduced-motion: reduce) {
+            .shelf-card.journey-hero,
+            .shelf-card.journey-card {
+                animation: none;
+                transition: none;
+                transform: none;
+            }
+        }
         .sc-cover {
             width: 100%;
             aspect-ratio: 4 / 3;
@@ -1623,6 +1755,23 @@ body.on-shelf .mic-fab { display: none; }
     -webkit-touch-callout: none;
 }
 .choice-btn.voice-chip svg { width: 18px; height: 18px; flex: none; }
+
+/* ===== 章末「下一章」按钮（2026-10-07 章节衔接）：封面缩略 + 文案横排，VN/绘本共用 =====
+   3-6 岁不识字，封面是他们认「下一本书」的唯一线索；四张封面 boot 闪屏已全量预载，零网络成本。 */
+.choice-btn.next-chapter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    border-color: var(--accent-dim); /* 主行动比普通选项亮一档 */
+}
+.choice-btn.next-chapter .nc-cover {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    object-fit: cover;
+    border-radius: 8px;
+}
 
 /* 绘本话筒 hotspot（2026-09-28）：freeInput 场景左页的语音入口，halo 比选项 hotspot 更暖更实 */
 body.book-mode .hotspot.mic-hotspot .halo {

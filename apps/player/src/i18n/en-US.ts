@@ -30,6 +30,11 @@ export const enUS: Dict = {
         add_child: "+ Add a child",
         dashboard: "Dashboard →",
         cover_fallback: "TAKA",
+        up_next: "Up next",
+        chapter_n: "Chapter {{n}}",
+        hero_start: "Start reading",
+        hero_continue: "Keep reading",
+        all_done: "All four chapters done! Hear them again from the start",
     },
     auth: {
         parent_title: "PARENTS",
@@ -101,6 +106,7 @@ export const enUS: Dict = {
         story_not_ready: "This story isn't ready yet. Try again",
         pack_load_fail: "Story failed to load. Check the network and refresh",
         listen_bar: "The wind. Whoo-oo. Listening...",
+        next_chapter: "Next chapter: \"{{title}}\"",
     },
     ach: {
         toast_unlock: "Badge unlocked: {{name}}",

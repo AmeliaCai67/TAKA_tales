@@ -25,6 +25,11 @@ export const zhCN = {
         add_child: "＋ 添加孩子",
         dashboard: "家长后台 →",
         cover_fallback: "塔 卡",
+        up_next: "接下来读",
+        chapter_n: "第 {{n}} 章",
+        hero_start: "开始读",
+        hero_continue: "继续读",
+        all_done: "四章都读完啦！再从头听一遍吧",
     },
     auth: {
         parent_title: "家 长",
@@ -96,6 +101,7 @@ export const zhCN = {
         story_not_ready: "这个故事还没准备好，再试一次",
         pack_load_fail: "故事包加载失败，请检查网络后刷新",
         listen_bar: "风声。呼呼。正在收听...",
+        next_chapter: "下一章：《{{title}}》",
     },
     ach: {
         toast_unlock: "解锁成就「{{name}}」",
