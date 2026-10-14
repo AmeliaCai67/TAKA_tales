@@ -16,15 +16,16 @@ cd "$(dirname "$0")/.."
 
 VENV="$PWD/packages/tts-pipeline/.venv/bin/python"
 
+if [ "${1:-}" = "rebuild" ]; then
+    # rebuild 先行：放早退检查之前，否则服务都在跑时 rebuild 参数被吞（2026-10-10 踩过）
+    # player 走静态 dist（http.server 托管），改动需重建；parent 是 vite dev 实时编译，无需构建
+    (cd apps/player && VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/tts VITE_PARENT_URL=http://localhost:5173/parent/ npm run build)
+fi
+
 # 已起则直接报告
 if lsof -ti :8000 >/dev/null 2>&1 && lsof -ti :8017 >/dev/null 2>&1 && lsof -ti :5173 >/dev/null 2>&1; then
     echo "✓ 已在运行：API http://localhost:8000 | 播放器 http://localhost:8017 | 家长后台 http://localhost:5173/parent/"
     exit 0
-fi
-
-if [ "${1:-}" = "rebuild" ]; then
-    # player 走静态 dist（http.server 托管），改动需重建；parent 是 vite dev 实时编译，无需构建
-    (cd apps/player && VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/tts VITE_PARENT_URL=http://localhost:5173/parent/ npm run build)
 fi
 
 lsof -ti :8000 >/dev/null 2>&1 || {

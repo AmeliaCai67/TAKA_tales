@@ -21,5 +21,17 @@ export function loadLocalProgress(storyId: string): LocalProgress | null {
 }
 
 export function saveLocalProgress(storyId: string, p: LocalProgress): void {
-    try { localStorage.setItem(key(storyId), JSON.stringify(p)); } catch {}
+    try {
+        localStorage.setItem(key(storyId), JSON.stringify(p));
+        localStorage.setItem('taka_last_story_' + (session.childId ?? 'guest'), storyId);
+    } catch {}
+}
+
+/** A child-scoped pointer; older installations fall back to their first unfinished book. */
+export function lastStoryId(ids: string[]): string | undefined {
+    try {
+        const last = localStorage.getItem('taka_last_story_' + (session.childId ?? 'guest'));
+        if (last && ids.includes(last)) return last;
+    } catch {}
+    return ids.find(id => { const p = loadLocalProgress(id); return p && !p.lastEnding; });
 }

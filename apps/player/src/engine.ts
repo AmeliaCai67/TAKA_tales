@@ -1,12 +1,14 @@
 // 播放引擎：场景渲染 / 打字机 / 选项 / 自由输入 / 电量状态机 / 聆听条
 // 与内容完全解耦——所有故事数据来自 pack()（story.json），本模块只负责“怎么播”
 import { pack } from "./pack";
+import { positionVoiceGuide } from "./voice-guide";
 import { ICON_MIC } from "./icons";
 import type { Scene } from "./story";
 import { loadSettings, showStatus, speechPref } from "./settings";
 import { unlockForScene, showToast, unlock } from "./achievements";
 import {
-    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs, queueClip
+    speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs, queueClip,
+    prefetchSceneAudio
 } from "./speech";
 import { api, ApiError } from "./api";
 import { session, selectedChild, clearSession } from "./session";
@@ -47,6 +49,8 @@ const CORE_C = 2 * Math.PI * 12.5; // 电量弧周长（与 HUD SVG 的 r=12.5 �
 
 function updateBatteryHUD(): void {
     document.getElementById("battery-text")!.innerText = battery + "%";
+    const drawerEnergy = document.getElementById("sp-energy-value");
+    if (drawerEnergy) { drawerEnergy.textContent = battery + "%"; drawerEnergy.style.color = energyColor(battery); }
     const pct = Math.max(0, Math.min(100, battery));
     // 空心圈：电量弧按电量百分比区间变色（绿/黄/红）
     const ico = document.getElementById("core-ico")!;
@@ -93,6 +97,21 @@ let skipCostOnce = false; // 断点续玩跳场：保存的电量已是扣费后
 /** 家长入口选中孩子后由 auth.ts 设置断点 */
 export function setResumePoint(p: { sceneKey: string; battery: number; path: string[] } | null): void {
     resumePoint = p;
+}
+
+/** One-touch entry skips the title's second start/resume confirmation. */
+export function beginReading(): void {
+    const rp = resumePoint;
+    resumePoint = null;
+    if (rp && pack().scenes[rp.sceneKey] && rp.sceneKey !== pack().startScene && rp.sceneKey !== pack().restartScene) {
+        battery = rp.battery;
+        runPath = rp.path.slice();
+        skipCostOnce = true;
+        syncSessionStart();
+        void renderScene(rp.sceneKey);
+    } else {
+        void renderScene(pack().restartScene);
+    }
 }
 
 // ===== 如我所书（2026-08-19）：会话对话流收集 + 增量上报 =====
@@ -520,23 +539,12 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
                 sub.textContent = t("engine.voice_guide_sub");
                 bubble.append(anim, main, sub);
                 document.body.appendChild(bubble);
-                // 绘本模式：气泡锚到左页话筒 hotspot。hotspot 由 mountChoices 尾部的 renderHotspots 物化，
-                // 此刻还没进 DOM——rAF 后按实际 rect 定位（指向三角落在话筒上方）；只认可见 spread 里的那个
-                // （翻页双缓冲的隐藏页可能残留上一 freeInput 场景的同名节点），rAF 前不落笔无闪跳
-                if (micAsHotspot) {
-                    requestAnimationFrame(() => {
-                        if (!bubble.isConnected) return;
-                        const h = [...document.querySelectorAll<HTMLElement>(".mic-hotspot")]
-                            .find(el => getComputedStyle(el).visibility === "visible");
-                        if (!h) return; // 理论不发生（防御）：退 CSS 默认位
-                        const r = h.getBoundingClientRect();
-                        const w = bubble.offsetWidth || 240;
-                        const cx = r.left + r.width / 2;
-                        bubble.style.right = "auto";
-                        bubble.style.left = Math.max(12, Math.min(window.innerWidth - w - 12, cx - w + 26)) + "px"; // 三角（右缘内 22px）对准话筒中心
-                        bubble.style.bottom = Math.max(70, window.innerHeight - r.top + 10) + "px";
-                    });
+                if (!bookMode && matchMedia('(pointer: coarse)').matches) {
+                    bubble.classList.add('guide-inline');
+                    box.appendChild(bubble);
                 }
+                // Measure after hotspot clamping; avoid all live choice hit areas on the art page.
+                if (micAsHotspot) cleanupTasks.push(positionVoiceGuide(bubble));
                 const dismiss = (silent?: boolean) => {
                     if (!bubble.isConnected) return;
                     bubble.classList.add("bye");
@@ -666,6 +674,8 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
             chip.title = t("engine.mic_title");
             wirePress(chip);
             box.appendChild(chip); // 先于 row 被挂（row 由调用方在 mountFreeInput 返回后 append）→ 顺序：选项…、chip、打字行
+            // Touch readers already have a full-width voice choice; a second floating mic covers it.
+            if (matchMedia('(pointer: coarse)').matches) fab.hidden = true;
         }
     }
 
@@ -909,6 +919,7 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐；玩法场景静默（无旁白）
     const played = !usedAI && !scene.mechanic && playSceneAudio(key, scene.isSpecialListen);
     if (!played && !scene.mechanic) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
+    prefetchSceneAudio(key); // P1 滚动预取：当前+下一可选场景静态音频进内存（P1-B 统一通道的取用点）
 
     // 打字播完后的统一收尾：codex 高亮（绘本内部逐气泡已包，VN 在这里整段包）→ 灯光归位 → 选项/聆听条
     const onTextDone = () => {

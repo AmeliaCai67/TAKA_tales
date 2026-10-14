@@ -1,0 +1,43 @@
+/* Approved bubble opening: one gesture, a clear light core, and the old nameplate. */
+#start-gate.bubble-opening .depth-world{animation:none;filter:brightness(.6) saturate(.75);transition:transform .55s ease}
+#start-gate.bubble-opening::before{background:radial-gradient(ellipse 154px 124px at 50% 52%,rgba(var(--depth),.55) 0 53%,rgba(var(--depth),.72) 66%,rgba(var(--depth),.94) 84%,rgba(var(--depth),.985) 100%);transition:opacity .2s}
+#start-gate.bubble-opening.torch-active::before{opacity:0}
+#start-gate.bubble-opening .torch-overlay{background:radial-gradient(ellipse 154px 124px at var(--mouse-x,50%) var(--mouse-y,52%),rgba(var(--depth),.55) 0 53%,rgba(var(--depth),.72) 66%,rgba(var(--depth),.94) 84%,rgba(var(--depth),.985) 100%)}
+#start-gate.bubble-opening .depth-rays{opacity:.35;transition:none}
+#start-gate.bubble-opening .wake{top:52%;width:260px;transform:translate(-50%,-42%)}
+#start-gate.bubble-opening .wake-art{animation:opening-float 6s ease-in-out infinite}
+#start-gate.bubble-opening .wake-art .takaBody{opacity:var(--taka-reveal,.08);transition:opacity .4s}
+#start-gate.bubble-opening .wake-art .eyeGlow{animation:opening-pulse 4s ease-in-out infinite;filter:drop-shadow(0 0 2px #ffd77b95)}
+#start-gate.bubble-opening .wake-art .eyeHi{opacity:.55}
+#start-gate.bubble-opening .wake-art::before{width:74px!important;height:74px!important;top:42%;opacity:.4!important;background:radial-gradient(circle,#f0c87e22 0 27%,#d5ac500d 48%,transparent 70%)!important;transition:opacity .25s!important}
+#start-gate.bubble-opening .wake-note{position:absolute;top:calc(100% + 14px);left:-30px;right:-30px;margin:0;font-size:12px;line-height:1.8;letter-spacing:.13em;color:#a4b4ab9c;filter:none;transform:none;opacity:.75!important;transition:opacity .16s}
+#start-gate.bubble-opening.is-awakening .wake-note{opacity:0!important}
+#start-gate.bubble-opening .wake-arc,#start-gate.bubble-opening .wake-ripple,#start-gate.bubble-opening .wake-ambient{display:none}
+#start-gate.bubble-opening .cover-title{width:206px;top:15%;opacity:0;filter:none;transform:translate(-50%,7px);transition:opacity .3s,transform .4s;z-index:4}
+#start-gate.bubble-opening .cover-title::before{display:none}
+#start-gate.bubble-opening .cover-title h1{margin:0;padding:0;width:100%;font-size:0;line-height:0;letter-spacing:normal;background:none;color:#bcc9c6;opacity:1;filter:drop-shadow(0 1px 0 #000);mask-image:none;-webkit-mask-image:none;animation:none;transform:none;mix-blend-mode:normal}
+.opening-title-label{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+.nameplate-lettering{display:block;width:100%;height:auto}.nameplate-lettering .engraved{fill:currentColor}
+#start-gate.bubble-opening .title-mark{display:flex;align-items:center;justify-content:center;gap:12px;font:7px Georgia,serif;letter-spacing:.16em;color:#8d9d96;opacity:1;margin-top:4px;white-space:nowrap;animation:none}
+#start-gate.bubble-opening .title-mark::before,#start-gate.bubble-opening .title-mark::after{content:"";width:4px;height:4px;border:1px solid #8d9d9660;border-radius:50%;flex:none}
+.wake-bubbles{position:absolute;z-index:2;pointer-events:none;left:50%;width:110px;top:20%;bottom:48%;transform:translateX(-50%)}
+.wake-bubbles i{position:absolute;left:var(--bx);bottom:0;width:var(--size);height:var(--size);border:1px solid #bed6d66b;border-radius:49%;box-shadow:inset 0 1px #e2e8d53d;opacity:0}
+.opening-cone{position:absolute;z-index:2;pointer-events:none;left:50%;top:13%;height:39%;width:min(58vw,480px);transform:translateX(-50%);background:linear-gradient(0deg,#f0c87e20,#b3d2cf06 68%,transparent);clip-path:polygon(49% 100%,25% 0,75% 0,51% 100%);opacity:0;mix-blend-mode:screen}
+#start-gate.bubble-opening.is-awakening .wake-art{animation:none}
+#start-gate.bubble-opening.is-awakening .eyeGlow{animation:opening-eye-wake .3s both;filter:drop-shadow(0 0 3px #ffc65fbb)}
+#start-gate.bubble-opening.is-awakening .wake-bubbles i{animation:opening-bubble 1.25s var(--delay) linear both}
+#start-gate.bubble-opening.is-illuminating .takaBody{opacity:.26}
+#start-gate.bubble-opening.is-illuminating .opening-cone{animation:opening-beam .95s both}
+#start-gate.bubble-opening.is-revealed .cover-title{opacity:.82;transform:translate(-50%,0)}
+#start-gate.bubble-opening.is-opening{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility 0s linear .35s}
+@keyframes opening-pulse{0%,100%{opacity:.72}50%{opacity:1}}
+@keyframes opening-float{50%{transform:translateY(-2px)}}
+@keyframes opening-eye-wake{0%{opacity:.72}40%{opacity:1;filter:drop-shadow(0 0 6px #ffdfa9)}100%{opacity:1;filter:drop-shadow(0 0 3px #ffc65f)}}
+@keyframes opening-bubble{0%{opacity:0;transform:translate(0,0) scale(.7)}20%{opacity:.6}85%{opacity:.3}100%{opacity:0;transform:translate(var(--drift),min(-28svh,-75px)) scale(1.2)}}
+@keyframes opening-beam{0%{opacity:0;clip-path:polygon(49% 100%,45% 0,55% 0,51% 100%)}45%{opacity:.75}100%{opacity:.24;clip-path:polygon(49% 100%,25% 0,75% 0,51% 100%)}}
+@media(max-width:600px){#start-gate.bubble-opening .wake{width:230px;top:52%}#start-gate.bubble-opening .cover-title{width:180px;top:16%}#start-gate.bubble-opening .wake-note{font-size:11px}.opening-cone{width:300px;top:16%;height:36%}}
+@media(max-height:500px) and (orientation:landscape){#start-gate.bubble-opening .wake{width:min(170px,40svh);top:47%}#start-gate.bubble-opening .cover-title{top:7%;width:min(118px,32svh)}#start-gate.bubble-opening .title-mark{font-size:6px;gap:6px;margin-top:0}#start-gate.bubble-opening .wake-note{top:calc(100% + 8px);font-size:10px}.opening-cone{top:11%;height:36%}.wake-bubbles{top:19%;bottom:53%}}
+@media(prefers-reduced-motion:reduce){#start-gate.bubble-opening .wake-art,#start-gate.bubble-opening .wake-art .eyeGlow{animation:none!important}.wake-bubbles,.opening-cone{display:none}#start-gate.bubble-opening .cover-title{transition:opacity .1s;transform:translateX(-50%)}#start-gate.bubble-opening.is-opening{transition:opacity .15s,visibility 0s linear .15s}}
+
+/* The inactive reader must never show through the cover fade or the shelf. */
+body:is(.on-gate,.on-shelf) :is(#taka-figure,.dialog,#book-stage){visibility:hidden}

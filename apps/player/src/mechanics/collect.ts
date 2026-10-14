@@ -1,3 +1,4 @@
+import { uiIcon } from "../ui-icons";
 // 收集小游戏玩法组件（2026-09 第四章「你好，757」；2026-10-03 mechanic 组件化 Phase 2 对齐契约，
 // plan: docs/superpowers/plans/2026-10-03-mechanic-component-architecture.md）
 // 职责：收集页整页渲染（横屏/整页/塔卡可拖/拱门边界/像素换装/物化收集/游动路由/兴趣侦测）
@@ -242,7 +243,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
         sessionStorage.setItem("taka_collect_hinted", "1");
         const h = document.createElement("div");
         h.className = "flip-hint collect-hint";
-        h.textContent = t(FINE_POINTER ? "book.collect_hint_follow" : "book.collect_hint");
+        h.innerHTML = uiIcon("drag") + t(FINE_POINTER ? "book.collect_hint_follow" : "book.collect_hint");
         left.appendChild(h);
         setTimeout(() => h.remove(), 9000);
     }

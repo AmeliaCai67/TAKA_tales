@@ -5,6 +5,11 @@
   "startScene": "prologue",
   "restartScene": "start",
   "depletedScene": "ending_b",
+  "ttsAliases": {
+    "YOU": "you",
+    "DONE": "done",
+    "TAKA": "Taka"
+  },
   "speakers": {
     "TAKA": "taka",
     "Seagull": "seagull",

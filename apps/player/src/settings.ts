@@ -1,6 +1,7 @@
 // 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
-import { ICON_SETTINGS, ICON_SHELF } from "./icons";
+import { ICON_SHELF } from "./icons";
 import { t } from "./i18n";
+import { themeControl } from "./theme";
 
 export interface AiSettings {
     enabled: boolean; // 允许选项 C 调服务端生成（游客不显示选项 C，开关只控制已登录状态）
@@ -21,13 +22,18 @@ export interface SpeechPref {
     on: boolean;
     readChoices: boolean;
     rate: number;
+    volume: number;
 }
 
 const SPEECH_KEY = "taka_speech";
 
 function loadSpeechPref(): SpeechPref {
-    const def: SpeechPref = { on: true, readChoices: true, rate: 0.95 };
-    try { return { ...def, ...JSON.parse(localStorage.getItem(SPEECH_KEY) || "{}") }; }
+    const def: SpeechPref = { on: true, readChoices: true, rate: 0.95, volume: 1 };
+    try {
+        const saved = { ...def, ...JSON.parse(localStorage.getItem(SPEECH_KEY) || "{}") };
+        saved.volume = Number.isFinite(saved.volume) ? Math.max(0, Math.min(1, saved.volume)) : 1;
+        return saved;
+    }
     catch { return def; }
 }
 
@@ -74,8 +80,12 @@ export function setLogoutHandler(fn: () => void): void { logoutHandler = fn; }
 let isLoggedInFn: (() => boolean) | null = null;
 export function setIsLoggedInFn(fn: () => boolean): void { isLoggedInFn = fn; }
 
+let openBooks: (() => void) | null = null;
+let openCodex: (() => void) | null = null;
+export function setDrawerCollections(books: () => void, codex: () => void): void { openBooks = books; openCodex = codex; }
+
 export function initSettingsPanel(): void {
-    document.getElementById("settings-btn")!.innerHTML = ICON_SETTINGS;
+    document.getElementById("settings-btn")!.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 4 6 .3 1 4 3 1.5 4-1 3 5-3 3v3l2 3-4 4-3-2-3 1-1.5 4-6-.4-.8-4-3-1.6-4 1-2.7-5 3-2.8v-3l-2-3 4-4 3 2 3-1Z" transform="translate(0 -1) scale(.96)"/><circle cx="16" cy="16" r="4.8"/></svg>`;
     document.querySelector("#sp-toshelf .sp-shelf-ico")!.innerHTML = ICON_SHELF;
     const s = loadSettings();
     const enabledEl = document.getElementById("sp-enabled") as HTMLInputElement;
@@ -83,6 +93,14 @@ export function initSettingsPanel(): void {
     enabledEl.checked = s.enabled;
     readChoicesEl.checked = speechPref.readChoices;
     const panel = document.getElementById("settings-panel")!;
+    const overlay = document.getElementById("settings-overlay")!;
+    document.body.appendChild(overlay); // 独立层，避开 #stage / 翻页的堆叠与裁切。
+    document.getElementById("rd-theme")!.innerHTML = themeControl();
+    for (const [id, host] of [["lang-toggle","rd-language"],["speech-btn","rd-speech"],["log-btn","rd-log"],["ach-btn","rd-ach"],["parent-btn","rd-parent"]]) {
+        document.getElementById(host)!.appendChild(document.getElementById(id)!);
+    }
+    document.querySelector(".hud")!.prepend(document.getElementById("settings-btn")!);
+    document.getElementById("reader-back")!.onclick = () => exitToShelfHandler?.();
 
     // 即改即存：两个开关直接落盘
     enabledEl.onchange = () => {
@@ -93,45 +111,72 @@ export function initSettingsPanel(): void {
         saveSpeechPref();
     };
 
-    let outsideCloser: ((ev: Event) => void) | null = null;
-    const closePanel = () => {
-        panel.hidden = true;
-        if (outsideCloser) {
-            document.removeEventListener("pointerdown", outsideCloser);
-            outsideCloser = null;
-        }
+    let closeTimer: ReturnType<typeof setTimeout> | null = null;
+    let opener: HTMLElement | null = null;
+    const closePanel = (immediate = false, restore = true) => {
+        if (closeTimer) clearTimeout(closeTimer);
+        overlay.classList.remove("is-open");
+        document.getElementById("settings-btn")!.setAttribute("aria-expanded", "false");
+        const finish = () => {
+            panel.hidden = true; overlay.hidden = true;
+            document.getElementById("stage")!.inert = false;
+            document.getElementById("stage")!.removeAttribute("aria-hidden");
+            if (restore) {
+                const target = opener?.isConnected && opener.getClientRects().length ? opener : document.querySelector<HTMLElement>('.shell-tools summary, #settings-btn');
+                target?.focus();
+            }
+        };
+        if (immediate || matchMedia('(prefers-reduced-motion:reduce)').matches) finish();
+        else closeTimer = setTimeout(finish, 280);
     };
-    document.getElementById("settings-btn")!.onclick = (e) => {
+    const openPanel = () => {
+        if (closeTimer) clearTimeout(closeTimer);
+        opener = document.activeElement as HTMLElement;
+        overlay.hidden = false; panel.hidden = false;
+        requestAnimationFrame(() => overlay.classList.add("is-open"));
+        const shelf = document.getElementById("shelf-screen")!;
+        document.getElementById("sp-toshelf")!.style.display = shelf.hidden ? "" : "none";
+        document.getElementById("sp-logout")!.hidden = !(isLoggedInFn && isLoggedInFn());
+        document.getElementById("rd-parent-row")!.hidden = !!(isLoggedInFn && isLoggedInFn());
+        document.getElementById("sp-energy-value")!.textContent = document.getElementById("battery-text")!.textContent;
+        document.getElementById("settings-btn")!.setAttribute("aria-expanded", "true");
+        panel.focus();
+        document.getElementById("stage")!.inert = true;
+        document.getElementById("stage")!.setAttribute("aria-hidden", "true");
+    };
+    document.getElementById("settings-btn")!.setAttribute("aria-controls", "settings-panel");
+    document.getElementById("settings-btn")!.setAttribute("aria-expanded", "false");
+    document.getElementById("settings-btn")!.onclick = e => {
         e.stopPropagation();
-        if (panel.hidden) {
-            panel.hidden = false;
-            // 故事进行中才显示「保存并返回书架」（书架页上无意义）
-            const shelf = document.getElementById("shelf-screen");
-            document.getElementById("sp-toshelf")!.style.display = shelf && shelf.hidden ? "" : "none";
-            // 登录时显示「退出登录」
-            document.getElementById("sp-logout")!.hidden = !(isLoggedInFn && isLoggedInFn());
-            // 点面板外任意处自动关闭（设置项全部即改即存，无需显式保存）
-            setTimeout(() => {
-                outsideCloser = (ev: Event) => {
-                    if (!panel.contains(ev.target as Node)) closePanel();
-                };
-                document.addEventListener("pointerdown", outsideCloser);
-            }, 0); // 本次点击不触发刚挂的监听
-        } else {
-            closePanel();
-        }
+        if (overlay.hidden || !overlay.classList.contains('is-open')) openPanel(); else closePanel();
     };
+    document.getElementById("settings-close")!.onclick = () => closePanel();
+    overlay.addEventListener('pointerdown', e => { if (e.target === overlay) closePanel(); });
+    overlay.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+        if (e.key !== 'Tab') return;
+        const focusable = [...panel.querySelectorAll<HTMLElement>('button,select,input,summary,[tabindex="0"]')].filter(el=>!el.hasAttribute('disabled') && el.getClientRects().length);
+        const first = focusable[0], last = focusable[focusable.length-1];
+        if (e.shiftKey && (document.activeElement===first || document.activeElement===panel)) { e.preventDefault(); last?.focus(); }
+        else if (!e.shiftKey && (document.activeElement===last || document.activeElement===panel)) { e.preventDefault(); first?.focus(); }
+    });
+    for (const id of ['log-btn','ach-btn','parent-btn']) {
+        document.getElementById(id)!.addEventListener('click', () => closePanel(true, false), { capture:true });
+    }
+    document.getElementById('rd-books')!.onclick = () => { closePanel(true, false); openBooks?.(); };
+    document.getElementById('rd-codex')!.onclick = () => { closePanel(true, false); openCodex?.(); };
     document.getElementById("sp-toshelf")!.onclick = () => {
-        closePanel();
+        closePanel(true, false);
         if (exitToShelfHandler) exitToShelfHandler();
     };
     document.getElementById("sp-logout")!.onclick = () => {
-        closePanel();
+        closePanel(true, false);
         if (logoutHandler) logoutHandler();
     };
     // 布局三档：即时生效（与语速滑块同款交互）
     const layoutSel = document.getElementById("sp-layout") as HTMLSelectElement;
     layoutSel.value = loadLayoutPref();
+    layoutSel.dispatchEvent(new Event('picker-sync'));
     layoutSel.onchange = () => {
         const v = layoutSel.value as LayoutPref;
         localStorage.setItem(LAYOUT_KEY, v);

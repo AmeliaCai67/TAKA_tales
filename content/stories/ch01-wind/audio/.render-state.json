@@ -1,392 +1,1484 @@
 {
  "prologue/01_narrator.mp3": {
-  "hash": "f03854479df01101271a9aa546489a3449e5a624",
+  "hash": "1a07e29dd203eaa80560259e3c5f62abc21e6a1e",
   "who": "narrator",
-  "text": "这是塔卡。"
+  "text": "这是塔卡。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "72fbd9a3f37f1f35e709a03f73cf09c5c12a865828afd47bf1ffc3d118882e6b",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "prologue/02_narrator.mp3": {
-  "hash": "b4431e59269ecc1f05801d97cfb1823fccf4d2e2",
+  "hash": "43ec3a6593fde8ece63e662c177f69cff8a4580b",
   "who": "narrator",
-  "text": "它住在海底。每天清理珊瑚，听老机器讲故事。"
+  "text": "它住在海底。每天清理珊瑚，听老机器讲故事。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bdcb4c39dc858bd2cdb582a85aeccec5b0d82639ffa9c519f304175405ad962b",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "prologue/03_narrator.mp3": {
-  "hash": "90e78fcb2e6320acb580877fc7535d191e98a012",
+  "hash": "0f456d3b728cd4a3b84334bcd1beccdf79777de1",
   "who": "narrator",
-  "text": "塔卡是一只旧铁皮机器人，话少。"
+  "text": "塔卡是一只旧铁皮机器人，话少。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "39b2bd2fc6400a3be13bdf3cb8b67ac88c4dabaa6321bbc4aac1063f4a80bde7",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "prologue/04_narrator.mp3": {
-  "hash": "94e0d5a9df955eb1afdb3ded8dd264f99e05db7b",
+  "hash": "0fd0d4c15a1059bf214c8020bbd5d0f14c0faeb9",
   "who": "narrator",
-  "text": "今天，它第一次想去海面上看看。"
+  "text": "今天，它第一次想去海面上看看。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "fa35728ddfa367b00e9f4ee575b91a24832f41ab0f73f2965facde960e1152d8",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "prologue/choices.mp3": {
-  "hash": "11d43c18fe5e79e23c271f5010175cbc087d33bf",
+  "hash": "d6319f391ccbd8756e44a6f7bf74c59288034f7f",
   "who": "narrator",
-  "text": "开始故事。"
+  "text": "开始故事。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ba9c8b291ec7a41c4f96eed8ea0156b75d22af824ef7563355c08a2471114aa2",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/01_narrator.mp3": {
-  "hash": "ac9d847824753aa7dcb9824fdcde8f9776ddf170",
+  "hash": "d01d02219d658b4008e57eb1b98bd08ea6573a8c",
   "who": "narrator",
-  "text": "海底很亮。有很多光。"
+  "text": "海底很亮。有很多光。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "fa8147143b46f5670fa5fac4a18169da8e2d34d0ff8794ad9cb631e1a1e27d39",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/02_narrator.mp3": {
-  "hash": "9e6935e595ee06ce52830be252b18aaa76053b2b",
+  "hash": "0bd55e8159e5232120bf40eb73f2e523ee715df7",
   "who": "narrator",
-  "text": "塔卡每天清理珊瑚。光在动。"
+  "text": "塔卡每天清理珊瑚。光在动。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a9ffd1cc53b7b113e962d2b417f03878e903d972da0f5187534475ff690d7aae",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/03_narrator.mp3": {
-  "hash": "5f9bc07fedda528299522f89f6439c4194229a77",
+  "hash": "6db8cc67ce3cfb6e064f7d71643f8d41f4dbb5a4",
   "who": "narrator",
-  "text": "它听到声音。呼呼。从上面来。"
+  "text": "它听到声音。呼呼。从上面来。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "936616e44365c158e6446eb2917aa65b2e855136be11ca4e390580da9f263bdb",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/04_narrator.mp3": {
-  "hash": "970d1585fc68c677782850dc8d480ee5e76a7da5",
+  "hash": "deaee3bf453bae18ffe709bceab52ada200351b2",
   "who": "narrator",
-  "text": "老机器说"
+  "text": "老机器说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c72dc14c20064c441c1095bb4a7f034053b661bf73469381ef72ce1dcf82f6f9",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/05_oldmachine.mp3": {
-  "hash": "8a6a95ca23d8a60f9918743dd2c813718f42b6ae",
+  "hash": "b610e819cda29b283fb370552483b4961ee63291",
   "who": "oldmachine",
-  "text": "不要去。上面没有水。"
+  "text": "不要去。上面没有水。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longtian_v3",
+   "rate": 0.8,
+   "pitch": 0.92,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "b6b26bc456f5001bb3cf4c1b823ba21e69d627261fd14255f935679f4e8f7261",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/06_narrator.mp3": {
-  "hash": "693b58c0182bd375f8897d1eecea83a240b259d4",
+  "hash": "f6f2f8de3bd7508faa2a67fa224386232b9412eb",
   "who": "narrator",
-  "text": "塔卡的灯闪了一下"
+  "text": "塔卡的灯闪了一下",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2f6c6b8757220605ece7f657cd4ab45ebb29cd66a1fbecd21bcc0973e8b3518a",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/07_taka.mp3": {
-  "hash": "376e3457ce1dcc70ec86429724651df0599c2d7e",
+  "hash": "314a7b021d3b89cf26d83e8968529a0f9720c0a8",
   "who": "taka",
-  "text": "我想知道。"
+  "text": "我想知道。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "cd36bfe1f006db71bd4af2e862d5c2d824952997a933ac6f30005bc8300a6540",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/choices.mp3": {
-  "hash": "292f15dc8ec18c558f6d15944a4509a41903a485",
+  "hash": "171c0d711257a25f14a2b2d3d0f8361ff37e94b5",
   "who": "narrator",
-  "text": "你选。A. 游上去看看。B. 继续清理珊瑚。或者，说说你的想法。"
+  "text": "你选。A. 游上去看看。B. 继续清理珊瑚。或者，说说你的想法。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "5b28a9eeac41cac9b82a3099fdca10a9c8ae2a5a32cb26e92c591909f434acf4",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "clean_branch/01_narrator.mp3": {
-  "hash": "c4c2a3a21a42e8fba187fb9c32e6bb9c4636b397",
+  "hash": "e4b7ceab3d9b4e328d0d624cb62e1988f6c79b64",
   "who": "narrator",
-  "text": "塔卡留下来清理珊瑚。"
+  "text": "塔卡留下来清理珊瑚。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a794550c7add562d092b89802d4024710b50d55f49c2dda78562d3de777d30cb",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "clean_branch/02_narrator.mp3": {
-  "hash": "87fc3f1f108cf4ba17472fec3cbba37205504695",
+  "hash": "87bc348629421d07c4a1f9dbfeedf1a560dbb381",
   "who": "narrator",
-  "text": "夜里，它的灯一直亮着。它睡不着。"
+  "text": "夜里，它的灯一直亮着。它睡不着。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7510159bdb8bd7655978c230eff9fcf9dd5b8caf5d37f233e2e5c5c023bb1d47",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "clean_branch/03_narrator.mp3": {
-  "hash": "0f1537ba2b05b9de933036a750c6364bc0fa92bd",
+  "hash": "4079caaa5f2b4e273a0fe764ee150c8fdea182a6",
   "who": "narrator",
-  "text": "呼呼。声音还在。"
+  "text": "呼呼。声音还在。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c1fddc922f04b58209a40e27f8b163d9952d2a53562361e3c670307232d362e6",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "clean_branch/choices.mp3": {
-  "hash": "94387f2b2f76e16d9d8e655077f2a095c5fb0249",
+  "hash": "ae45ebceb8cf31d4073a79e1a3634373ac241146",
   "who": "narrator",
-  "text": "A. 闭上眼睛睡觉。或者，说说你的想法。"
+  "text": "A. 闭上眼睛睡觉。或者，说说你的想法。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4ff164d9a35f6a96789438397414d0a34358893544e9ba1ebfa01e6073061e69",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/01_narrator.mp3": {
-  "hash": "029157b5bc6a6e04ed30ec55d2ee7ed46ffe2fba",
+  "hash": "3896f15eaa4018cadb094f2a304fd62153e2e027",
   "who": "narrator",
-  "text": "塔卡睡着了。"
+  "text": "塔卡睡着了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9afd0787e3a5497b7d2d6fe0ce2e9e5d201dfa1f492fc87e6b87e75c65fa289d",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/02_narrator.mp3": {
-  "hash": "e3bfa0cd99f35b0c255df2109ba80f18745f398b",
+  "hash": "ac60a1d328aa196ad2497d6b3e24ca1141c31c91",
   "who": "narrator",
-  "text": "它梦到光。很亮。很亮。"
+  "text": "它梦到光。很亮。很亮。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e1bf05eca356b3d0fda1bb8fac3669759f0c31a40f8a5c2777cb8ecbc24de0c3",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/03_narrator.mp3": {
-  "hash": "9c24e1076a5332d9f70d73d17b1b65e0ac68f039",
+  "hash": "7bf1779b5a311adbc8c2d15f6c9bd39bc5dde6af",
   "who": "narrator",
-  "text": "它梦到风。像海浪。呼呼。"
+  "text": "它梦到风。像海浪。呼呼。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2fd83911150795fa8ce0161a1a83370cb357a04f53fa4db1c8682c84ad172d3f",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/04_narrator.mp3": {
-  "hash": "67270a3b45d2d843ed4aeb1ea16699cf2691c3fc",
+  "hash": "84d776d98bb32760412a5f4156920b7a9704bbb0",
   "who": "narrator",
-  "text": "它梦到珊瑚。很大。不发光。"
+  "text": "它梦到珊瑚。很大。不发光。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "53c0212eccaf582344a62280937491bb143d72b9badf9908d6cb1a297d86e56e",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/05_narrator.mp3": {
-  "hash": "9fb28e862edcbf49ea5417fdcb1f023c89aac7d4",
+  "hash": "c3b419feb246d24dd44dee4830fc95e80a1dd940",
   "who": "narrator",
-  "text": "老机器推它"
+  "text": "老机器推它",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2538aba6b94f77f15b530f437009e08e1088aa9ee58d9b494e179df9e8b8e643",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/06_oldmachine.mp3": {
-  "hash": "2034435480e0eb1d98ef3379b709e8750e39cb12",
+  "hash": "bffd4936bf8486b0bfbbc11fa39d6c1ad9dabbc7",
   "who": "oldmachine",
-  "text": "该工作了。"
+  "text": "该工作了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longtian_v3",
+   "rate": 0.8,
+   "pitch": 0.92,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "94de9a162417e1798c83782ac9451fabe7312344788e536ee044074f8de69b38",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/07_narrator.mp3": {
-  "hash": "989a721d0b65ab633c35d5537480f549e93d4cb7",
+  "hash": "00ce87554de3f72a2def7dbf44533f3b035893dd",
   "who": "narrator",
-  "text": "塔卡看着珊瑚。又看了看上面。"
+  "text": "塔卡看着珊瑚。又看了看上面。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6d165ff137fc3b68495b4e17c37ab58531fe9b657df7ecdda903a63a76c775a9",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "dream/choices.mp3": {
-  "hash": "7c8673e13a09b37ec76041bbbca8b7aed1795430",
+  "hash": "49ef7ef31309038ed3094b2bc5e8545da0e118cf",
   "who": "narrator",
-  "text": "上去看看。或者，说说你的想法。"
+  "text": "上去看看。或者，说说你的想法。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "250067984b17adbc3fa0301e93a7a6ddf9502bd88e367268e57c7e5fa3a22eb5",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/01_narrator.mp3": {
-  "hash": "f4b7c6d355afa3b70ab5eb9856b52bed28da964b",
+  "hash": "8e1a2496b1330749c74085380cfd77aa6a5791ed",
   "who": "narrator",
-  "text": "塔卡浮出水面。没有水。很疼。"
+  "text": "塔卡浮出水面。没有水。很疼。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a3c4889115ec78a18ff53db76fd9b52ab8f69f873950dcb23fa14288cd4922aa",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/02_narrator.mp3": {
-  "hash": "794298b65fdc4f38bbcea36746d43f10b6bb7694",
+  "hash": "7beb3849e899a2a6934588768277a6957b0e21e8",
   "who": "narrator",
-  "text": "但它听到了。风声。呼呼。"
+  "text": "但它听到了。风声。呼呼。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "1558d610d8c19d3758a6327f3429bbc8aa7d7a586f42ca1db0a32a521a9bedae",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/03_narrator.mp3": {
-  "hash": "debe142dd02887af31246ac9484249e70bb013f8",
+  "hash": "9d611cb74dcd4b108e5fcabe47be80d8f6ae80c2",
   "who": "narrator",
-  "text": "一只海鸥飞过来"
+  "text": "一只海鸥飞过来",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3c32ebf7d2cdf404921a4328dd7acf19f776dda750a9101512ddac2da47edd89",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/04_seagull.mp3": {
-  "hash": "01bcbe1d0134f6f9cb3ca5f136e6876fe1dc1e42",
+  "hash": "6e057cf7f8b8a84abfc679304a98b4663fe9dfdb",
   "who": "seagull",
-  "text": "你会掉下去。"
+  "text": "你会掉下去。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longanqin_v3",
+   "rate": 0.95,
+   "pitch": 1.04,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bc94df30854c243007cff7f840d7858bc213d2ca0f7da70929b12c0fccc96a39",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/05_narrator.mp3": {
-  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
+  "hash": "66a25045f043de1f6fbca22ba6e46f29c5523f47",
   "who": "narrator",
-  "text": "塔卡说"
+  "text": "塔卡说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "43d293c71e119016446c3adf1a4d1aa2f2fd64dd3e30592cca921a7f02ae8126",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/06_taka.mp3": {
-  "hash": "c75d6dd513c95c042c6924b73d91a539327d0c48",
+  "hash": "df76f205175991c13bf5e4e1aeb3094fcc169567",
   "who": "taka",
-  "text": "我在听。"
+  "text": "我在听。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "af9f6ee163d77a2a7a927c97a88dbfe38d738d6b5bcd381e627edf1105f81187",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/07_narrator.mp3": {
-  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
+  "hash": "0a87af6de80b3b61ca455246ce0ddca0bef07312",
   "who": "narrator",
-  "text": "海鸥说"
+  "text": "海鸥说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3b9a624122da1712e1a9214e73c9f64e3dd8ca2d554228a811d60610a35c1957",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/08_seagull.mp3": {
-  "hash": "b52ebfa89ddb18bc2451a5115c8ca76e660868ed",
+  "hash": "7fdba5eb82611e4d0c53401a2d4c9544dbb074ac",
   "who": "seagull",
-  "text": "听什么？"
+  "text": "听什么？",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longanqin_v3",
+   "rate": 0.95,
+   "pitch": 1.04,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bc3f58b0ab6f9c559ef05257f3cf8bcd7b208d9d2f3999647f9a7d18af7cf429",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/09_narrator.mp3": {
-  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
+  "hash": "66a25045f043de1f6fbca22ba6e46f29c5523f47",
   "who": "narrator",
-  "text": "塔卡说"
+  "text": "塔卡说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "43d293c71e119016446c3adf1a4d1aa2f2fd64dd3e30592cca921a7f02ae8126",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/10_taka.mp3": {
-  "hash": "c3106441d629732db5598b52a4d560c64866d3ee",
+  "hash": "3d3527bdaeefdc6c6216e3e79ff31d326078dc68",
   "who": "taka",
-  "text": "我不知道。但我想听完。"
+  "text": "我不知道。但我想听完。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c3a2816ab4f6303aebd28a0998b3bf4fe9d252c67c2378be5f38be0a80aa9952",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/choices.mp3": {
-  "hash": "103999f8991e3c4e42016e4ae5d1c61683fc3446",
+  "hash": "0201c9a03aba622514bfcbd283b5e29d830c615a",
   "who": "narrator",
-  "text": "你选。A. 问风声：你从哪里来？。B. 只是听。或者，说说你的想法。"
+  "text": "你选。A. 问风声：你从哪里来？。B. 只是听。或者，说说你的想法。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3503718eb66b4bf82d57002c9cdee245342b94c487a270508a59041d378c443a",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/01_narrator.mp3": {
-  "hash": "c403af7711a0266273492fe21363d9dffd383d05",
+  "hash": "0463b7512245d15ca6cbd10e9fab045101b82086",
   "who": "narrator",
-  "text": "塔卡问"
+  "text": "塔卡问",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "61f74057240a2b015b3f81a4211277a35e53ca20edd775468d41b4fe709673fe",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/02_taka.mp3": {
-  "hash": "c155819dbc1a8c548fa804a527cd3efb7b6f8e43",
+  "hash": "9b6d6fa65c581e270dec4c8679414115c0f061e9",
   "who": "taka",
-  "text": "你从哪里来？"
+  "text": "你从哪里来？",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "88aa709c150d7108bc0193822d877419fdc1f2558abe468295f762229a0c6c9d",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/03_narrator.mp3": {
-  "hash": "3a1f4edc5410571ecd16110efb4dbe0885b8e479",
+  "hash": "da39b3d7eff917629740d7e99e3a95a6abbbc39d",
   "who": "narrator",
-  "text": "海鸥回答"
+  "text": "海鸥回答",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c9461983ae1045cc7c9897dabb5c694209e16ba54071d8a1e91d237d22701e66",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/04_seagull.mp3": {
-  "hash": "e528c56339ac6997fa32605f21acf5b604e14399",
+  "hash": "0d38c68c4518f887aaf7c9c0d9f5cddce2cd7c8e",
   "who": "seagull",
-  "text": "我从有云的地方来。"
+  "text": "我从有云的地方来。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longanqin_v3",
+   "rate": 0.95,
+   "pitch": 1.04,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e9a1c88a34e626340317118fe3f226574c474893dd4bc5ecff8ec99fe4d8e442",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/05_narrator.mp3": {
-  "hash": "c403af7711a0266273492fe21363d9dffd383d05",
+  "hash": "0463b7512245d15ca6cbd10e9fab045101b82086",
   "who": "narrator",
-  "text": "塔卡问"
+  "text": "塔卡问",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "61f74057240a2b015b3f81a4211277a35e53ca20edd775468d41b4fe709673fe",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/06_taka.mp3": {
-  "hash": "9e07443f34cebe3d3c0aa031f72a3d00cac9df2c",
+  "hash": "d1bff0e5a1fbf0c11726b0919e7a35cc34c0a09d",
   "who": "taka",
-  "text": "云是什么？"
+  "text": "云是什么？",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9b9d177764d3509ab845244447677528403beb96eb73fe8279c95053a810b0b6",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/07_narrator.mp3": {
-  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
+  "hash": "0a87af6de80b3b61ca455246ce0ddca0bef07312",
   "who": "narrator",
-  "text": "海鸥说"
+  "text": "海鸥说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3b9a624122da1712e1a9214e73c9f64e3dd8ca2d554228a811d60610a35c1957",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/08_seagull.mp3": {
-  "hash": "a2aca1dc833c30a8ec1196b17ff028d48c225bfc",
+  "hash": "2194ac330707770a3025a31a13d8468097608382",
   "who": "seagull",
-  "text": "云是天上的海，只是它抓不住。"
+  "text": "云是天上的海，只是它抓不住。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longanqin_v3",
+   "rate": 0.95,
+   "pitch": 1.04,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "1e3ca88c777e11ff0db8d018835796f3f1a6fd539c29a12c6d1328c157b239b2",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/09_narrator.mp3": {
-  "hash": "572167185eb8ad4ff624ae494bff250504e48d0d",
+  "hash": "5fea72c1a717363333befe94a76f133ce9c0bba8",
   "who": "narrator",
-  "text": "太阳渐渐升起来了。"
+  "text": "太阳渐渐升起来了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "fa1dd6a780c00ce7cede9291903fede7f680bd7e4592c23e4e959f364b11441e",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/choices.mp3": {
-  "hash": "114fee4475c60c7a02e2661ebd8a44f412009b50",
+  "hash": "48782549ae42d90d9dddbdf6580e22db7a1ca033",
   "who": "narrator",
-  "text": "继续。"
+  "text": "继续。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7b39f3cff35372bcfc2033061ba1907639f5434370841f00c0f109b556b25b2e",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "just_listen/01_narrator.mp3": {
-  "hash": "e24a505f268cf7397e1c06f7f56fc6d8f39a7eb5",
+  "hash": "cdc6adb03f63b6604bade517a7ae35c2f46cc967",
   "who": "narrator",
-  "text": "塔卡没有说话。它的灯光慢慢变亮。"
+  "text": "塔卡没有说话。它的灯光慢慢变亮。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "38e91ad1ef3f0285549753bdd253aebc38a59fc2bb2913869ce38b1785043ecd",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "just_listen/02_narrator.mp3": {
-  "hash": "db5d132b6109a1e815252c269f43883c8d450ecc",
+  "hash": "4a114589cda1c2bc3e419e7afd58d509adef507f",
   "who": "narrator",
-  "text": "风声变得很清晰。呼呼。呼呼。"
+  "text": "风声变得很清晰。呼呼。呼呼。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "26a5d61bd534c7efefb136509f8a0aa4ff47ce5f068854e61f9956f481409260",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "just_listen/03_narrator.mp3": {
-  "hash": "c8f0cc76538c0960238811acb53f1fa1077bbd4c",
+  "hash": "9d3eeeb39cf3f34a6ea573cb8981ff431f550b6f",
   "who": "narrator",
-  "text": "没有问题。只有风。"
+  "text": "没有问题。只有风。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "db078df0d760eb4150593776feb6d1ba685691c7d13f46634d9dfcf825d1ba2c",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "just_listen/choices.mp3": {
-  "hash": "cd1deb5b209e27c2f7508f3b58f3658baf54d671",
+  "hash": "c27972b99f1dd58d6e0d7767d769111e5bfef84d",
   "who": "narrator",
-  "text": "睁开眼睛，太阳升起来了"
+  "text": "睁开眼睛，太阳升起来了",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "0b425c475bc5042ba866de57175c38889c8fe933d65c589f949a30a5a2874d54",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/01_narrator.mp3": {
-  "hash": "302cee3223d3e646003d4f683fa36e3449792898",
+  "hash": "6fb64f5a8c2b0d7cf469dab10d6ce2b0ff8e35d8",
   "who": "narrator",
-  "text": "太阳出来了。塔卡的电量不多了。"
+  "text": "太阳出来了。塔卡的电量不多了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2677de13d94da95db7439706b147823d7217bbda2332245e1eaa83cfa1b8e5a9",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/02_narrator.mp3": {
-  "hash": "e3a203aa5d44ec2fdca4972316250d2a9a7eb929",
+  "hash": "a43d753e029ffc502af8487e3f889ca5d95f920c",
   "who": "narrator",
-  "text": "老机器的信号很弱"
+  "text": "老机器的信号很弱",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9423052b8ac629b6f2d0a37530b2c291de1bf594aa9cc21edca81171f4b839d9",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/03_oldmachine.mp3": {
-  "hash": "a1a5dd0682d389defa9a9a059cd79896db6934d5",
+  "hash": "d1f05223a7af034687539f4f56380b48a1f5c79f",
   "who": "oldmachine",
-  "text": "回来。现在。"
+  "text": "回来。现在。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longtian_v3",
+   "rate": 0.8,
+   "pitch": 0.92,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "384b86eaaee851e9e2c5a5fa494fcea7f2311372aa6276d1369b292a44978ff0",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/04_narrator.mp3": {
-  "hash": "5d9505a0bbd184a02485d98d5cff925f9f52df2a",
+  "hash": "7f75aa1d1c134ba0487a6a5cd76cb3fa8b6bfeb9",
   "who": "narrator",
-  "text": "塔卡看着海面。风声还在。"
+  "text": "塔卡看着海面。风声还在。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3eb7616a4e4b856806affa2f869d7506c636289a8fbaf130c776cd6985702815",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/05_narrator.mp3": {
-  "hash": "42ba83665d9ff49463acc2aef67d63d569f03369",
+  "hash": "0a87af6de80b3b61ca455246ce0ddca0bef07312",
   "who": "narrator",
-  "text": "海鸥说"
+  "text": "海鸥说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3b9a624122da1712e1a9214e73c9f64e3dd8ca2d554228a811d60610a35c1957",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/06_seagull.mp3": {
-  "hash": "f13ba65eb0230b228484fde63e23b0a11535db5a",
+  "hash": "8d3a4b54abf2057fa29439defb279626358e45da",
   "who": "seagull",
-  "text": "你选。我不帮你选。"
+  "text": "你选。我不帮你选。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longanqin_v3",
+   "rate": 0.95,
+   "pitch": 1.04,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3da9eef2b13fb4a6bc8d10a5aba43c62980af88ac7ac655bb6c81970eebe6ebf",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/07_narrator.mp3": {
-  "hash": "5ad2d817ee88b7b8b8feb97419146d5cbc3edfb4",
+  "hash": "cb13ab35e838327ac329604b5ce90dc6796e11e4",
   "who": "narrator",
-  "text": "塔卡的灯闪了三次。"
+  "text": "塔卡的灯闪了三次。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e94e3660cf0c4a51dd88dc93012e51400fb6caf80228d7a92fff6fefb8de00d4",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/choices.mp3": {
-  "hash": "7f5c815df605df46ac6f9ea6cfe1c5db362adf80",
+  "hash": "dfc033810009487a36874685f52f10bf0fd0368c",
   "who": "narrator",
-  "text": "你选。A. 回海底充电。B. 再听一分钟。"
+  "text": "你选。A. 回海底充电。B. 再听一分钟。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c30721d2a0ba6b000a229d6216d5a7fec24db05a2d1cd1706ad29770861b853a",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/01_narrator.mp3": {
-  "hash": "a6fe0dbb3ac15acf22859fff8a173f8291b21791",
+  "hash": "692badd01765e2f988abc73a0d8c7c3f41a0a702",
   "who": "narrator",
-  "text": "塔卡沉入海底。它接上了充电线。"
+  "text": "塔卡沉入海底。它接上了充电线。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "25a22abefc046112ccb437952b371699c60bdc3f4f86b9e0dab250df9f876c39",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/02_narrator.mp3": {
-  "hash": "fba0ae4f559b89f777624b9fe673814637221a25",
+  "hash": "65a6846e78d4664d023df3c8beea0e4ff204c205",
   "who": "narrator",
-  "text": "它把风声录进了记忆库。"
+  "text": "它把风声录进了记忆库。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4af29513ea009b8600f1efdc5d40af24d4ff5d88f939c29dfdd38eabb8544376",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/03_narrator.mp3": {
-  "hash": "75fc1ae706fbc60409280016f9603f3d8216bb73",
+  "hash": "76acacd987e777eb8e9dc6e065ebf824bd18db84",
   "who": "narrator",
-  "text": "第二天，它带着满电回来，放给老机器听。"
+  "text": "第二天，它带着满电回来，放给老机器听。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4e1df71a27968477fc3e04f53e9f6ec1a46b446f2819998e01656155dc46bf6f",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/04_narrator.mp3": {
-  "hash": "3c5c0bb647d081fafc6fe8422de28c435e033b98",
+  "hash": "2af8432c0236a67d2ff41e424980fd94561c5f06",
   "who": "narrator",
-  "text": "老机器的灯第一次闪了"
+  "text": "老机器的灯第一次闪了",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "5cefb1ed622b02c19cf14a6dc43502bd5e3b64ae735a38af04ffbfa2b796ceed",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/05_oldmachine.mp3": {
-  "hash": "dd7d4eedc4481d55a70235d2978a7248a4ded050",
+  "hash": "d936b510f9f15368d612887462476c1b0d47542e",
   "who": "oldmachine",
-  "text": "原来是这样。"
+  "text": "原来是这样。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longtian_v3",
+   "rate": 0.8,
+   "pitch": 0.92,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e82e87894d9f1d366cac5fbeb277ba78edb7140608c98555ad372aaa429a92d4",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_a/choices.mp3": {
-  "hash": "bedc2e24fac4e8b3411764db51b1c6bf7ecca7a0",
+  "hash": "fc7298f8325c11df2ca63af21cc156b01f795326",
   "who": "narrator",
-  "text": "重新开始故事。"
+  "text": "重新开始故事。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bfd7fa681acd5489512191d6b4bd77e4893bb023afc7ca16e00c288c4ce22e8b",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/01_narrator.mp3": {
-  "hash": "997d7608a6bdeae549abfa19fbdaef7cae5084bb",
+  "hash": "571e04d8d9a0567bae940458404018f58ab16596",
   "who": "narrator",
-  "text": "塔卡没有动。一分钟。两分钟。"
+  "text": "塔卡没有动。一分钟。两分钟。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c51c614428468d7b389241df82be891577587deb9b1eaa4669d697d9260439a5",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/02_narrator.mp3": {
-  "hash": "4897faea7d5d5f73885b02529125b4e80f4a2ed2",
+  "hash": "0cc6835e4fec7fed084ecf03a6f265864cf7815b",
   "who": "narrator",
-  "text": "它听到了完整的一首歌。"
+  "text": "它听到了完整的一首歌。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c8545bf0bc0d3a09498eeb77bf88960212a14150936d8351468e24c2dc0541f3",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/03_narrator.mp3": {
-  "hash": "c5561be1fbfecf3dfcd0906c3c0857a83e626f4c",
+  "hash": "7748dd89957480c48f13b9b9cdd05c4aaedc5cd8",
   "who": "narrator",
-  "text": "咔哒。塔卡关机了。"
+  "text": "咔哒。塔卡关机了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "cbe3ebe558b7d36e9ccda051cea5eeee528e30218535a2b77e4e2052e6340498",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/04_narrator.mp3": {
-  "hash": "f9a021005329003a17b7195577a42146449678b5",
+  "hash": "d99a0405c7a5a9138015464e6a3894477bd24cb9",
   "who": "narrator",
-  "text": "海鸥用巨大的翅膀，一点点把它推回了海面。"
+  "text": "海鸥用巨大的翅膀，一点点把它推回了海面。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e0658c2fab6446f1cdca743b9d9a3a1eb03a2e788a6ba072e95a945632bd9a1f",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/05_narrator.mp3": {
-  "hash": "ac911aebab5689c7fcf122cf4ae209309b4b2eb8",
+  "hash": "741121d03578500000b6c0aaf73df18775089082",
   "who": "narrator",
-  "text": "它在日落时醒来。电池 0%。但记忆里有完整的风声。"
+  "text": "它在日落时醒来。电池 0%。但记忆里有完整的风声。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "73508d6fd1aad1e2b961319488d8256f5b1a937bad63fadd0ea6e5175d7281e6",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/06_narrator.mp3": {
-  "hash": "3068852a664bd2332a02fe1d6040d9bfbae2c884",
+  "hash": "66a25045f043de1f6fbca22ba6e46f29c5523f47",
   "who": "narrator",
-  "text": "塔卡说"
+  "text": "塔卡说",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "43d293c71e119016446c3adf1a4d1aa2f2fd64dd3e30592cca921a7f02ae8126",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/07_taka.mp3": {
-  "hash": "84d7d0e0ac2e5a3f949610017056288b0f1eb550",
+  "hash": "db2bd3636b333f178032bc11a31ff2ac2d271e4a",
   "who": "taka",
-  "text": "值了。"
+  "text": "值了。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "f7e509673b667f1c5816517a9c9e7261df549fade9d88b10ccc0908271d66e1f",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/08_narrator.mp3": {
-  "hash": "45e0d4f4d800891d5aeb2a5fe503d660ed826b4c",
+  "hash": "9610c5d4632f55cdcc31386e1223d7dc95caa82a",
   "who": "narrator",
-  "text": "它身边坐着海鸥。"
+  "text": "它身边坐着海鸥。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ef9f3da7ebf53802609a567f5d241a487c3acdc69ec3711dc5a15145fd470afb",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/choices.mp3": {
-  "hash": "bedc2e24fac4e8b3411764db51b1c6bf7ecca7a0",
+  "hash": "fc7298f8325c11df2ca63af21cc156b01f795326",
   "who": "narrator",
-  "text": "重新开始故事。"
+  "text": "重新开始故事。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bfd7fa681acd5489512191d6b4bd77e4893bb023afc7ca16e00c288c4ce22e8b",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/coral.science.mp3": {
-  "hash": "c4cdad364462556c9919e414193c8f7660311972",
+  "hash": "a0593a016d4126c7b4bafd225af2aa13fb12f71e",
   "who": "narrator",
-  "text": "珊瑚看起来像石头，其实是一大群小动物。每只小动物叫珊瑚虫，只有小芝麻那么大。珊瑚虫一代一代住在一起，盖出硬硬的房子。珊瑚礁是好多好多海洋动物的家。"
+  "text": "珊瑚看起来像石头，其实是一大群小动物。每只小动物叫珊瑚虫，只有小芝麻那么大。珊瑚虫一代一代住在一起，盖出硬硬的房子。珊瑚礁是好多好多海洋动物的家。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "538b601b25c5d91fb937c06d59ebd06b18f3383012d036ceaf31f71102afa664",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/coral.taka.mp3": {
-  "hash": "cd87d51482f39c234caf77facf1646355c8d87a4",
+  "hash": "8ce24a3bda5cd1a989e71148ab5c4a0de9efcc8b",
   "who": "taka",
-  "text": "珊瑚不是石头。是很多小虫子盖的房子。 我每天打扫的，就是它们的家。"
+  "text": "珊瑚不是石头。是很多小虫子盖的房子。 我每天打扫的，就是它们的家。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9c880d97a9fbecaa491f9b701b4ecefd04819a6f3bfd0e358a35cdf6d0c9041e",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.science.mp3": {
-  "hash": "89bc6d2d3fb5011c9e8dd8f3eaac2fa17b796cc6",
+  "hash": "3bfc872876c7106353420f15d3ac4b99ff74bca2",
   "who": "narrator",
-  "text": "海鸥是一种喜欢住在海边的鸟。它有一双大翅膀，可以迎着风飞很久。海鸥不挑食，鱼、小虾、贝壳，它都吃。它的叫声很响，「啊——啊——」，像在打招呼。"
+  "text": "海鸥是一种喜欢住在海边的鸟。它有一双大翅膀，可以迎着风飞很久。海鸥不挑食，鱼、小虾、贝壳，它都吃。它的叫声很响，「啊——啊——」，像在打招呼。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longyuan_v3",
+   "rate": 0.85,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "db1a564e357f3b52618fa0b642437bc459c63ebe20ce8726c3a66847b611a8e5",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.taka.mp3": {
-  "hash": "d19f9419fe945a2faeb8a561cc28fd3851f8b96b",
+  "hash": "16f00600855423f2305b1076b8cf9dbeac03aa60",
   "who": "taka",
-  "text": "海鸥有翅膀。我没有。 但我有螺旋桨。"
+  "text": "海鸥有翅膀。我没有。 但我有螺旋桨。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "317138bc3c3524085da3eeea2ca9ad967acc162615bc4a8f114644ee757ffb24",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "onboarding/voice-guide.mp3": {
-  "hash": "52da6e5d0c142a2bb49ea3b7b93ccd125a7af904",
+  "hash": "27ccc6afa98ad7ccd20940f30f9c8abe0ad9b2be",
   "who": "taka",
-  "text": "我在听哦。点一点话筒，或者按住它，跟我说话。"
+  "text": "我在听哦。点一点话筒，或者按住它，跟我说话。",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "longxing_v3",
+   "rate": 0.68,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": "24000",
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6858bae7045aa998c834471c103ab8e757b83504c1da13048f2e4149ab38d950",
+  "synthesis_override": null,
+  "hash_schema": "provider-aware-aliyun-import-v1"
  }
 }

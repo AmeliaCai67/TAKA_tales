@@ -1,77 +1,98 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 240" aria-label="老机器">
-  <!-- ===== 老机器 · ch01《第一次听见风声》===== -->
-  <!-- 上一代机体：琥珀双眼（待机即接触不良式闪烁）/ 三角扬声器嘴 / 四条锯齿臂 + C 形钳 / 弹簧腿三爪足 / 锈迹更多（脸上没有伤疤）。 -->
-  <!-- 头顶双天线：左 = 信标细杆慢闪；右 = 向右弯的粗管，末端是插头——它的天线也是接口，可以插进系统里管理各类小机器人。 -->
-  <!-- 注意：本文件会被 innerHTML 注入，内嵌 style 为全局作用域——所有类名/keyframes/渐变 id 均带 om- 前缀，勿改回通用名 -->
+<svg viewBox="0 0 260 240" aria-label="老机器" xmlns="http://www.w3.org/2000/svg">
+  <!-- 1013 手绘金属风格；自包含滤镜；角色类名/ID隔离；仅环境待机动画。 -->
   <defs>
-    <linearGradient id="omMetal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#97a1ad"/><stop offset="0.55" stop-color="#646f7c"/><stop offset="1" stop-color="#49525e"/>
+    <linearGradient id="om-omMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#82959c" />
+      <stop offset="0.55" stop-color="#566e77" />
+      <stop offset="1" stop-color="#374b54" />
     </linearGradient>
-    <radialGradient id="omEye" cx="0.5" cy="0.45" r="0.6">
-      <stop offset="0" stop-color="#f7e2b0"/><stop offset="0.55" stop-color="#e8a33d"/><stop offset="1" stop-color="#7d5a10"/>
+    <radialGradient id="om-omEye" cx="0.5" cy="0.45" r="0.6">
+      <stop offset="0" stop-color="#f7e2b0" />
+      <stop offset="0.55" stop-color="#e8a33d" />
+      <stop offset="1" stop-color="#7d5a10" />
+    </radialGradient>
+    <filter id="om-edge" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="13" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <filter id="om-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="13" result="grain" />
+      <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.18 0" result="tint" />
+      <feComposite in="tint" in2="SourceGraphic" operator="in" result="texture" />
+      <feBlend in="SourceGraphic" in2="texture" mode="multiply" />
+    </filter>
+    <radialGradient id="om-glass" cx=".35" cy=".3" r=".75">
+      <stop offset="0" stop-color="#263238" />
+      <stop offset=".7" stop-color="#102027" />
+      <stop offset="1" stop-color="#050b0e" />
     </radialGradient>
     <style>
-      .om-eye { animation: omFlicker 3.5s infinite; }
-      @keyframes omFlicker {
+      .om-eye { animation: omFlicker1013 3.5s infinite; }
+      @keyframes omFlicker1013 {
         0% { opacity: .72; } 8% { opacity: .28; } 12% { opacity: .8; }
         40% { opacity: .68; } 44% { opacity: .3; } 48% { opacity: .76; } 100% { opacity: .72; }
       }
-      .om-beacon { animation: omBeacon 2.6s infinite ease-in-out; }
-      @keyframes omBeacon { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
-    </style>
-  </defs>
+      .om-beacon { animation: omBeacon1013 2.6s infinite ease-in-out; }
+      @keyframes omBeacon1013 { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
 
-  <!-- 双天线：左 = 信标；右 = 向右弯的粗管 + 插头（可插进系统管理小机器人） -->
-  <line x1="104" y1="56" x2="104" y2="28" stroke="#525d6b" stroke-width="3"/>
-  <circle class="om-beacon" cx="104" cy="22" r="6" fill="#ffb703"/>
-  <path d="M 158 56 V 40 Q 158 28 170 28 H 194" fill="none" stroke="#525d6b" stroke-width="5" stroke-linecap="round"/>
-  <rect x="194" y="21" width="15" height="14" rx="3" fill="#414b58" stroke="#39424e" stroke-width="1.5"/>
-  <rect x="209" y="24" width="9" height="3.4" rx="1.7" fill="#b3bdc9" stroke="#39424e" stroke-width="1"/>
-  <rect x="209" y="30" width="9" height="3.4" rx="1.7" fill="#b3bdc9" stroke="#39424e" stroke-width="1"/>
-  <!-- 四条锯齿臂 + C 形钳（左右各二） -->
-  <g fill="none" stroke="#6b7686" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-    <g>
-      <polyline points="70,95 50,87 34,97 20,91"/>
-      <path d="M 20 84 A 8 8 0 1 0 20 98" stroke-width="3.5"/>
-    </g>
-    <g>
-      <polyline points="70,130 50,139 34,129 20,135"/>
-      <path d="M 20 128 A 8 8 0 1 0 20 142" stroke-width="3.5"/>
-    </g>
-    <g>
-      <polyline points="192,95 212,87 228,97 242,91"/>
-      <path d="M 242 84 A 8 8 0 1 1 242 98" stroke-width="3.5"/>
-    </g>
-    <g>
-      <polyline points="192,130 212,139 228,129 242,135"/>
-      <path d="M 242 128 A 8 8 0 1 1 242 142" stroke-width="3.5"/>
+      .om-surface { filter:url(#om-grain); }
+      .om-shell { stroke-width:3.5; stroke-linejoin:round; }
+      .om-whale-skin { stroke-width:3.2; }
+      .om-pencil { fill:none; stroke:#d0dce0; stroke-width:1.6; opacity:.23; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+  </defs>
+  <g class="om-art" filter="url(#om-edge)">
+    <g class="om-fig-body">
+      <line x1="104" y1="56" x2="104" y2="28" stroke="#546e7a" stroke-width="3" />
+      <circle class="om-beacon" cx="104" cy="22" r="6" fill="#ffb703" />
+      <path d="M 158 56 V 40 Q 158 28 170 28 H 194" fill="none" stroke="#546e7a" stroke-width="5" stroke-linecap="round" />
+      <rect x="194" y="21" width="15" height="14" rx="3" fill="#1c313a" stroke="#1c313a" stroke-width="1.5" />
+      <rect x="209" y="24" width="9" height="3.4" rx="1.7" fill="#90a4ae" stroke="#1c313a" stroke-width="1" />
+      <rect x="209" y="30" width="9" height="3.4" rx="1.7" fill="#90a4ae" stroke="#1c313a" stroke-width="1" />
+      <g fill="none" stroke="#78909c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <g class="om-arm om-arm-lu">
+          <polyline points="70,95 50,87 34,97 20,91" />
+          <path d="M 20 84 A 8 8 0 1 0 20 98" stroke-width="3.5" />
+        </g>
+        <g class="om-arm om-arm-ll">
+          <polyline points="70,130 50,139 34,129 20,135" />
+          <path d="M 20 128 A 8 8 0 1 0 20 142" stroke-width="3.5" />
+        </g>
+        <g class="om-arm om-arm-ru">
+          <polyline points="192,95 212,87 228,97 242,91" />
+          <path d="M 242 84 A 8 8 0 1 1 242 98" stroke-width="3.5" />
+        </g>
+        <g class="om-arm om-arm-rl">
+          <polyline points="192,130 212,139 228,129 242,135" />
+          <path d="M 242 128 A 8 8 0 1 1 242 142" stroke-width="3.5" />
+        </g>
+      </g>
+      <g stroke="#546e7a" stroke-width="3.5" fill="none" stroke-linejoin="round">
+        <path d="M 97 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6" />
+        <path d="M 155 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6" />
+      </g>
+      <g stroke="#1c313a" stroke-width="3.5" stroke-linecap="round">
+        <path d="M 101 206 L 89 216 M 101 206 L 101 218 M 101 206 L 113 216" />
+        <path d="M 159 206 L 147 216 M 159 206 L 159 218 M 159 206 L 171 216" />
+      </g>
+      <rect x="70" y="56" width="122" height="114" rx="7" fill="url(#om-omMetal)" stroke="#1c313a" stroke-width="2.5" class="om-surface om-shell" />
+      <path d="M76 66 h22 M76 72 v13 M186 146 v17 h-12" class="om-pencil" />
+      <path d="M72 160 q7 4 15 2 M184 65 l4 9" fill="none" stroke="#906343" stroke-width="3" opacity=".35" />
+      <ellipse cx="86" cy="150" rx="9" ry="5" fill="#6b5335" opacity=".45" transform="rotate(-12 86 150)" />
+      <circle cx="104" cy="98" r="13" fill="url(#om-glass)" stroke="#1c313a" stroke-width="2.5" />
+      <circle cx="158" cy="98" r="13" fill="url(#om-glass)" stroke="#1c313a" stroke-width="2.5" />
+      <path d="M95.2 92.8 Q102.0 85.7 111.2 90.2" fill="none" stroke="#e1eef0" stroke-width="1.5" opacity=".24" stroke-linecap="round" />
+      <circle class="om-eye om-eye" cx="104" cy="98" r="7" fill="url(#om-omEye)" />
+      <path d="M149.2 92.8 Q156.1 85.7 165.2 90.2" fill="none" stroke="#e1eef0" stroke-width="1.5" opacity=".24" stroke-linecap="round" />
+      <circle class="om-eye om-eye" cx="158" cy="98" r="7" fill="url(#om-omEye)" style="animation-delay:.4s" />
+      <circle class="om-eye-hi" cx="101" cy="94.5" r="2" fill="#fff" opacity="0.7" />
+      <circle class="om-eye-hi" cx="155" cy="94.5" r="2" fill="#fff" opacity="0.7" />
+      <polygon points="130,122 114,150 146,150" fill="#102027" stroke="#1c313a" stroke-width="2" stroke-linejoin="round" />
+      <g class="om-slats" stroke="#ffb703" stroke-width="2" stroke-linecap="round" opacity=".25">
+        <path d="M 122 137 L 138 137" />
+        <path d="M 125.5 143 L 134.5 143" />
+      </g>
+      <ellipse cx="130" cy="230" rx="58" ry="6" fill="#000" opacity="0.28" />
     </g>
   </g>
-  <!-- 弹簧腿 + 三爪足 -->
-  <g stroke="#525d6b" stroke-width="3.5" fill="none" stroke-linejoin="round">
-    <path d="M 97 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6"/>
-    <path d="M 155 170 l 8 6 l -8 6 l 8 6 l -8 6 l 8 6"/>
-  </g>
-  <g stroke="#39424e" stroke-width="3.5" stroke-linecap="round">
-    <path d="M 101 206 L 89 216 M 101 206 L 101 218 M 101 206 L 113 216"/>
-    <path d="M 159 206 L 147 216 M 159 206 L 159 218 M 159 206 L 171 216"/>
-  </g>
-  <!-- 身体（老一代，更暗更方） -->
-  <rect x="70" y="56" width="122" height="114" rx="7" fill="url(#omMetal)" stroke="#39424e" stroke-width="2.5"/>
-  <!-- 锈迹（只在机身，脸上没有伤疤） -->
-  <ellipse cx="86" cy="150" rx="9" ry="5" fill="#6b5335" opacity=".45" transform="rotate(-12 86 150)"/>
-  <!-- 双眼（老灯，琥珀色，接触不良式闪烁） -->
-  <circle cx="104" cy="98" r="13" fill="#18212b" stroke="#39424e" stroke-width="2.5"/>
-  <circle cx="158" cy="98" r="13" fill="#18212b" stroke="#39424e" stroke-width="2.5"/>
-  <circle class="om-eye" cx="104" cy="98" r="7" fill="url(#omEye)"/>
-  <circle class="om-eye" cx="158" cy="98" r="7" fill="url(#omEye)" style="animation-delay:.4s"/>
-  <circle cx="101" cy="94.5" r="2" fill="#fff" opacity="0.7"/>
-  <circle cx="155" cy="94.5" r="2" fill="#fff" opacity="0.7"/>
-  <!-- 三角嘴 = 扬声器格栅 -->
-  <polygon points="130,122 114,150 146,150" fill="#18212b" stroke="#39424e" stroke-width="2" stroke-linejoin="round"/>
-  <g stroke="#ffb703" stroke-width="2" stroke-linecap="round" opacity=".25">
-    <path d="M 122 137 L 138 137"/>
-    <path d="M 125.5 143 L 134.5 143"/>
-  </g>
-  <ellipse cx="130" cy="230" rx="58" ry="6" fill="#000" opacity="0.28"/>
 </svg>

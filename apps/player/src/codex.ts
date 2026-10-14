@@ -1,3 +1,4 @@
+import { uiIcon } from "./ui-icons";
 // 记忆库（2026-08-25 spec）：叙事层 / 科普层分离的图鉴系统
 // - 场景 scene.codex 标注关键词 → 打字机播完后暖黄高亮可点（wrapCodexLinks）
 // - 点关键词/面板图标 → 词条卡（真实图片 + 定稿科普 + 塔卡说 + 许可来源 + TTS 朗读）
@@ -8,7 +9,7 @@ import { api } from "./api";
 import { session } from "./session";
 import { pack } from "./pack";
 import { reportAnonEvent } from "./anon";
-import { showStatus } from "./settings";
+import { showStatus, speechPref } from "./settings";
 import { loadStoriesIndex, type CodexEntry, type Scene } from "./story";
 import { acquireAudio } from "./audioPriority";
 import { TTS_ENDPOINT } from "./config";
@@ -149,9 +150,9 @@ export function closeCodexCard(): void {
  *  2026-08-28：优先包内预渲染（audio[-en]/codex/<id>.science|taka.mp3），404 才回退服务端动态 TTS——
  *  实时链路冷渲染首段 ~7s + 段间死气，被用户感知为「卡/塔卡说被吞掉」 */
 function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): void {
-    if (ttsAudio) { stopEntryTts(); return; }
+    if (ttsAudio) { stopEntryTts(); resetTtsBtn(); return; }
     btn.classList.add("playing");
-    btn.textContent = t("codex.stop");
+    btn.innerHTML = uiIcon("stop") + t("codex.stop");
     // 音频路径按词条所属故事拼（面板可跨故事开卡，pack() 是当前加载的故事，会错）
     const audioBase = `stories/${storyId}/` + (lang === "en" ? "audio-en/" : "audio/") + "codex/";
     const tts = (text: string, who: string) =>
@@ -167,6 +168,7 @@ function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): v
         const item = queue.shift();
         if (!item) { stopEntryTts(); resetTtsBtn(); return; }
         const a = new Audio(item[0]);
+        a.volume = speechPref.volume;
         ttsAudio = a;
         a.onended = () => void playNext();
         let fellBack = false;
@@ -186,7 +188,7 @@ function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): v
 
 function resetTtsBtn(): void {
     const b = document.querySelector(".cc-tts");
-    if (b) b.textContent = t("codex.listen");
+    if (b) b.innerHTML = uiIcon("sound") + t("codex.listen");
 }
 
 /** 打开词条卡（点关键词=打卡 / 点面板图标=补解锁，殊途同归）。imgSrc 需已拼好完整路径 */
@@ -207,7 +209,7 @@ export function openCodexCard(storyId: string, entry: CodexEntry, imgSrc: string
                     ${entry.takaSays.map(s => `<p>「${escHtml(s)}」</p>`).join("")}
                 </div>
                 ${(() => { const tags = entryTags(storyId, entry.id); return tags?.length ? `<div class="cc-tags"><span class="cc-tags-label">${t("codex.my_tags")}</span>${tags.map(x => `<span class="cc-tag">${escHtml(x)}</span>`).join("")}</div>` : ""; })()}
-                <button class="cc-tts">${t("codex.listen")}</button>
+                <button class="cc-tts">${uiIcon("sound")}${t("codex.listen")}</button>
                 <div class="cc-src">${t("codex.src_prefix")}${escHtml(entry.source.author)} · ${escHtml(entry.source.license)} · <a href="${escHtml(entry.source.url)}" target="_blank" rel="noopener">${entry.source.url.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>${entry.source.url2 ? ` · <a href="${escHtml(entry.source.url2)}" target="_blank" rel="noopener">${entry.source.url2.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>` : ""}</div>
             </div>
         </div>`;
@@ -301,3 +303,6 @@ export function initCodex(): void {
         openEntryById(pack().id, span.dataset.entry!);
     }, true); // capture：故事文本容器的 onclick 会先停冒泡，捕获阶段才能拿到
 }
+
+// Keep an already playing entry aligned with the global volume slider.
+document.addEventListener("taka-volume-change", () => { if (ttsAudio) ttsAudio.volume = speechPref.volume; });

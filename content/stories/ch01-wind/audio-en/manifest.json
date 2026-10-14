@@ -4,48 +4,48 @@
    {
     "file": "prologue/01_narrator.mp3",
     "who": "narrator",
-    "text": "This is TAKA."
+    "text": "This is Taka."
    },
    {
     "file": "prologue/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA lives at the bottom of the sea."
+    "text": "Taka lives at the bottom of the sea."
    },
    {
     "file": "prologue/03_narrator.mp3",
     "who": "narrator",
-    "text": "Every day, TAKA cleans the coral."
+    "text": "Every day, Taka cleans the coral."
    },
    {
     "file": "prologue/04_narrator.mp3",
     "who": "narrator",
-    "text": "Every day, TAKA listens to the Old Machine tell stories."
+    "text": "Every day, Taka listens to the Old Machine tell stories."
    },
    {
     "file": "prologue/05_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA is old."
+    "text": "Taka is old."
    },
    {
     "file": "prologue/06_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA is made of iron."
+    "text": "Taka is made of iron."
    },
    {
     "file": "prologue/07_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA is calm and quiet."
+    "text": "Taka is calm and quiet."
    },
    {
     "file": "prologue/08_narrator.mp3",
     "who": "narrator",
-    "text": "But today, TAKA wants to go up."
+    "text": "But today, Taka wants to go up."
    }
   ],
   "choices": {
    "file": "prologue/choices.mp3",
    "who": "narrator",
-   "text": "Start the story. "
+   "text": "Start the story."
   }
  },
  "start": {
@@ -58,12 +58,12 @@
    {
     "file": "start/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA cleans the coral in the shiny lights."
+    "text": "Taka cleans the coral in the shiny lights."
    },
    {
     "file": "start/03_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA hears a sound."
+    "text": "Taka hears a sound."
    },
    {
     "file": "start/04_narrator.mp3",
@@ -97,22 +97,22 @@
    {
     "file": "clean_branch/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA stays."
+    "text": "Taka stays."
    },
    {
     "file": "clean_branch/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA cleans the coral."
+    "text": "Taka cleans the coral."
    },
    {
     "file": "clean_branch/03_narrator.mp3",
     "who": "narrator",
-    "text": "At night, TAKA's light stays on."
+    "text": "At night, Taka's light stays on."
    },
    {
     "file": "clean_branch/04_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA cannot sleep."
+    "text": "Taka cannot sleep."
    },
    {
     "file": "clean_branch/05_narrator.mp3",
@@ -136,12 +136,12 @@
    {
     "file": "dream/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA falls asleep."
+    "text": "Taka falls asleep."
    },
    {
     "file": "dream/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA dreams of light."
+    "text": "Taka dreams of light."
    },
    {
     "file": "dream/03_narrator.mp3",
@@ -151,7 +151,7 @@
    {
     "file": "dream/04_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA dreams of wind."
+    "text": "Taka dreams of wind."
    },
    {
     "file": "dream/05_narrator.mp3",
@@ -166,7 +166,7 @@
    {
     "file": "dream/07_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA dreams of coral."
+    "text": "Taka dreams of coral."
    },
    {
     "file": "dream/08_narrator.mp3",
@@ -176,7 +176,7 @@
    {
     "file": "dream/09_narrator.mp3",
     "who": "narrator",
-    "text": "The Old Machine pokes TAKA."
+    "text": "The Old Machine pokes Taka."
    },
    {
     "file": "dream/10_oldmachine.mp3",
@@ -186,12 +186,12 @@
    {
     "file": "dream/11_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA looks at the coral."
+    "text": "Taka looks at the coral."
    },
    {
     "file": "dream/12_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA looks up."
+    "text": "Taka looks up."
    }
   ],
   "choices": {
@@ -205,7 +205,7 @@
    {
     "file": "surface/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA floats up."
+    "text": "Taka floats up."
    },
    {
     "file": "surface/02_narrator.mp3",
@@ -220,7 +220,7 @@
    {
     "file": "surface/04_narrator.mp3",
     "who": "narrator",
-    "text": "But TAKA hears the sound clearly now."
+    "text": "But Taka hears the sound clearly now."
    },
    {
     "file": "surface/05_narrator.mp3",
@@ -245,7 +245,7 @@
    {
     "file": "surface/09_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA says,"
+    "text": "Taka says,"
    },
    {
     "file": "surface/10_taka.mp3",
@@ -284,7 +284,7 @@
    {
     "file": "ask_wind/02_narrator.mp3",
     "who": "narrator",
-    "text": "asks TAKA."
+    "text": "asks Taka."
    },
    {
     "file": "ask_wind/03_seagull.mp3",
@@ -315,7 +315,7 @@
   "choices": {
    "file": "ask_wind/choices.mp3",
    "who": "narrator",
-   "text": "Continue. "
+   "text": "Continue."
   }
  },
  "just_listen": {
@@ -323,12 +323,12 @@
    {
     "file": "just_listen/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA stays still."
+    "text": "Taka stays still."
    },
    {
     "file": "just_listen/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA's light glows brighter."
+    "text": "Taka's light glows brighter."
    },
    {
     "file": "just_listen/03_narrator.mp3",
@@ -344,7 +344,7 @@
   "choices": {
    "file": "just_listen/choices.mp3",
    "who": "narrator",
-   "text": "TAKA opens its eyes. The sun is up, big and round."
+   "text": "Taka opens its eyes. The sun is up, big and round."
   }
  },
  "climax": {
@@ -352,12 +352,12 @@
    {
     "file": "climax/01_narrator.mp3",
     "who": "narrator",
-    "text": "The Sun rises. It shines on TAKA. It shines on the seagull."
+    "text": "The Sun rises. It shines on Taka. It shines on the seagull."
    },
    {
     "file": "climax/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA's battery is low."
+    "text": "Taka's battery is low."
    },
    {
     "file": "climax/03_narrator.mp3",
@@ -372,7 +372,7 @@
    {
     "file": "climax/05_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA looks at the surface. The wind is still here."
+    "text": "Taka looks at the surface. The wind is still here."
    },
    {
     "file": "climax/06_narrator.mp3",
@@ -387,13 +387,13 @@
    {
     "file": "climax/08_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA's light blinks. One. Two. Three."
+    "text": "Taka's light blinks. One. Two. Three."
    }
   ],
   "choices": {
    "file": "climax/choices.mp3",
    "who": "narrator",
-   "text": "You choose. A. Dive back to recharge. B. Listen one more minute. "
+   "text": "You choose. A. Dive back to recharge. B. Listen one more minute."
   }
  },
  "ending_a": {
@@ -401,27 +401,27 @@
    {
     "file": "ending_a/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA dives back down."
+    "text": "Taka dives back down."
    },
    {
     "file": "ending_a/02_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA plugs in."
+    "text": "Taka plugs in."
    },
    {
     "file": "ending_a/03_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA saves the wind song in the Memory Bank."
+    "text": "Taka saves the wind song in the Memory Bank."
    },
    {
     "file": "ending_a/04_narrator.mp3",
     "who": "narrator",
-    "text": "The next day, TAKA is full of power."
+    "text": "The next day, Taka is full of power."
    },
    {
     "file": "ending_a/05_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA plays the song for the Old Machine."
+    "text": "Taka plays the song for the Old Machine."
    },
    {
     "file": "ending_a/06_narrator.mp3",
@@ -442,7 +442,7 @@
   "choices": {
    "file": "ending_a/choices.mp3",
    "who": "narrator",
-   "text": "Restart the story. "
+   "text": "Restart the story."
   }
  },
  "ending_b": {
@@ -450,7 +450,7 @@
    {
     "file": "ending_b/01_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA does not move."
+    "text": "Taka does not move."
    },
    {
     "file": "ending_b/02_narrator.mp3",
@@ -460,7 +460,7 @@
    {
     "file": "ending_b/03_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA hears the whole song."
+    "text": "Taka hears the whole song."
    },
    {
     "file": "ending_b/04_narrator.mp3",
@@ -470,17 +470,17 @@
    {
     "file": "ending_b/05_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA's power goes out."
+    "text": "Taka's power goes out."
    },
    {
     "file": "ending_b/06_narrator.mp3",
     "who": "narrator",
-    "text": "Little by little, the seagull pushes TAKA back down to the sea with big wings."
+    "text": "Little by little, the seagull pushes Taka back down to the sea with big wings."
    },
    {
     "file": "ending_b/07_narrator.mp3",
     "who": "narrator",
-    "text": "TAKA wakes up at sunset."
+    "text": "Taka wakes up at sunset."
    },
    {
     "file": "ending_b/08_narrator.mp3",
@@ -490,7 +490,7 @@
    {
     "file": "ending_b/09_narrator.mp3",
     "who": "narrator",
-    "text": "But in TAKA's Memory Bank, there is one finished wind song."
+    "text": "But in Taka's Memory Bank, there is one finished wind song."
    },
    {
     "file": "ending_b/10_taka.mp3",
@@ -500,7 +500,7 @@
    {
     "file": "ending_b/11_narrator.mp3",
     "who": "narrator",
-    "text": "says TAKA."
+    "text": "says Taka."
    },
    {
     "file": "ending_b/12_narrator.mp3",
@@ -511,7 +511,7 @@
   "choices": {
    "file": "ending_b/choices.mp3",
    "who": "narrator",
-   "text": "Restart the story. "
+   "text": "Restart the story."
   }
  }
 }

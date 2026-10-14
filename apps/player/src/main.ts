@@ -1,25 +1,33 @@
 // 入口：i18n → 故事索引 → 首个故事包 → 各子系统初始化 → 启动门 → 书架
 import "./styles.css";
+import { initShell } from "./shell";
+import "./reader-stage.css";
+import "./portrait-reader.css";
+import "./collections.css";
+import "./pickers.css";
+import { initTheme } from "./theme";
+initTheme();
 import { initI18n, applyStatic, t, lang, setLang } from "./i18n";
 import { loadStoryPack, loadStoriesIndex } from "./story";
 import type { StoryMeta } from "./story";
 import { setPack, pack } from "./pack";
-import { initSettingsPanel, speechPref, showStatus, setExitToShelfHandler, loadLayoutPref, setLayoutChangeHandler, setLogoutHandler, setIsLoggedInFn } from "./settings";
+import { initSettingsPanel, speechPref, showStatus, setExitToShelfHandler, loadLayoutPref, setLayoutChangeHandler, setLogoutHandler, setIsLoggedInFn, setDrawerCollections } from "./settings";
 import {
-    initAudioAssets, initSpeech, speakStory, sceneAudioIdle
+    initAudioAssets, initSpeech, speakStory, sceneAudioIdle, unlockStoryAudio
 } from "./speech";
 import { initAchievementData, initAchievements, migrateLegacyAchievements } from "./achievements";
 import { initAuth, setAfterChildSelect, openParentModal, logoutEverywhere } from "./auth";
-import { renderScene, getCurrentText, getCurrentSceneKey, setResumePoint, setShelfReturn, setNextChapter, exitToShelf, setBookMode, isBookMode, refreshCurrentScene } from "./engine";
+import { renderScene, beginReading, getCurrentText, getCurrentSceneKey, setResumePoint, setShelfReturn, setNextChapter, exitToShelf, setBookMode, isBookMode, refreshCurrentScene } from "./engine";
 import type { NextChapterAction } from "./engine";
 import { initShelf, showShelf, hideShelf, shelfVisible } from "./shelf";
-import { loadLocalProgress } from "./progress";
+import { loadLocalProgress, lastStoryId } from "./progress";
 import { ensureAnonId } from "./anon";
-import { initJourneyLog, initArchive } from "./archive";
-import { initCodex, hydrateCodex } from "./codex";
+import { initJourneyLog, initArchive, openArchive } from "./archive";
+import { initCodex, hydrateCodex, openCodexPanel } from "./codex";
 import { api } from "./api";
 import { session } from "./session";
 import { collectPackImages, preloadImages, idlePreload } from "./preload";
+import { clearBadge } from "./badge";
 import { ENGINE_PIECE_URLS } from "./scene-host";
 
 // 内测远程诊断：?debug=1 动态加载 eruda 控制台（不进正式用户的关键路径，脚本加载失败静默）
@@ -35,19 +43,27 @@ if (new URLSearchParams(location.search).get("debug") === "1") {
    （本仓老坑：class 的 display 会盖掉 hidden 语义，.bs-out 用 opacity+visibility 双断）。 */
 let bootStories: StoryMeta[] = []; // boot 时拉到的书架索引（boot 预载封面 + 闲时预取其余包用）
 
+let splashStatusOverride = false;
 function splashProgress(pct: number): void {
-    const fill = document.getElementById("bs-fill");
-    const label = document.getElementById("bs-pct");
-    if (fill) fill.style.width = pct + "%";
-    if (label) label.textContent = pct > 0 && pct < 100 ? pct + "%" : "";
+    const el = document.getElementById('boot-splash');
+    const progress = Math.max(0, Math.min(100, pct));
+    el?.style.setProperty('--boot-progress', String(progress / 100));
+    el?.setAttribute('aria-valuenow', String(progress));
+    el?.setAttribute('aria-label', t('boot.loading'));
+    if (!splashStatusOverride) {
+        const key = progress < 30 ? 'boot.charging' : progress < 85 ? 'boot.bubbles' : 'boot.surface';
+        const status = document.getElementById('bs-status');
+        if (status) { status.textContent = t(key); status.dataset.i18n = key; }
+    }
 }
 function splashShow(statusText: string): void {
     const el = document.getElementById("boot-splash");
     if (!el) return;
     el.classList.remove("bs-out");
+    splashStatusOverride = true;
     splashProgress(0);
     const st = document.getElementById("bs-status");
-    if (st) st.textContent = statusText;
+    if (st) { st.removeAttribute("data-i18n"); st.textContent = statusText; }
 }
 function splashHide(): void {
     document.getElementById("boot-splash")?.classList.add("bs-out");
@@ -97,36 +113,15 @@ export async function switchLang(l: "zh" | "en"): Promise<void> {
         if (shelfVisible()) {
             showShelf();
         } else if (sceneKey) {
-            renderScene(sceneKey); // 故事页原地重渲当前场景
+            refreshCurrentScene(); // 仅刷新呈现，语言切换不重复结算电量
         }
     } catch { /* 网络异常时保持现状 */ }
 }
 
 // 启动门：浏览器要求用户手势后才能播放音频（Audio 元素同样受自动播放策略约束）。
-// 把第一次点击变成「开始」仪式；门后是书架，书架点封面进故事。
-// 语音关闭时跳过门，直接到书架。
+// 唤醒动画结束后进入书架，由读者选择故事；已有断点仍在选书后恢复。
 function initStartGate(): void {
-    if (!speechPref.on) {
-        showShelf();
-        return;
-    }
-    const gate = document.getElementById("start-gate")!;
-    gate.hidden = false;
-    let begun = false;
-    const begin = () => {
-        if (begun) return;
-        // 未登录且没选过游客模式：先弹登录框（可游客进入/关闭），不再直接放行
-        if (!session.token && !localStorage.getItem("taka_guest")) {
-            void openParentModal();
-            return;
-        }
-        begun = true; // 按钮点击会冒泡到 gate，防 begin 双触发
-        gate.remove();
-        showShelf();
-    };
-    document.getElementById("gate-btn")!.onclick = begin;
-    gate.onclick = begin;
-    // 顶栏语言切换钮（顶栏右侧）
+    initShell(() => showShelf(bootStories), unlockStoryAudio);
     document.getElementById("lang-toggle")?.addEventListener("click", () => {
         void switchLang(lang === "zh" ? "en" : "zh");
     });
@@ -169,9 +164,9 @@ function maybeRotateHint(): void {
 }
 
 /** 进故事前判定模式；窄屏顺带提示。每次 pickStory 重判（折叠屏在书架页展开/收起后生效） */
-function applyLayout(): void {
+function applyLayout(offerRotateHint = true): void {
     setBookMode(computeBookMode());
-    if (!isBookMode()) maybeRotateHint();
+    if (!isBookMode() && offerRotateHint) maybeRotateHint();
 }
 
 /** 结局「下一章」取值（2026-10-07 章节衔接）：按 index.json 数组序求当前章的下一章（引擎不认识索引）。
@@ -185,12 +180,13 @@ function nextChapterAction(): NextChapterAction | null {
 }
 
 // 书架点封面：同包直接开播（保持点击手势内的同步音频起播）；异包异步换装再开播
-function pickStory(s: StoryMeta): void {
+function pickStory(s: StoryMeta, direct = false): void {
     hideShelf();
-    applyLayout();
+    applyLayout(!direct);
     if (pack().id === s.id) {
         seedGuestResume(s.id);
-        renderScene(pack().startScene);
+        if (direct) beginReading();
+        else renderScene(pack().startScene);
         return;
     }
     void (async () => {
@@ -220,7 +216,8 @@ function pickStory(s: StoryMeta): void {
             }
             splashProgress(100);
             splashHide();
-            renderScene(pack().startScene);
+            if (direct) beginReading();
+            else renderScene(pack().startScene);
         } catch {
             splashHide();
             showStatus(t("engine.story_not_ready"), 3000);
@@ -239,7 +236,8 @@ async function boot(): Promise<void> {
         const stories = await loadStoriesIndex();
         bootStories = stories;
         splashProgress(15);
-        first = stories[0];
+        const last = lastStoryId(stories.map(s => s.id));
+        first = stories.find(s => s.id === last) || stories[0];
         setPack(await loadPack(first ? first.id : "ch01-wind"));
         splashProgress(20);
     } catch (e) {
@@ -273,6 +271,7 @@ async function boot(): Promise<void> {
     initAchievements();
     migrateLegacyAchievements(); // 旧版全局成就池 → 游客池一次性迁移（未登录才迁；已登录由服务端拉回）
     initJourneyLog();        // 如我所书：旅程日志抽屉（故事页 📖）
+    setDrawerCollections(() => { clearBadge("books"); void openArchive(); }, () => { clearBadge("codex"); void openCodexPanel(); });
     initArchive();           // 如我所书：我的书架浮层（关闭按钮）
     initCodex();             // 记忆库：关键词点击委托
     await initAuth();        // 静默恢复登录态；选中孩子则拉断点与成就

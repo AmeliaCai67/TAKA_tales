@@ -1,3 +1,4 @@
+import { uiIcon } from "./ui-icons";
 // 横屏绘本模式 renderer（2026-08-31，plan: docs/superpowers/plans/2026-08-31-landscape-book-mode.md）
 // 职责只有「场景怎么画」：spread 双缓冲翻页、右页气泡流（stagger 揭示 + 点击补完）、
 // 左页构图（art/decor/塔卡定位/hotspot 物化）。状态机、语音、进度全在 engine.ts。
@@ -143,7 +144,10 @@ export function renderSceneBook(key: string, scene: Scene, text: string, onTextD
     const pagenum = document.createElement("div");
     pagenum.className = "pagenum";
     pagenum.textContent = pack().title;
-    right.appendChild(pagenum);
+    const header = document.createElement("header");
+    header.className = "reader-page-header";
+    header.appendChild(pagenum);
+    right.prepend(header);
     spread.appendChild(right);
 
     /* ----- 气泡流：stagger 揭示，点右页补完（对齐 VN 点对话框补完的习惯） ----- */
@@ -206,18 +210,26 @@ export function renderHotspots(scene: Scene, voiceHotspot = false): void {
         const btn = document.createElement("button");
         btn.className = "hotspot";
         btn.style.left = h.x + "%";
-        btn.style.top = h.y + "%";
-        btn.style.width = (h.size ?? 14) + "%";
-        const halo = document.createElement("span");
-        halo.className = "halo";
-        btn.appendChild(halo);
+        btn.style.top = (h.y < 40 ? h.y + 10 : h.y) + "%"; // 上方纸签略下移，延续旧标签在图标下方的布局
+        btn.dataset.actor = h.actor;
+        btn.setAttribute("aria-label", c.text);
         const art = document.createElement("span");
         art.className = "actor";
         void loadActor(h.actor).then(svg => { if (svg) art.innerHTML = svg; });
         btn.appendChild(art);
         const label = document.createElement("span");
-        label.className = "label" + (h.y < 40 ? " below" : ""); // 上半页的 hotspot 标签放下方，防顶出舞台
-        label.textContent = c.text;
+        label.className = "label story-choice-bubble";
+        const detail = c.text.match(/^(.*?)([（(].*[）)])$/);
+        const title = document.createElement("span");
+        title.className = "hotspot-title";
+        title.textContent = detail ? detail[1] : c.text;
+        label.appendChild(title);
+        if (detail) {
+            const hint = document.createElement("span");
+            hint.className = "hotspot-hint";
+            hint.textContent = detail[2];
+            label.appendChild(hint);
+        }
         btn.appendChild(label);
         btn.onclick = (e) => {
             e.stopPropagation();
@@ -232,28 +244,59 @@ export function renderHotspots(scene: Scene, voiceHotspot = false): void {
         btn.className = "hotspot mic-hotspot";
         btn.style.left = "86%";
         btn.style.top = "88%";
-        btn.style.width = "11%";
-        const halo = document.createElement("span");
-        halo.className = "halo";
-        btn.appendChild(halo);
+        btn.dataset.actor = "mic";
+        btn.setAttribute("aria-label", t("engine.voice_hotspot_label"));
         const art = document.createElement("span");
         art.className = "actor";
         art.innerHTML = ""; // mic 走引擎内置件（public/characters/mic.svg），异步注入
         void loadActor("mic").then(svg => { if (svg) art.innerHTML = svg; });
         btn.appendChild(art);
         const label = document.createElement("span");
-        label.className = "label"; // 页面底部：标签在按钮上方（默认），防戳出页底
+        label.className = "label story-choice-bubble";
         label.textContent = t("engine.voice_hotspot_label");
         btn.appendChild(label);
         btn.onclick = (e) => { e.stopPropagation(); voiceTap(); };
         left.appendChild(btn);
     }
+    // 合并纸签比旧图标更宽：按实际尺寸限制在左页内，保留包里的定位意图。
+    requestAnimationFrame(() => {
+        if (!left.isConnected || !left.clientWidth || !left.clientHeight) return;
+        left.querySelectorAll<HTMLElement>(".hotspot").forEach(btn => {
+            const halfW = btn.offsetWidth / 2 + 8;
+            const halfH = btn.offsetHeight / 2 + 8;
+            const x = parseFloat(btn.style.left) / 100 * left.clientWidth;
+            const y = parseFloat(btn.style.top) / 100 * left.clientHeight;
+            btn.style.left = Math.max(halfW, Math.min(left.clientWidth - halfW, x)) / left.clientWidth * 100 + "%";
+            btn.style.top = Math.max(halfH, Math.min(left.clientHeight - halfH, y)) / left.clientHeight * 100 + "%";
+        });
+        // The small landscape canvas can clamp two controls onto the same point.
+        const mic = left.querySelector<HTMLElement>('.mic-hotspot');
+        if (mic && matchMedia('(pointer: coarse)').matches) {
+            const bounds = left.getBoundingClientRect(), r = mic.getBoundingClientRect();
+            const obstacles = [...left.querySelectorAll<HTMLElement>('.hotspot:not(.mic-hotspot), .taka-figure')].map(el => el.getBoundingClientRect());
+            const clear = (x: number, y: number) => !obstacles.some(q => x < q.right + 8 && x + r.width > q.left - 8 && y < q.bottom + 8 && y + r.height > q.top - 8);
+            if (!clear(r.left, r.top)) {
+                const candidates: {x:number;y:number;distance:number}[] = [];
+                for (let x = bounds.left + 8; x + r.width <= bounds.right - 8; x += 8) {
+                    for (let y = bounds.top + 8; y + r.height <= bounds.bottom - 8; y += 8) {
+                        if (clear(x,y)) candidates.push({x,y,distance:(x-r.left)**2+(y-r.top)**2});
+                    }
+                }
+                candidates.sort((a,b)=>a.distance-b.distance);
+                const spot = candidates[0];
+                if (spot) {
+                    mic.style.left = (spot.x - bounds.left + r.width / 2) / bounds.width * 100 + '%';
+                    mic.style.top = (spot.y - bounds.top + r.height / 2) / bounds.height * 100 + '%';
+                }
+            }
+        }
+    });
     // 有物化选项时给第一次读绘本的孩子一句提示
     if (any && !sessionStorage.getItem("taka_book_hinted")) {
         sessionStorage.setItem("taka_book_hinted", "1");
         const hint = document.createElement("div");
         hint.className = "flip-hint";
-        hint.textContent = t("book.tap_glow");
+        hint.innerHTML = uiIcon("tap") + t("book.tap_glow");
         left.appendChild(hint);
         setTimeout(() => hint.remove(), 6000);
     }

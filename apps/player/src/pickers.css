@@ -1,0 +1,31 @@
+/* Shared handmade selectors: child and theme share a trigger and paper menu. */
+.theme-picker{position:relative;display:inline-flex;max-width:100%}
+.theme-trigger,.st-actions .theme-trigger,.shelf-topbar .shelf-child{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border:1px solid color-mix(in srgb,var(--shell-muted) 40%,transparent);border-radius:10px;background:transparent;color:var(--shell-ink);padding:7px 11px;font:12px var(--font-shell);letter-spacing:.05em;cursor:pointer;white-space:nowrap}
+.theme-trigger:hover,.st-actions .theme-trigger:hover,.shelf-topbar .shelf-child:hover{color:var(--shell-ink);background:color-mix(in srgb,var(--shell-ink) 6%,transparent)}
+.theme-trigger .picker-chevron,.shelf-child .picker-chevron{width:14px;height:14px;flex:none;opacity:.65;transition:transform .2s}
+.theme-trigger[aria-expanded=true] .picker-chevron,.shelf-child[aria-expanded=true] .picker-chevron{transform:rotate(180deg)}
+.theme-menu,.shelf-child-menu{background:linear-gradient(135deg,var(--surface),var(--paper) 70%);color:var(--paper-ink);border:1px solid var(--paper-line);border-radius:17px;padding:10px;box-shadow:var(--panel-shadow);font-family:var(--font-reader);min-width:190px;max-width:calc(100vw - 24px)}
+.theme-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:85;display:flex;flex-direction:column;gap:3px}
+.theme-menu[hidden]{display:none!important}
+.theme-menu{box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain}
+.theme-menu button{flex-shrink:0}
+.theme-menu [data-theme-option],.shelf-child-menu button{display:flex;align-items:center;gap:8px;min-height:44px;border:0;border-radius:10px;background:none;color:var(--paper-ink);padding:10px 12px;text-align:left;font:14px var(--font-reader);white-space:nowrap;cursor:pointer}
+.theme-menu [data-theme-option]:is(:hover,:focus-visible),.shelf-child-menu button:is(:hover,:focus-visible){background:var(--surface);color:var(--paper-ink)}
+.theme-menu [aria-selected=true],.theme-menu [aria-selected=true]:is(:hover,:focus-visible),.shelf-child-menu button.active,.shelf-child-menu button.active:is(:hover,:focus-visible){background:var(--panel-tint);color:var(--gold)}
+.picker-check{width:13px;flex:none;visibility:hidden}.theme-menu [aria-selected=true] .picker-check{visibility:visible}
+.theme-trigger:focus-visible,.theme-menu button:focus-visible,.shelf-child:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+/* Keep the programmatic preference bridge outside the visible/focusable UI. */
+.theme-picker [data-theme-select]{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;clip-path:inset(50%);overflow:hidden;opacity:0;pointer-events:none}
+.theme-picker [data-picker-select]{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;clip-path:inset(50%);overflow:hidden;opacity:0;pointer-events:none}
+.select-picker .theme-menu button{display:flex;align-items:center;gap:8px;min-height:44px;border:0;border-radius:10px;background:none;color:var(--paper-ink);padding:10px 12px;text-align:left;font:14px var(--font-reader);cursor:pointer;white-space:nowrap}
+.select-picker .theme-menu button:is(:hover,:focus-visible){background:var(--surface);color:var(--paper-ink)}
+.select-picker .theme-menu [aria-selected=true],.select-picker .theme-menu [aria-selected=true]:is(:hover,:focus-visible){background:var(--panel-tint);color:var(--gold)}
+.select-picker{vertical-align:middle;margin-left:8px}
+.parent-modal .select-picker .theme-trigger{color:var(--paper-ink);background:var(--surface);border-color:var(--paper-line)}
+#settings-panel .theme-trigger{background:var(--surface);border-color:var(--paper-line);color:var(--paper-ink);min-height:44px;font-size:12px}
+#settings-panel .theme-trigger:hover{background:var(--panel-tint)}
+#settings-panel .select-picker .theme-menu{left:0;right:auto}
+@media(max-width:599px){.theme-trigger,.st-actions .theme-trigger,.shelf-topbar .shelf-child{font-size:11px;padding:7px 9px;gap:6px}.theme-menu{min-width:170px}}
+@media(prefers-reduced-motion:reduce){.picker-chevron{transition:none}}
+
+#start-gate .cover-header.picker-open{opacity:1}

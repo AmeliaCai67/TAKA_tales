@@ -65,3 +65,6 @@ apps/*/.vite/
 
 # demo 目录里的打包产物（源文件在 demo/ 里，zip 不发公开库）
 demo/*.zip
+
+# 训练产物（可由 train_guardrail.py 随时再生成）
+test/bert_training/guardrail_model*/

@@ -1,3 +1,5 @@
+import { uiIcon } from "../ui-icons";
+import { speechPref } from "../settings";
 // 海底农场收集闭环（2026-09-07 spec）：收集 → 观察小剧本 → 控制台（信息/打标签/问一问）→ 录入记忆库
 // (a) 聊天卡：observe 小剧本三句一批出字幕 + 包内预渲染音频；猫猫场景有活猫「喵」音效钮
 //     （2026-09-16：删掉跳过/关闭——不连控制台不打标签就通不了关，不给旁路；唯一出口 = 连接控制台）
@@ -48,6 +50,7 @@ function audioBase(): string {
 async function playSrc(src: string): Promise<void> {
     if (curAudio) { try { curAudio.pause(); } catch {} }
     const a = new Audio(src);
+    a.volume = speechPref.volume;
     curAudio = a;
     if (!releaseAudio) releaseAudio = acquireAudio("codex", () => a.pause(), () => void a.play().catch(() => {}));
     try { await a.play(); } catch {}
@@ -83,7 +86,7 @@ function openChatCard(item: CollectItem, cb: FlowCallbacks): void {
         <div class="cf-chat-head">
             <span class="cf-chat-title">${esc(item.label || "")}</span>
             <span class="cf-chat-actions">
-                ${item.meowSfx ? `<button class="cf-meow" title="${t("collect.meow")}">🔊 ${t("collect.meow")}</button>` : ""}
+                ${item.meowSfx ? `<button class="cf-meow" title="${t("collect.meow")}">${uiIcon("sound")}${t("collect.meow")}</button>` : ""}
             </span>
         </div>
         <div class="cf-chat-body"></div>
@@ -176,10 +179,10 @@ function openConsole(item: CollectItem, cb: FlowCallbacks, tab: TabId): void {
             <div class="cf-con-page" data-page="info">
                 ${(item.facts || []).map((f, i) => `
                     <div class="cf-fact">
-                        <button class="cf-fact-play" data-i="${i}">▶</button>
+                        <button class="cf-fact-play" data-i="${i}" aria-label="${t("codex.listen")}">${uiIcon("play")}</button>
                         <span class="cf-fact-text">${esc(f)}</span>
                     </div>`).join("")}
-                ${item.meowSfx ? `<button class="cf-meow-big">🔊 ${t("collect.meow")}</button>` : ""}
+                ${item.meowSfx ? `<button class="cf-meow-big">${uiIcon("sound")}${t("collect.meow")}</button>` : ""}
                 ${item.meowLicense ? `<div class="cf-attr">${t("collect.meow_attr")}: ${esc(item.meowLicense.title)} · ${esc(item.meowLicense.author)} · ${esc(item.meowLicense.license)}</div>` : ""}
             </div>
             ${showQa ? `
@@ -341,3 +344,5 @@ export function openCollectFlow(item: CollectItem, cb: FlowCallbacks, startAt: "
     if (startAt === "console" || !item.observe?.length) openConsole(item, cb, "info");
     else openChatCard(item, cb);
 }
+
+document.addEventListener("taka-volume-change", () => { if (curAudio) curAudio.volume = speechPref.volume; });

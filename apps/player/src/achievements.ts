@@ -188,7 +188,7 @@ export function initAchievements(): void {
     renderAchievements();
 }
 
-/** 成就墙：按故事分节展示全宇宙成就（index.json 内联定义 + 全局解锁集） */
+/** 成就墙：按章节标签展示成就（index.json 内联定义 + 全局解锁集） */
 export async function openAchWall(): Promise<void> {
     const wall = document.getElementById("ach-wall")!;
     const bodyEl = document.getElementById("ach-wall-body")!;
@@ -196,7 +196,14 @@ export async function openAchWall(): Promise<void> {
     bodyEl.innerHTML = `<div class="ach-wall-loading">${t("ach.wall_loading")}</div>`;
     const stories = await loadStoriesIndex();
     const unlocked = new Set(readUnlockedIds());
-    bodyEl.innerHTML = stories.map(s => {
+    const titles = stories.map(s => lang === "en" ? (s.alt?.en?.title || s.title) : s.title);
+    const counts = stories.map(s => {
+        const achs = (lang === "en" ? (s.alt?.en?.achievements || s.achievements) : s.achievements) || [];
+        return `${achs.filter(a => unlocked.has(a.id)).length}/${achs.length}`;
+    });
+    bodyEl.innerHTML = `<div class="aw-tabs" role="tablist" aria-label="${t("ach.wall_title")}">${stories.map((s, i) =>
+        `<button type="button" class="aw-tab" id="aw-tab-${i}" role="tab" aria-selected="${i === 0}" aria-controls="aw-chapter-${i}" tabindex="${i === 0 ? 0 : -1}"><span>${titles[i]}</span><span class="aw-tab-count">${counts[i]}</span></button>`
+    ).join("")}</div>` + stories.map((s, i) => {
         // i18n：en 模式用 alt.en 的成就表和标题（2026-08-28 修：成就墙没跟语言走）
         const achs = (lang === "en" ? (s.alt?.en?.achievements || s.achievements) : s.achievements) || [];
         const sTitle = lang === "en" ? (s.alt?.en?.title || s.title) : s.title;
@@ -208,10 +215,27 @@ export async function openAchWall(): Promise<void> {
                 <span class="aw-desc">${a.desc}</span></span>
                 <span class="aw-state">${unlocked.has(a.id) ? "✓" : ""}</span>
             </div>`).join("");
-        return `<div class="aw-story">
+        return `<div class="aw-story" id="aw-chapter-${i}" role="tabpanel" aria-labelledby="aw-tab-${i}"${i === 0 ? "" : " hidden"}>
             <div class="aw-story-head"><span class="aw-title">${lang === "en" ? sTitle : `《${sTitle}》`}</span>
             <span class="aw-count">${got}/${achs.length}</span></div>
             ${rows}
         </div>`;
     }).join("");
+    const tabs = [...bodyEl.querySelectorAll<HTMLButtonElement>(".aw-tab")];
+    const panels = [...bodyEl.querySelectorAll<HTMLElement>(".aw-story")];
+    const activate = (index: number) => {
+        tabs.forEach((tab, i) => { tab.setAttribute("aria-selected", String(i === index)); tab.tabIndex = i === index ? 0 : -1; panels[i].hidden = i !== index; });
+    };
+    tabs.forEach((tab, i) => {
+        tab.onclick = () => activate(i);
+        tab.onkeydown = e => {
+            let next: number;
+            if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
+            else if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+            else if (e.key === "Home") next = 0;
+            else if (e.key === "End") next = tabs.length - 1;
+            else return;
+            e.preventDefault(); activate(next); tabs[next].focus();
+        };
+    });
 }

@@ -1,3 +1,4 @@
+import { uiIcon } from "./ui-icons";
 // 如我所书（2026-08-19）：旅程存档系统前端
 // - 旅程日志抽屉：故事页左上角 📖 打开，实时展示当前故事线的对话流（左滑抽屉）
 // - 我的书架：主界面顶栏「我的书架」打开书书架（网格）→ 翻页阅读 → 导出有声书 MP3
@@ -10,6 +11,7 @@ import type { DialogueEv } from "./engine";
 import { showStatus } from "./settings";
 import { ICON_LOG } from "./icons";
 import { t, lang } from "./i18n";
+import { loadStoriesIndex } from "./story";
 
 function esc(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -81,9 +83,9 @@ function renderLog(): void {
     // 否则切故事后 logEntries 仍含上一故事内容 → 标题是《ch03》内容却是《ch02》（内容串掉）
     const rows = logEntries.filter(e => e.story_id === pack().id).map(e => {
         const cls = e.role === "child" ? "jd-child" : "jd-role";
-        const icon = e.type === "freeinput" ? "🪶"
-                    : e.type === "ai" ? "⭐"
-                    : e.type === "choice" ? "⚡" : "";
+        const icon = e.type === "freeinput" ? uiIcon("pen")
+                    : e.type === "ai" ? uiIcon("spark")
+                    : e.type === "choice" ? uiIcon("choice") : "";
         return `<div class="jd-row ${cls}">
             <span class="jd-icon">${icon}</span>
             <span class="jd-who">${roleLabel(e.role)}</span>
@@ -98,6 +100,7 @@ function renderLog(): void {
 
 let archiveOpen = false;
 let currentBooks: BookInfo[] = [];
+let storyCovers = new Map<string, string>();
 
 export function initArchive(): void {
     const close = document.getElementById("archive-close");
@@ -112,12 +115,20 @@ export function initArchive(): void {
 
 /** 主界面顶栏「我的书架」→ 书书架（游客提示登录） */
 export async function openArchive(): Promise<void> {
-    if (!session.token || !session.childId) {
-        showStatus(t("archive.login_hint"), 3000);
+    if (!session.token) {
+        showStatus(t("archive.login_hint"), 4000);
+        return;
+    }
+    if (!session.childId) {
+        showStatus(t("archive.pick_child_hint"), 4000);
         return;
     }
     try {
-        currentBooks = (await api.listBooks(session.childId!)).books;
+        const [result, stories] = await Promise.all([
+            api.listBooks(session.childId!), loadStoriesIndex().catch(() => [])
+        ]);
+        currentBooks = result.books;
+        storyCovers = new Map(stories.filter(s => s.cover).map(s => [s.id, s.cover]));
     } catch { currentBooks = []; }
     const overlay = document.getElementById("archive-overlay");
     if (!overlay) return;
@@ -143,7 +154,9 @@ function renderShelf(): void {
     for (const b of currentBooks) {
         let g = groups.find(x => x.storyId === b.story_id);
         if (!g) {
-            g = { storyId: b.story_id, name: storyName(b.title), cover: b.cover, books: [] };
+            // Historical books retain the old filename; use the current published cover.
+            const cover = storyCovers.get(b.story_id) || (b.cover ? (b.cover.startsWith('stories/') ? b.cover : `stories/${b.story_id}/${b.cover}`) : '');
+            g = { storyId: b.story_id, name: storyName(b.title), cover, books: [] };
             groups.push(g);
         }
         g.books.push(b);
@@ -152,7 +165,7 @@ function renderShelf(): void {
     box.innerHTML = groups.map(g => `
         <div class="ar-group">
             <div class="ar-group-head">
-                ${g.cover ? `<img class="ar-group-cover" src="stories/${g.storyId}/${g.cover}" alt="">` : ""}
+                ${g.cover ? `<img class="ar-group-cover" src="${esc(g.cover)}" alt="">` : ""}
                 <span class="ar-group-name">《${esc(g.name)}》</span>
                 <span class="ar-group-count">${t("archive.versions", { n: g.books.length })}</span>
             </div>
@@ -175,7 +188,7 @@ function renderShelf(): void {
 }
 
 function stateLabel(s: string): string {
-    return s === "ready" ? t("archive.state_ready")
+    return s === "ready" ? uiIcon("headphones") + t("archive.state_ready")
          : s === "pending" ? t("archive.state_pending")
          : s === "failed" ? t("archive.state_failed") : t("archive.state_none");
 }
@@ -243,12 +256,12 @@ async function openBook(id: number): Promise<void> {
             <button class="ar-back">← ${t("engine.back_shelf")}</button>
             <div class="ar-r-title">${esc(detail.title)}</div>
             <div class="ar-r-meta">${fmtDate(detail.finished_at)} · ${t("archive.sentences", { n: detail.total_events })} · <span class="ar-state ${detail.audio_status}">${stateLabel(detail.audio_status)}</span></div>
-            <button class="pg-export" data-id="${id}">${t("archive.export_btn")}</button>
+            <button class="pg-export" data-id="${id}">${uiIcon("headphones")}${t("archive.export_btn")}</button>
         </div>
         <div class="ar-r-body">${body || `<div class="jd-empty">${t("archive.book_empty")}</div>`}</div>
         <div class="ar-r-foot">
             <div class="pg-end-title">${t("archive.made_by", { name: esc(nickname) })}</div>
-            <button class="pg-export" data-id="${id}">${t("archive.export_btn")}</button>
+            <button class="pg-export" data-id="${id}">${uiIcon("headphones")}${t("archive.export_btn")}</button>
         </div>
     </div>`;
     box.querySelector(".ar-back")!.addEventListener("click", () => renderShelf());

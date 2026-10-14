@@ -2,7 +2,8 @@
 // 角标三态：新故事 / 进行中 / 已读完·再听一遍；卡片附成就计数
 // 登录后左上角可切换孩子（切换后角标/成就随孩子隔离的存储而变）
 import { loadStoriesIndex } from "./story";
-import { ICON_CHILD } from "./icons";
+import { ICON_CHILD, ICON_LOG, ICON_CODEX, ICON_SETTINGS, ICON_PARENT } from "./icons";
+import { themeControl, PICKER_CHEVRON } from "./theme";
 import type { StoryMeta } from "./story";
 import { session, selectedChild } from "./session";
 import { selectChild, openParentModal } from "./auth";
@@ -32,11 +33,11 @@ export function hideShelf(): void {
     document.body.classList.remove("on-shelf");
 }
 
-export function showShelf(): void {
+export function showShelf(preparedStories?: StoryMeta[]): Promise<void> {
     const el = document.getElementById("shelf-screen")!;
     el.hidden = false;
     document.body.classList.add("on-shelf"); // 书架模式：藏起 emoji 工具组，换 iBooks 风顶栏
-    void render(el);
+    return render(el, preparedStories);
 }
 
 function badgeOf(s: StoryMeta): { cls: string; text: string } {
@@ -46,13 +47,13 @@ function badgeOf(s: StoryMeta): { cls: string; text: string } {
     return { cls: "going", text: t("shelf.badge_going") };
 }
 
-async function render(el: HTMLElement): Promise<void> {
-    const stories = await loadStoriesIndex();
+async function render(el: HTMLElement, preparedStories?: StoryMeta[]): Promise<void> {
+    const stories = preparedStories ?? await loadStoriesIndex();
     if (!shelfVisible()) return; // 拉索引期间已进故事，别覆盖
 
     const child = selectedChild();
     const chip = session.token
-        ? `<button class="shelf-child" id="shelf-child-btn"><span class="sc-fish">${ICON_CHILD}</span>${child ? child.nickname : t("shelf.pick_child")} ▾</button>`
+        ? `<button class="shelf-child" id="shelf-child-btn" aria-expanded="false" aria-controls="shelf-child-menu"><span class="sc-fish">${ICON_CHILD}</span><span class="shelf-child-name">${child ? child.nickname : t("shelf.pick_child")}</span>${PICKER_CHEVRON}</button>`
         : "";
     const unlocked = new Set(unlockedAchievementIds());
     // i18n：en 模式用 index.json 的 alt.en 字段（sync-content 内联）
@@ -111,20 +112,30 @@ async function render(el: HTMLElement): Promise<void> {
 
     el.innerHTML = `
         <div class="shelf-topbar">
+            <span class="shell-logo">${lang === "en" ? "TAKA" : "塔卡"}</span>
             <div class="st-actions">
                 ${chip}
-                <button data-act="books">${t("shelf.books")}</button>
-                <button data-act="codex">${t("shelf.codex")}</button>
-                <button data-act="ach">${t("shelf.ach")}</button>
-                <button data-act="speech">${speechPref.on ? t("shelf.speech_on") : t("shelf.speech_off")}</button>
-                <button data-act="settings">${t("shelf.settings")}</button>
-                <button class="lang-toggle" data-act="lang">中 / EN</button>
-                ${session.token ? "" : `<button data-act="parent">${t("shelf.parent")}</button>`}
+                ${themeControl()}
+                ${session.token ? "" : `<button data-act="parent">${ICON_PARENT}${t("gate.parent")}</button>`}
+                <details class="shell-tools"><summary>${ICON_SETTINGS}<span>${t("shell.tools")}</span></summary>
+                    <div class="shell-tool-menu">
+                        <button data-act="speech">${speechPref.on ? t("shelf.speech_on") : t("shelf.speech_off")}</button>
+                        <button data-act="settings">${t("shelf.settings")}</button>
+                        <button class="lang-toggle" data-act="lang">中 / EN</button>
+                    </div>
+                </details>
             </div>
         </div>
         <div class="shelf-inner">
-            <div class="shelf-title">${t("shelf.title")}</div>
-            <div class="shelf-journey">${heroCard}${journeyRow}${doneLine}</div>
+            <div class="shell-desk-head"><div><h1 class="shelf-title">${t("shell.shelf_title")}</h1><p>${t("shell.shelf_note")}</p></div>
+                <div class="shell-collections">
+                    <button data-act="books">${ICON_LOG}${t("shelf.books")}</button>
+                    <button data-act="codex">${ICON_CODEX}${t("shelf.codex")}</button>
+                    <button data-act="ach">${ICON_ACHIEVEMENT_SM}${t("shelf.ach")}</button>
+                </div>
+            </div>
+            <div class="shelf-journey"><div class="shell-hero-stack">${heroCard}</div>${journeyRow}${doneLine}</div>
+            <p class="shell-footer">${t("shell.shelf_footer")}</p>
         </div>`;
 
     // 顶栏按钮复用隐藏 emoji 按钮的既有接线（成就/语音/设置）；「家 长」仅未登录显示（spec §2.4）
@@ -147,6 +158,18 @@ async function render(el: HTMLElement): Promise<void> {
         };
     });
 
+    el.querySelectorAll<HTMLElement>(".shelf-card").forEach(card => {
+        card.addEventListener("pointermove", e => {
+            if (!matchMedia('(hover:hover) and (pointer:fine)').matches || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+            const r=card.getBoundingClientRect();
+            card.style.setProperty('--rx',(-(e.clientY-r.top-r.height/2)/r.height*3).toFixed(2)+'deg');
+            card.style.setProperty('--ry',((e.clientX-r.left-r.width/2)/r.width*3).toFixed(2)+'deg');
+        });
+        card.addEventListener('pointerleave',()=>{card.style.removeProperty('--rx');card.style.removeProperty('--ry');});
+    });
+    el.querySelectorAll('.shell-tool-menu button').forEach(b=>b.addEventListener('click',()=>el.querySelector('details')?.removeAttribute('open')));
+    el.querySelector('details')?.addEventListener('keydown', e=>{if((e as KeyboardEvent).key==='Escape')el.querySelector('details')?.removeAttribute('open');});
+
     const chipBtn = el.querySelector<HTMLElement>("#shelf-child-btn");
     if (chipBtn) chipBtn.onclick = (e) => { e.stopPropagation(); toggleChildMenu(el, chipBtn); };
 }
@@ -161,17 +184,24 @@ function openParentDashboard(): void {
 
 function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     const old = el.querySelector("#shelf-child-menu");
-    if (old) { old.remove(); return; }
+    if (old) { old.dispatchEvent(new Event("menu-dismiss")); return; }
     const menu = document.createElement("div");
     menu.id = "shelf-child-menu";
     menu.className = "shelf-child-menu";
+    menu.setAttribute("role", "group");
+    menu.setAttribute("aria-label", t("shelf.pick_child"));
+    anchor.setAttribute("aria-expanded", "true");
+    const dismiss = new AbortController();
+    const closeMenu = () => { menu.remove(); anchor.setAttribute("aria-expanded", "false"); dismiss.abort(); };
+    menu.addEventListener("menu-dismiss", closeMenu, { once: true });
     for (const c of session.children) {
         const b = document.createElement("button");
         b.className = c.id === session.childId ? "active" : "";
+        b.setAttribute("aria-pressed", String(c.id === session.childId));
         b.innerText = (c.id === session.childId ? "✓ " : "") + c.nickname;
         b.onclick = async (e) => {
             e.stopPropagation();
-            menu.remove();
+            closeMenu();
             await selectChild(c.id); // afterChildSelect 钩子会触发书架重渲
             if (shelfVisible()) showShelf();
         };
@@ -183,7 +213,7 @@ function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     add.innerText = t("shelf.add_child");
     add.onclick = (e) => {
         e.stopPropagation();
-        menu.remove();
+        closeMenu();
         void openParentModal();
     };
     menu.appendChild(add);
@@ -196,7 +226,7 @@ function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     dash.innerText = t("shelf.dashboard");
     dash.onclick = (e) => {
         e.stopPropagation();
-        menu.remove();
+        closeMenu();
         openParentDashboard();
     };
     menu.appendChild(dash);
@@ -204,8 +234,22 @@ function toggleChildMenu(el: HTMLElement, anchor: HTMLElement): void {
     menu.style.top = (r.bottom + 6) + "px";
     menu.style.right = Math.max(10, window.innerWidth - r.right) + "px";
     el.appendChild(menu);
-    // 点空白处收起
-    setTimeout(() => document.addEventListener("pointerdown", function close(ev) {
-        if (!menu.contains(ev.target as Node)) { menu.remove(); document.removeEventListener("pointerdown", close); }
-    }), 0);
+    (menu.querySelector<HTMLButtonElement>("button.active") || menu.querySelector<HTMLButtonElement>("button"))?.focus();
+    menu.addEventListener("keydown", e => {
+        if (e.key === "Escape") { e.preventDefault(); closeMenu(); anchor.focus(); return; }
+        const buttons = [...menu.querySelectorAll<HTMLButtonElement>("button")];
+        const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        let next: number | null = null;
+        if (e.key === "ArrowDown") next = (current + 1) % buttons.length;
+        if (e.key === "ArrowUp") next = (current - 1 + buttons.length) % buttons.length;
+        if (e.key === "Home") next = 0;
+        if (e.key === "End") next = buttons.length - 1;
+        if (next !== null) { e.preventDefault(); buttons[next]?.focus(); }
+    });
+    setTimeout(() => {
+        if (!menu.isConnected) return;
+        document.addEventListener("pointerdown", ev => {
+            if (!menu.contains(ev.target as Node) && !anchor.contains(ev.target as Node)) closeMenu();
+        }, { signal: dismiss.signal });
+    }, 0);
 }

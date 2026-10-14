@@ -45,14 +45,17 @@ git clone https://github.com/AmeliaCai67/TAKA_tales.git
 
 ## Product Form
 
-- **Stories are content packs**: each chapter is a single `story.json` (scenes/branches/battery/achievements/codex/audio manifest), fully decoupled from the engine — `packages/story-schema` ships the JSON Schema and a structural validator (branch closure, scene reachability, audio coverage, zh/en parity). New chapters ship without touching a line of engine code.
+- **Stories are content packs**: each chapter is a single `story.json` (scenes/branches/battery/achievements/codex/audio manifest), fully decoupled from the engine — `packages/story-schema` ships the JSON Schema and a structural validator (branch closure, scene reachability, audio coverage, zh/en parity). Story-only new chapters ship without touching a line of engine code (chapters 2–3 proved this); a chapter introducing a new interaction type adds a self-contained component in the `mechanics/` component registry, declaratively referenced from story.json — the narrative engine core still stays untouched (chapter 4's collect mechanic proved this).
 - **Landscape picture-book mode**: on wide screens/tablets the player enters a 16:9 book stage — hand-painted backgrounds and ambient character performances on the left page, a flowing speech-bubble column on the right; choices materialize as glowing hotspots inside the scene, with three layout modes (book / novel / auto).
 - **Kids really change the story**: branching choices at key nodes; free text/voice input at low-stakes nodes, caught by AI and bridged back into the plot (anonymous visitors included, per-device daily quota); graceful fallback on generation failure — the story never breaks.
 - **Memory bank (codex)**: story keywords glow warm-yellow once typed out and can be tapped → an entry card (properly licensed real photos + curated science facts + TAKA's take + read-aloud); three-state progressive unlocking, progress isolated per story × child.
 - **Our Books**: a journey log collects dialogue as the child plays; finishing a chapter binds it into a book and exports a personal audiobook MP3 — every playthrough becomes a keepable work, not a chat that vanishes.
 - **Battery mechanic**: scenes cost battery, the sun charges it back, running out triggers a system-level ending — session length is naturally bounded by the narrative itself; anti-addiction without a kill switch.
-- **Voice performances**: pre-rendered mp3s with fixed character voices for scripted scenes, server-side TTS for dynamic text; a global speed slider; an audio-priority bus keeps codex narration and story speech from fighting.
+- **Voice performances**: pre-rendered mp3s with fixed character voices for scripted scenes, server-side real-time TTS for dynamic text (Alibaba Cloud CosyVoice, same voice source as the pre-rendered assets); a global speed slider; an anti-jitter pipeline (batch warm-up + rolling prefetch + bad-cache self-heal); English lines get word-boundary pronunciation aliases; an audio-priority bus keeps codex narration and story speech from fighting.
 - **Multi-child shelf**: cover cards, three-state badges (new / in progress / finished), achievement counts, child switching; notification dots light up on the Books/Achievements/Memory-bank buttons when there's something new.
+- **A unified hand-drawn look**: TAKA and every character asset redrawn in a hand-painted metal style; the deep-sea entrance, shelf, reader, collections and settings all share one theming system (light warm-paper / dark night-sea), with the portrait reader and landscape picture-book sharing the same lighting and paper texture.
+- **Bubble opening**: TAKA floats out of a bubble on entry, with one-tap resume of your last progress; a startup sound plays and the shelf appears without a flash of the reader.
+- **Parent story journal**: the child's listening time, the stories opened, and the words left behind are bound into a flippable journal that can be exported as a shareable long image (by default only cumulative listening and story summaries; the nickname and recent quotes are opt-in per item); bilingual.
 
 ## Safety: Engineering, Not Slogans
 
@@ -86,16 +89,22 @@ The traditional content industry trains consumers to worship perfect idols, then
 
 ## Repository Layout
 
-This repo is the open part of the product; core content assets and generation-control logic stay private. The boundary, for deployment and hacking:
+This repository has two remotes: `origin` (private main repo for day-to-day development, tracking everything) and `public` (open-source repo, containing only the whitelisted paths below). Both repos carry this README, so the exact boundary of "the open part" is **defined by the release mechanism and verifiable inside the repo**:
+
+- The whitelist lives in the `ALLOWED` array of `scripts/release-public.sh`; the `FORBIDDEN` array hard-blocks private paths — a private path mistakenly added to the whitelist aborts the release outright.
+- Public releases are path-level syncs onto the `opensource` branch (never a whole-branch merge), so private paths physically cannot reach the public repo.
+- Consequently: in the public repo, the "🔒 private" paths below **do not exist**; in the private main repo they exist and are git-tracked — by design of the dual-remote model, not a boundary failure.
 
 | Path | Status | Notes |
 |------|--------|-------|
 | `apps/player/` | ✅ open | Player engine (shelf / book mode / dialogue flow / achievements / codex / our-books) |
 | `packages/story-schema/` | ✅ open | Content-pack schema + structural validator |
 | `content/stories/ch01-wind/` | ✅ open | Complete content pack for chapter 1, *The First Time I Heard the Wind* |
-| `demo/` · `index.html` · `hackathon/` | ✅ open | Single-file demo / landing page / pitch deck |
-| `content/stories/ch02+` | 🔒 private | Later chapters (core content assets) |
-| Backend / parent dashboard / red-line & prompt library | 🔒 private | Generation control, data panels and safety assets |
+| `demo/` · `index.html` · `hackathon/` · `scripts/` | ✅ open | Single-file demo / landing page / pitch deck / release scripts |
+| `content/stories/ch02-*` and later | 🔒 private | Later chapters (core content assets) |
+| `apps/api/` · `apps/parent/` | 🔒 private | Backend generation control · parent data dashboard |
+| `packages/prompts/` · `test/` | 🔒 private | Red-line & prompt library · red-line stress-test suite |
+| `docs/` · `experiments/` · `AGENTS.md` | 🔒 private | Internal docs · experiment playground · agent working agreement |
 
 ## Tech Stack
 
@@ -103,7 +112,7 @@ This repo is the open part of the product; core content assets and generation-co
 |------|------|------|
 | Frontend | Vite + TypeScript + vanilla CSS | Visual-novel + picture-book dual form, no heavy frameworks |
 | Content | story.json packs + JSON Schema | content/engine decoupling; validator guards structural correctness |
-| Speech | Server-side edge-tts | Pre-rendered audio packs + dynamic real-time TTS, disk-cached |
+| Speech | Server-side Alibaba Cloud CosyVoice (DashScope) | Pre-rendered audio packs + dynamic real-time TTS, disk-cached; batch warm-up & rolling prefetch for jitter resistance |
 | AI layer | Multi-model division of labor | Plot-fill generation + heterogeneous safety-review models; server-side only, zero keys in the client |
 
 ## Roadmap
@@ -116,6 +125,9 @@ This repo is the open part of the product; core content assets and generation-co
 - [x] Voice input v2 (hold to talk / slide-up-to-edit; auto-degrades on unsupported devices)
 - [x] Live operations (accounts / child profiles / cloud progress / parent dashboard)
 - [x] Chapter 4 — Hello, 757 (undersea farm collect + console Q&A + tunnel acts)
+- [x] Visual overhaul: hand-drawn metal characters + unified deep-sea entrance / shelf / reader theming and icons
+- [x] Dynamic speech upgrade: migrated to Alibaba Cloud CosyVoice + jitter hardening + English word-boundary pronunciation aliases
+- [x] Parent story journal (flippable + shareable long image + English)
 - [ ] Mobile app store release (in preparation)
 - [ ] Content library expansion and more story templates
 

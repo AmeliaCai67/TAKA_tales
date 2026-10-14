@@ -9,6 +9,8 @@
     "dev": "vite",
     "prebuild": "node scripts/sync-content.mjs",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "node scripts/verify-content.mjs",
+    "verify:content": "node scripts/verify-content.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

@@ -8,49 +8,38 @@
     <link rel="apple-touch-icon" href="./favicon-192.png">
     <title data-i18n="misc.doc_title">塔卡 (TAKA)</title>
     <style>
-        /* 启动闪屏 critical CSS（2026-09-28 boot-preload）：首帧即见，不依赖打包 CSS。
-           视觉与启动门同源：深海渐变底 + 塔卡眼睛呼吸灯。显隐不用 hidden 属性，
-           用 .bs-out 类（opacity + visibility 双断，防 class display 盖 hidden 的老坑）。 */
-        #boot-splash {
-            position: fixed; inset: 0; z-index: 200;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-            background: linear-gradient(180deg, #0a141f 0%, #13283a 100%);
-            color: #e2e8f0;
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Segoe UI", Roboto, sans-serif;
-            opacity: 1; visibility: visible;
-            transition: opacity .45s ease, visibility 0s; /* 进场：visibility 立即生效 + 淡入 */
-        }
-        /* 退场：淡出完成后才切 visibility（transition 取目标态值，所以离场曲线写在这里） */
-        #boot-splash.bs-out {
-            opacity: 0; visibility: hidden; pointer-events: none;
-            transition: opacity .45s ease, visibility 0s linear .45s;
-        }
-        .bs-eye {
-            width: 64px; height: 64px; border-radius: 50%;
-            background: radial-gradient(circle at 45% 40%, #fff6d8 0%, #ffb703 55%, #9c7108 100%);
-            animation: bs-breathe 3.2s infinite alternate ease-in-out;
-        }
-        @keyframes bs-breathe {
-            from { opacity: .55; box-shadow: 0 0 8px rgba(255, 183, 3, .3); }
-            to   { opacity: 1;   box-shadow: 0 0 28px rgba(255, 183, 3, .6); }
-        }
-        .bs-title { font-size: 22px; letter-spacing: 12px; }
-        .bs-track { width: min(280px, 62vw); height: 4px; border-radius: 2px; background: rgba(150, 200, 230, .15); overflow: hidden; }
-        .bs-fill { height: 100%; width: 0%; background: #ffb703; border-radius: 2px; transition: width .25s ease; }
-        .bs-status { font-size: 12px; color: #8d99a8; letter-spacing: 2px; min-height: 1.5em; text-align: center; padding: 0 24px; }
-        .bs-pct { font-size: 11px; color: #8d99a8; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        /* First paint: real preload progress is carried by a dim eye and rising bubbles. */
+        #boot-splash{position:fixed;inset:0;z-index:200;background:#050d14;color:#b3c3bb;font-family:"Source Han Serif SC","Noto Serif SC","Songti SC","STSong",Georgia,serif;opacity:1;visibility:visible;transition:opacity .28s,visibility 0s;--boot-progress:0}
+        #boot-splash::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 18%,#38687810,transparent 65%);pointer-events:none}
+        #boot-splash.bs-out{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s,visibility 0s linear .28s}
+        .bs-eye{position:absolute;left:50%;top:52%;width:30px;height:30px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff6d2,#f0c16a 35%,#b5781b);opacity:calc(.35 + var(--boot-progress)*.65);box-shadow:0 0 calc(5px + var(--boot-progress)*14px) #f4c36c50;animation:bs-breathe 3.8s ease-in-out infinite}
+        @keyframes bs-breathe{50%{filter:brightness(.78)}}
+        .bs-status{position:absolute;top:calc(52% + 110px);left:24px;right:24px;text-align:center;font-size:12px;letter-spacing:.15em;line-height:1.8;opacity:.66}
+        .bs-bubbles{position:absolute;left:50%;top:17%;bottom:48%;width:120px;transform:translateX(-50%);pointer-events:none}
+        .bs-bubbles i{position:absolute;left:var(--bx);bottom:0;width:var(--size,5px);height:var(--size,5px);border:1px solid #b5d3d467;border-radius:49%;opacity:0;box-shadow:inset 0 1px #e1e9db30;animation:bs-rise var(--time,2.7s) var(--delay,0s) linear infinite}
+        @keyframes bs-rise{0%{opacity:0;transform:translate(0,0) scale(.7)}15%{opacity:calc(.2 + var(--boot-progress)*.35)}85%{opacity:.3}100%{opacity:0;transform:translate(var(--drift,6px),min(-29svh,-80px)) scale(1.15)}}
+        @media(max-height:500px) and (orientation:landscape){.bs-eye{top:47%}.bs-bubbles{bottom:53%;top:10%}.bs-status{top:calc(47% + 75px);font-size:11px}}
+        @media(prefers-reduced-motion:reduce){.bs-eye,.bs-bubbles i{animation:none}.bs-bubbles i{opacity:.2;bottom:calc(var(--boot-progress)*75%)}#boot-splash.bs-out{transition:none}}
     </style>
 </head>
 <body>
 
+<!-- 全局 UI 手绘滤镜：独立于塔卡立绘，像素换装与跨故事切换后仍可使用。 -->
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+    <defs>
+        <filter id="handDrawnEdge" x="-20%" y="-30%" width="140%" height="160%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="13" result="ui-paper-noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="ui-paper-noise" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </defs>
+</svg>
+
 <!-- 启动闪屏：boot 期间盖全屏（z-index 高于启动门），加载进度由 main.ts 驱动；
      进故事（异包）时复用为「故事加载」模式。完成后加 .bs-out 淡出。 -->
-<div id="boot-splash">
-    <div class="bs-eye"></div>
-    <div class="bs-title" data-i18n="gate.title">塔 卡</div>
-    <div class="bs-track"><div class="bs-fill" id="bs-fill"></div></div>
-    <div class="bs-status" id="bs-status" data-i18n="boot.loading">塔卡正在醒来…</div>
-    <div class="bs-pct" id="bs-pct"></div>
+<div id="boot-splash" role="progressbar" aria-label="塔卡正在醒来" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="bs-eye" aria-hidden="true"></div>
+    <div class="bs-bubbles" aria-hidden="true"><i style="--bx:44%;--delay:-.1s"></i><i style="--bx:61%;--size:7px;--delay:-1.3s;--time:3.1s;--drift:-8px"></i><i style="--bx:34%;--size:3px;--delay:-.7s"></i><i style="--bx:53%;--size:5px;--delay:-1.9s;--time:3.4s"></i><i style="--bx:72%;--size:4px;--delay:-2.2s;--drift:-12px"></i></div>
+    <div class="bs-status" id="bs-status" data-i18n="boot.charging">在水底，攒一点光。</div>
 </div>
 
 <div class="bg-layer" id="bg-a"></div>
@@ -58,6 +47,7 @@
 <div class="bg-shade"></div>
 
 <div id="stage">
+    <button id="reader-back" class="reader-back"><span aria-hidden="true">←</span><span data-i18n="engine.back_shelf">回到书架</span></button>
     <div class="hud">
         <button class="lang-toggle" id="lang-toggle" title="中文 / English">中 / EN</button>
         <div class="core-ico" id="core-ico" title="塔卡的能源核心">
@@ -70,19 +60,25 @@
         <span id="battery-text">100%</span>
     </div>
 
-    <button class="log-btn" id="log-btn" data-i18n-title="log.btn_title" title="旅程日志">📖</button>
-    <button class="settings-btn" id="settings-btn" data-i18n-title="misc.settings_btn_title" title="设置">⚙</button>
-    <button class="ach-btn" id="ach-btn" data-i18n-title="ach.btn_title" title="成就">🏅</button>
-    <button class="speech-btn" id="speech-btn" data-i18n-title="speech.btn_title" title="语音开关">🔊</button>
-    <button class="parent-btn" id="parent-btn" data-i18n-title="misc.parent_btn_title" title="家长入口">👤</button>
+    <button class="log-btn" id="log-btn" data-i18n-title="log.btn_title" title="旅程日志"></button>
+    <button class="settings-btn" id="settings-btn" data-i18n-title="misc.settings_btn_title" title="设置"></button>
+    <button class="ach-btn" id="ach-btn" data-i18n-title="ach.btn_title" title="成就"></button>
+    <button class="speech-btn" id="speech-btn" data-i18n-title="speech.btn_title" title="语音开关"></button>
+    <button class="parent-btn" id="parent-btn" data-i18n-title="misc.parent_btn_title" title="家长入口"></button>
     <div class="parent-overlay" id="parent-overlay" hidden>
         <div class="ach-modal parent-modal">
             <div class="am-title" data-i18n="auth.parent_title">家 长</div>
             <div id="parent-body"></div>
         </div>
     </div>
-    <div class="settings-panel" id="settings-panel" hidden>
-        <div class="sp-title" data-i18n="settings.title">设 置</div>
+    <div class="settings-overlay" id="settings-overlay" hidden>
+    <aside class="settings-panel reading-drawer" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1" hidden>
+        <header class="rd-heading"><div><span class="rd-eyebrow">TAKA TALES</span><h2 id="settings-title" data-i18n="reader.settings">阅读设置</h2></div><button id="settings-close" data-i18n-title="settings.close" aria-label="关闭">×</button></header>
+        <section class="rd-section"><h3 data-i18n="reader.paper_text">纸面与文字</h3><div id="rd-theme"></div><div class="rd-row"><span data-i18n="reader.language">语言</span><div id="rd-language"></div></div></section>
+        <section class="rd-section"><h3 data-i18n="reader.sound">声音</h3><div class="rd-row"><span data-i18n="reader.voice">语音朗读</span><div id="rd-speech"></div></div><label class="rd-volume" for="sp-volume"><span data-i18n="reader.volume">音量</span><output id="sp-volume-value">100%</output></label><input type="range" id="sp-volume" min="0" max="100" value="100" data-i18n-title="reader.volume"></section>
+        <section class="rd-section"><h3 data-i18n="reader.energy">塔卡的能量</h3><span id="sp-energy-value">100%</span></section>
+        <section class="rd-section rd-library"><h3 data-i18n="reader.collections">故事与收藏</h3><div class="rd-row"><span data-i18n="log.btn_title">旅程日志</span><div id="rd-log"></div></div><button id="rd-books" data-act="books" data-i18n="shelf.books">如我所书</button><button id="rd-codex" data-act="codex" data-i18n="shelf.codex">记忆库</button><div class="rd-row"><span data-i18n="ach.btn_title">成就</span><div id="rd-ach"></div></div><div class="rd-row" id="rd-parent-row"><span data-i18n="gate.parent">家长入口</span><div id="rd-parent"></div></div></section>
+        <details class="rd-section rd-advanced"><summary data-i18n="reader.more">更多设置</summary>
         <label class="sp-toggle"><input type="checkbox" id="sp-enabled"> <span data-i18n="settings.allow_free">允许孩子自由发挥（需登录）</span></label>
         <label class="sp-toggle"><input type="checkbox" id="sp-readchoices"> <span data-i18n="settings.read_choices">朗读选项（家长代读 / 大孩子可关）</span></label>
         <label><span data-i18n="settings.rate">语速</span> <span id="sp-rate-val">0.95x</span>
@@ -95,21 +91,144 @@
                 <option value="vn" data-i18n="settings.layout_vn">小说</option>
             </select>
         </label>
-        <div class="sp-note" data-i18n="settings.note">AI 生成在服务端完成，经过内容安全校验；每个账号每日限 50 次。开场、高潮与结局为定稿文本，AI 只承接孩子的自由想法。</div>
-        <div class="sp-nav">
-            <button id="sp-toshelf"><span class="sp-shelf-ico"></span><span data-i18n="settings.to_shelf">保存并返回书架</span></button>
-            <button id="sp-logout" hidden data-i18n="auth.logout">退出登录</button>
-        </div>
-    </div>
-    <div class="ai-status" id="ai-status"></div>
 
-    <div class="start-gate" id="start-gate" hidden>
-        <div class="gate-eye"></div>
-        <div class="gate-title" data-i18n="gate.title">塔 卡</div>
-        <button class="gate-btn" id="gate-btn" data-i18n="gate.enter">点一下，听风声</button>
-        <button class="gate-parent" id="gate-parent" data-i18n="gate.parent">家长入口</button>
-    </div>
+        <div class="sp-note" data-i18n="settings.note"></div></details>
+        <div class="sp-nav"><button id="sp-toshelf"><span class="sp-shelf-ico"></span><span data-i18n="settings.to_shelf">保存并返回书架</span></button><button id="sp-logout" hidden data-i18n="auth.logout">退出登录</button></div>
+    </aside></div>
+    <div class="ai-status" id="ai-status" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="toast" id="toast"></div>
+
+<svg class="shell-defs" aria-hidden="true"><defs><filter id="title-water-edge" x="-15%" y="-25%" width="130%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".022 .08" numOctaves="2" seed="7" result="water"/><feDisplacementMap in="SourceGraphic" in2="water" scale=".85" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="paper-edge" x="-10%" y="-20%" width="120%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="13" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.2"/></filter></defs></svg>
+<section id="start-gate" class="start-gate" hidden><div class="depth-world" aria-hidden="true"></div><div class="depth-rays" aria-hidden="true"></div><div class="depth-front" aria-hidden="true"><svg class="depth-weed left" viewBox="0 0 100 220" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round"><path d="M40 220 C75 150 10 110 45 38 M58 220 C30 150 83 85 68 10 M24 220 C43 176 15 142 28 110"/></svg><svg class="depth-weed right" viewBox="0 0 100 220" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round"><path d="M40 220 C75 150 10 110 45 38 M58 220 C30 150 83 85 68 10"/></svg><div class="depth-motes"></div></div><div class="torch-overlay" id="torchOverlay" aria-hidden="true"></div><span class="torch-clue one" data-clue="one" aria-hidden="true">光在动。</span><span class="torch-clue two" data-clue="two" aria-hidden="true">我想知道。</span><header class="cover-header"><span class="brand-small">TAKA TALES</span><button class="quiet" id="gate-parent"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10 V7 a4 4 0 0 1 8 0 v3"/></svg><span data-i18n="gate.parent">家长入口</span></button></header><div class="cover-title"><h1><span class="opening-title-label" data-i18n="gate.title">塔卡</span></h1><span class="title-mark" aria-hidden="true">TAKA · TALES FROM THE SEA</span><p >海底很亮。有很多光。</p></div><button id="gate-btn" class="wake" aria-label="轻触呼吸灯，唤醒塔卡" disabled><div class="wake-art"><div class="wake-arc" aria-hidden="true"></div><svg viewBox="0 0 220 210" aria-label="塔卡">
+    <defs>
+        <linearGradient id="tk-tkBlueMetal-cover" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#90a4ae" />
+            <stop offset="55%" stop-color="#607d8b" />
+            <stop offset="100%" stop-color="#455a64" />
+        </linearGradient>
+        <linearGradient id="tk-hoseMetal-cover" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#78909c" />
+            <stop offset="50%" stop-color="#cfd8dc" />
+            <stop offset="100%" stop-color="#546e7a" />
+        </linearGradient>
+        <radialGradient id="tk-glassConvex-cover" cx="0.35" cy="0.3" r="0.75">
+            <stop offset="0%" stop-color="#263238" />
+            <stop offset="70%" stop-color="#102027" />
+            <stop offset="100%" stop-color="#050b0e" />
+        </radialGradient>
+        <radialGradient id="tk-tkEye-cover" cx="0.5" cy="0.45" r="0.6">
+            <stop offset="0%" stop-color="#fff8df" />
+            <stop offset="55%" stop-color="#ffb703" />
+            <stop offset="100%" stop-color="#916700" />
+        </radialGradient>
+        <g id="tk-screwTight-cover">
+            <circle r="3.2" fill="#455a64" stroke="#1c313a" stroke-width="1" />
+            <polygon points="0,-1.8 1.5,-0.9 1.5,0.9 0,1.8 -1.5,0.9 -1.5,-0.9" fill="#263238" />
+        </g>
+        <g id="tk-screwLoose-cover" class="tk-loose-screw">
+            <circle cx="0.8" cy="1" r="3.5" fill="#102027" opacity="0.5" />
+            <circle r="3.4" fill="#607d8b" stroke="#37474f" stroke-width="1.2" />
+            <polygon points="0,-1.8 1.5,-0.9 1.5,0.9 0,1.8 -1.5,0.9 -1.5,-0.9" fill="#1c313a" />
+            <line x1="-2" y1="2.2" x2="2" y2="2.2" stroke="#ffb703" stroke-width="0.8" opacity="0.8" />
+        </g>
+        <g id="tk-screwMissing-cover">
+            <circle r="3.4" fill="#0d1518" stroke="#1c313a" stroke-width="1" />
+            <circle r="2" fill="#05080a" />
+            <path d="M -2.8 -1 C -3.5 0.5, -2 2.8, 0 3 C 1.5 3.1, 2.8 1.8, 2.5 0" fill="none" stroke="#2e7d32" stroke-width="1" opacity="0.85" />
+        </g>
+        <g id="tk-hoseRing-cover">
+            <ellipse cx="0" cy="0" rx="4.5" ry="2" fill="url(#tk-hoseMetal-cover)" stroke="#263238" stroke-width="1" />
+        </g>
+        <filter id="tk-edge-cover" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="13" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="tk-grain-cover" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="13" result="grain" />
+            <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.18 0" result="tint" />
+            <feComposite in="tint" in2="SourceGraphic" operator="in" result="texture" />
+            <feBlend in="SourceGraphic" in2="texture" mode="multiply" />
+        </filter>
+        <g id="tk-arms-cover">
+            <g id="tk-armLeft-cover">
+                <circle cx="58" cy="112" r="5.5" fill="#546e7a" stroke="#1c313a" stroke-width="1.5" />
+                <use href="#tk-hoseRing-cover" x="52" y="115" transform="rotate(-15 52 115)" />
+                <use href="#tk-hoseRing-cover" x="46" y="120" transform="rotate(-25 46 120)" />
+                <use href="#tk-hoseRing-cover" x="41" y="126" transform="rotate(-35 41 126)" />
+                <use href="#tk-hoseRing-cover" x="37" y="133" transform="rotate(-40 37 133)" />
+                <use href="#tk-hoseRing-cover" x="34" y="140" transform="rotate(-30 34 140)" />
+                <rect x="27" y="143" width="9" height="6" rx="1.5" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+                <path d="M 27 148 C 22 148 18 153 21 159 C 23 155 26 151 29 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+                <path d="M 34 148 C 39 148 43 153 40 159 C 38 155 35 151 32 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+            </g>
+            <g id="tk-armRight-cover">
+                <circle cx="162" cy="112" r="5.5" fill="#546e7a" stroke="#1c313a" stroke-width="1.5" />
+                <use href="#tk-hoseRing-cover" x="168" y="115" transform="rotate(15 168 115)" />
+                <use href="#tk-hoseRing-cover" x="174" y="120" transform="rotate(25 174 120)" />
+                <use href="#tk-hoseRing-cover" x="179" y="126" transform="rotate(35 179 126)" />
+                <use href="#tk-hoseRing-cover" x="183" y="133" transform="rotate(40 183 133)" />
+                <use href="#tk-hoseRing-cover" x="186" y="140" transform="rotate(30 186 140)" />
+                <rect x="184" y="143" width="9" height="6" rx="1.5" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+                <path d="M 184 148 C 179 148 175 153 178 159 C 180 155 183 151 186 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+                <path d="M 191 148 C 196 148 200 153 197 159 C 195 155 192 151 189 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+            </g>
+        </g>
+        <g id="tk-legs-cover">
+            <rect x="78" y="145" width="14" height="15" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <line x1="78" y1="150" x2="92" y2="150" stroke="#263238" stroke-width="1" />
+            <rect x="81" y="158" width="8" height="12" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+            <ellipse cx="85" cy="172" rx="13" ry="4" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+            <rect x="128" y="145" width="14" height="15" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <line x1="128" y1="150" x2="142" y2="150" stroke="#263238" stroke-width="1" />
+            <rect x="131" y="158" width="8" height="12" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+            <ellipse cx="135" cy="172" rx="13" ry="4" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+        </g>
+        <g id="tk-legs-stub-cover">
+            <rect x="78" y="145" width="14" height="8" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <ellipse cx="85" cy="154" rx="11" ry="3" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+            <rect x="128" y="145" width="14" height="8" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <ellipse cx="135" cy="154" rx="11" ry="3" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+        </g>
+        <g id="tk-shell-cover">
+            <rect x="60" y="45" width="100" height="102" rx="12" fill="url(#tk-tkBlueMetal-cover)" stroke="#1c313a" stroke-width="3.5" stroke-linejoin="round" style="filter: url(#tk-grain-cover);" />
+            <circle cx="110" cy="88" r="30" fill="url(#tk-glassConvex-cover)" stroke="#1c313a" stroke-width="3" />
+            <path d="M 88 78 A 24 24 0 0 1 128 72" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.3" stroke-linecap="round" />
+            <use href="#tk-screwTight-cover" x="110" y="53" />
+            <use href="#tk-screwMissing-cover" x="110" y="123" />
+            <use href="#tk-screwTight-cover" x="68" y="56" />
+            <use href="#tk-screwTight-cover" x="68" y="78" />
+            <use href="#tk-screwTight-cover" x="68" y="100" />
+            <use href="#tk-screwTight-cover" x="68" y="122" />
+            <use href="#tk-screwTight-cover" x="152" y="56" />
+            <use href="#tk-screwTight-cover" x="152" y="78" />
+            <use href="#tk-screwTight-cover" x="152" y="100" />
+            <use href="#tk-screwLoose-cover" x="152" y="122" />
+            <rect x="88" y="132" width="44" height="9" rx="3" fill="#102027" stroke="#1c313a" stroke-width="1.2" />
+            <circle cx="95" cy="136.5" r="2.5" fill="#00e676" class="tk-status-dot" />
+            <circle cx="110" cy="136.5" r="2.5" fill="#37474f" />
+            <circle cx="125" cy="136.5" r="2.5" fill="#37474f" />
+        </g>
+        <g id="takaBody-cover">
+            <use href="#tk-arms-cover" />
+            <use href="#tk-legs-cover" />
+            <use href="#tk-shell-cover" />
+            <ellipse cx="110" cy="192" rx="50" ry="6" fill="#000" opacity=".3" />
+        </g>
+        <g id="takaBodySwim-cover">
+            <use href="#tk-arms-cover" />
+            <use href="#tk-legs-stub-cover" />
+            <use href="#tk-shell-cover" />
+            <ellipse cx="110" cy="178" rx="36" ry="6" fill="#000" opacity=".18" />
+        </g>
+    </defs>
+    <g class="tk-art" filter="url(#tk-edge-cover)">
+        <g class="takaBody">
+            <use href="#takaBodySwim-cover" />
+        </g>
+        <circle class="eyeGlow" cx="110" cy="88" r="14" fill="url(#tk-tkEye-cover)" />
+        <circle class="eyeHi" cx="105" cy="83" r="3" fill="#ffffff" opacity="0.9" />
+    </g>
+</svg></div><span class="wake-note" data-t="wake">叫醒塔卡，翻开故事</span></button><div class="wake-ambient" aria-hidden="true"><svg class="wake-fish one" viewBox="0 0 70 30" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 15 Q29 -3 52 12 l12 -8 v22 l-12 -9 Q29 32 8 15Z"/><circle cx="21" cy="12" r="1"/></svg><svg class="wake-fish two" viewBox="0 0 70 30" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 15 Q29 -3 52 12 l12 -8 v22 l-12 -9 Q29 32 8 15Z"/></svg></div><div class="wake-ripple" aria-hidden="true"></div><div class="sea-dots"><i></i><i></i><i></i></div><p class="cover-line" data-t="tagline">一只旧机器人。和你一起，听听上面的风声。</p></section>
 
     <main class="shelf-screen" id="shelf-screen" hidden></main>
 
@@ -131,87 +250,137 @@
     <div class="taka-figure st-standby" id="taka-figure">
         <!-- 思考演出（st-pondering 时浮现）：思想泡泡，三圆点依次跳动 -->
         <div class="thought-bubble" aria-hidden="true"><i></i><i></i><i></i></div>
-        <svg viewBox="0 0 220 210">
-            <defs>
-                <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#b3bdc9"/>
-                    <stop offset="0.55" stop-color="#7d8896"/>
-                    <stop offset="1" stop-color="#5d6875"/>
-                </linearGradient>
-                <radialGradient id="eyeGrad" cx="0.5" cy="0.45" r="0.6">
-                    <stop offset="0" stop-color="#fff6d8"/>
-                    <stop offset="0.55" stop-color="#ffb703"/>
-                    <stop offset="1" stop-color="#9c7108"/>
-                </radialGradient>
-                <!-- 螺钉 9 颗：上 3、下 2（角落）、两侧各 2 -->
-                <g id="nutRing" fill="#525d6b" stroke="#39424e">
-                    <polygon points="77.5,55 75.25,58.9 70.75,58.9 68.5,55 70.75,51.1 75.25,51.1"/>
-                    <polygon points="114.5,55 112.25,58.9 107.75,58.9 105.5,55 107.75,51.1 112.25,51.1"/>
-                    <polygon points="151.5,55 149.25,58.9 144.75,58.9 142.5,55 144.75,51.1 149.25,51.1"/>
-                    <polygon points="77.5,140 75.25,143.9 70.75,143.9 68.5,140 70.75,136.1 75.25,136.1"/>
-                    <polygon points="69.5,72 67.25,75.9 62.75,75.9 60.5,72 62.75,68.1 67.25,68.1"/>
-                    <polygon points="69.5,112 67.25,115.9 62.75,115.9 60.5,112 62.75,108.1 67.25,108.1"/>
-                    <polygon points="159.5,72 157.25,75.9 152.75,75.9 150.5,72 152.75,68.1 157.25,68.1"/>
-                    <polygon points="159.5,112 157.25,115.9 152.75,115.9 150.5,112 152.75,108.1 157.25,108.1"/>
-                </g>
-                <!-- 松动带锈的一颗：前面板右下角，正面专属 -->
-                <g id="rustNut" transform="rotate(20 147 140)">
-                    <polygon points="151.5,140 149.25,143.9 144.75,143.9 142.5,140 144.75,136.1 149.25,136.1" fill="#6b5335" stroke="#8a4b2a"/>
-                </g>
-                <!-- 双臂：链条 3 节 + 喇叭口 -->
-                <g id="arms">
-                    <circle cx="50" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <circle cx="43" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <circle cx="39" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <path d="M37 139 L27 154 Q35 162 44 155 L40.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
-                    <circle cx="170" cy="115" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <circle cx="177" cy="125" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <circle cx="181" cy="136" r="4.5" fill="none" stroke="#6b7686" stroke-width="2.5"/>
-                    <path d="M183 139 L193 154 Q185 162 176 155 L179.5 142 Z" fill="#525d6b" stroke="#39424e" stroke-width="1.5"/>
-                </g>
-                <!-- 伸缩腿：陆地模式（伸出） -->
-                <g id="legs">
-                    <rect x="80" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
-                    <rect x="81.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
-                    <rect x="72" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
-                    <rect x="130" y="145" width="10" height="16" fill="#525d6b" stroke="#39424e"/>
-                    <rect x="131.5" y="159" width="7" height="18" fill="#414b58" stroke="#39424e" stroke-width="1"/>
-                    <rect x="122" y="176" width="26" height="9" rx="4.5" fill="#39424e"/>
-                </g>
-                <!-- 伸缩腿：水下模式（收回贴腹，备用） -->
-                <g id="legsStub">
-                    <rect x="80" y="145" width="10" height="8" fill="#525d6b" stroke="#39424e"/>
-                    <rect x="130" y="145" width="10" height="8" fill="#525d6b" stroke="#39424e"/>
-                </g>
-                <!-- 机体壳：身体 + 螺钉 + 眼睛外环 + 胸口面板（不含眼睛的光） -->
-                <g id="bodyShell">
-                    <rect x="60" y="50" width="100" height="95" rx="9" fill="url(#metalGrad)" stroke="#414b58" stroke-width="2"/>
-                    <use href="#nutRing"/>
-                    <use href="#rustNut"/>
-                    <circle cx="110" cy="92" r="27" fill="#18212b" stroke="#39424e" stroke-width="3"/>
-                    <rect x="88" y="124" width="44" height="13" rx="4" fill="#414b58" opacity="0.65"/>
-                    <circle cx="97" cy="130.5" r="2" fill="#48bb78"/>
-                    <circle cx="106" cy="130.5" r="2" fill="#718096"/>
-                    <circle cx="115" cy="130.5" r="2" fill="#718096"/>
-                </g>
-                <!-- 完整个体：陆地 / 水下两版 -->
-                <g id="takaBody">
-                    <use href="#arms"/>
-                    <use href="#legs"/>
-                    <use href="#bodyShell"/>
-                    <ellipse cx="110" cy="198" rx="52" ry="6" fill="#000" opacity="0.28"/>
-                </g>
-                <g id="takaBodySwim">
-                    <use href="#arms"/>
-                    <use href="#legsStub"/>
-                    <use href="#bodyShell"/>
-                    <ellipse cx="110" cy="182" rx="36" ry="5" fill="#000" opacity="0.18"/>
-                </g>
-            </defs>
-            <g class="takaBody"><use href="#takaBody"/></g>
-            <circle class="eyeGlow" cx="110" cy="92" r="17" fill="url(#eyeGrad)"/>
-            <circle class="eyeHi" cx="103.5" cy="85.5" r="3.5" fill="#fff" opacity="0.85"/>
-        </svg>
+        <!-- Gemini 1013 手绘金属机体；保留 takaBody 双模式与 eyeGlow / eyeHi 状态接口。 -->
+        <svg viewBox="0 0 220 210" aria-label="塔卡">
+    <defs>
+        <linearGradient id="tk-tkBlueMetal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#90a4ae" />
+            <stop offset="55%" stop-color="#607d8b" />
+            <stop offset="100%" stop-color="#455a64" />
+        </linearGradient>
+        <linearGradient id="tk-hoseMetal" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#78909c" />
+            <stop offset="50%" stop-color="#cfd8dc" />
+            <stop offset="100%" stop-color="#546e7a" />
+        </linearGradient>
+        <radialGradient id="tk-glassConvex" cx="0.35" cy="0.3" r="0.75">
+            <stop offset="0%" stop-color="#263238" />
+            <stop offset="70%" stop-color="#102027" />
+            <stop offset="100%" stop-color="#050b0e" />
+        </radialGradient>
+        <radialGradient id="tk-tkEye" cx="0.5" cy="0.45" r="0.6">
+            <stop offset="0%" stop-color="#fff8df" />
+            <stop offset="55%" stop-color="#ffb703" />
+            <stop offset="100%" stop-color="#916700" />
+        </radialGradient>
+        <g id="tk-screwTight">
+            <circle r="3.2" fill="#455a64" stroke="#1c313a" stroke-width="1" />
+            <polygon points="0,-1.8 1.5,-0.9 1.5,0.9 0,1.8 -1.5,0.9 -1.5,-0.9" fill="#263238" />
+        </g>
+        <g id="tk-screwLoose" class="tk-loose-screw">
+            <circle cx="0.8" cy="1" r="3.5" fill="#102027" opacity="0.5" />
+            <circle r="3.4" fill="#607d8b" stroke="#37474f" stroke-width="1.2" />
+            <polygon points="0,-1.8 1.5,-0.9 1.5,0.9 0,1.8 -1.5,0.9 -1.5,-0.9" fill="#1c313a" />
+            <line x1="-2" y1="2.2" x2="2" y2="2.2" stroke="#ffb703" stroke-width="0.8" opacity="0.8" />
+        </g>
+        <g id="tk-screwMissing">
+            <circle r="3.4" fill="#0d1518" stroke="#1c313a" stroke-width="1" />
+            <circle r="2" fill="#05080a" />
+            <path d="M -2.8 -1 C -3.5 0.5, -2 2.8, 0 3 C 1.5 3.1, 2.8 1.8, 2.5 0" fill="none" stroke="#2e7d32" stroke-width="1" opacity="0.85" />
+        </g>
+        <g id="tk-hoseRing">
+            <ellipse cx="0" cy="0" rx="4.5" ry="2" fill="url(#tk-hoseMetal)" stroke="#263238" stroke-width="1" />
+        </g>
+        <filter id="tk-edge" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="13" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="tk-grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="13" result="grain" />
+            <feColorMatrix in="grain" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.18 0" result="tint" />
+            <feComposite in="tint" in2="SourceGraphic" operator="in" result="texture" />
+            <feBlend in="SourceGraphic" in2="texture" mode="multiply" />
+        </filter>
+        <g id="tk-arms">
+            <g id="tk-armLeft">
+                <circle cx="58" cy="112" r="5.5" fill="#546e7a" stroke="#1c313a" stroke-width="1.5" />
+                <use href="#tk-hoseRing" x="52" y="115" transform="rotate(-15 52 115)" />
+                <use href="#tk-hoseRing" x="46" y="120" transform="rotate(-25 46 120)" />
+                <use href="#tk-hoseRing" x="41" y="126" transform="rotate(-35 41 126)" />
+                <use href="#tk-hoseRing" x="37" y="133" transform="rotate(-40 37 133)" />
+                <use href="#tk-hoseRing" x="34" y="140" transform="rotate(-30 34 140)" />
+                <rect x="27" y="143" width="9" height="6" rx="1.5" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+                <path d="M 27 148 C 22 148 18 153 21 159 C 23 155 26 151 29 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+                <path d="M 34 148 C 39 148 43 153 40 159 C 38 155 35 151 32 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+            </g>
+            <g id="tk-armRight">
+                <circle cx="162" cy="112" r="5.5" fill="#546e7a" stroke="#1c313a" stroke-width="1.5" />
+                <use href="#tk-hoseRing" x="168" y="115" transform="rotate(15 168 115)" />
+                <use href="#tk-hoseRing" x="174" y="120" transform="rotate(25 174 120)" />
+                <use href="#tk-hoseRing" x="179" y="126" transform="rotate(35 179 126)" />
+                <use href="#tk-hoseRing" x="183" y="133" transform="rotate(40 183 133)" />
+                <use href="#tk-hoseRing" x="186" y="140" transform="rotate(30 186 140)" />
+                <rect x="184" y="143" width="9" height="6" rx="1.5" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+                <path d="M 184 148 C 179 148 175 153 178 159 C 180 155 183 151 186 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+                <path d="M 191 148 C 196 148 200 153 197 159 C 195 155 192 151 189 149 Z" fill="#263238" stroke="#1c313a" stroke-width="1" />
+            </g>
+        </g>
+        <g id="tk-legs">
+            <rect x="78" y="145" width="14" height="15" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <line x1="78" y1="150" x2="92" y2="150" stroke="#263238" stroke-width="1" />
+            <rect x="81" y="158" width="8" height="12" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+            <ellipse cx="85" cy="172" rx="13" ry="4" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+            <rect x="128" y="145" width="14" height="15" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <line x1="128" y1="150" x2="142" y2="150" stroke="#263238" stroke-width="1" />
+            <rect x="131" y="158" width="8" height="12" fill="#37474f" stroke="#1c313a" stroke-width="1.2" />
+            <ellipse cx="135" cy="172" rx="13" ry="4" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+        </g>
+        <g id="tk-legs-stub">
+            <rect x="78" y="145" width="14" height="8" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <ellipse cx="85" cy="154" rx="11" ry="3" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+            <rect x="128" y="145" width="14" height="8" rx="2" fill="#455a64" stroke="#1c313a" stroke-width="1.5" />
+            <ellipse cx="135" cy="154" rx="11" ry="3" fill="#263238" stroke="#1c313a" stroke-width="1.5" />
+        </g>
+        <g id="tk-shell">
+            <rect x="60" y="45" width="100" height="102" rx="12" fill="url(#tk-tkBlueMetal)" stroke="#1c313a" stroke-width="3.5" stroke-linejoin="round" style="filter: url(#tk-grain);" />
+            <circle cx="110" cy="88" r="30" fill="url(#tk-glassConvex)" stroke="#1c313a" stroke-width="3" />
+            <path d="M 88 78 A 24 24 0 0 1 128 72" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.3" stroke-linecap="round" />
+            <use href="#tk-screwTight" x="110" y="53" />
+            <use href="#tk-screwMissing" x="110" y="123" />
+            <use href="#tk-screwTight" x="68" y="56" />
+            <use href="#tk-screwTight" x="68" y="78" />
+            <use href="#tk-screwTight" x="68" y="100" />
+            <use href="#tk-screwTight" x="68" y="122" />
+            <use href="#tk-screwTight" x="152" y="56" />
+            <use href="#tk-screwTight" x="152" y="78" />
+            <use href="#tk-screwTight" x="152" y="100" />
+            <use href="#tk-screwLoose" x="152" y="122" />
+            <rect x="88" y="132" width="44" height="9" rx="3" fill="#102027" stroke="#1c313a" stroke-width="1.2" />
+            <circle cx="95" cy="136.5" r="2.5" fill="#00e676" class="tk-status-dot" />
+            <circle cx="110" cy="136.5" r="2.5" fill="#37474f" />
+            <circle cx="125" cy="136.5" r="2.5" fill="#37474f" />
+        </g>
+        <g id="takaBody">
+            <use href="#tk-arms" />
+            <use href="#tk-legs" />
+            <use href="#tk-shell" />
+            <ellipse cx="110" cy="192" rx="50" ry="6" fill="#000" opacity=".3" />
+        </g>
+        <g id="takaBodySwim">
+            <use href="#tk-arms" />
+            <use href="#tk-legs-stub" />
+            <use href="#tk-shell" />
+            <ellipse cx="110" cy="178" rx="36" ry="6" fill="#000" opacity=".18" />
+        </g>
+    </defs>
+    <g class="tk-art" filter="url(#tk-edge)">
+        <g class="takaBody">
+            <use href="#takaBody" />
+        </g>
+        <circle class="eyeGlow" cx="110" cy="88" r="14" fill="url(#tk-tkEye)" />
+        <circle class="eyeHi" cx="105" cy="83" r="3" fill="#ffffff" opacity="0.9" />
+    </g>
+</svg>
     </div>
 
     <div class="dialog" id="dialog">

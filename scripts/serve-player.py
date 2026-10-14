@@ -19,6 +19,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path.endswith(".html") or self.path == "/" or self.path.endswith("manifest.json"):
             # SPA 入口 + 语音清单：每次必拿最新
             self.send_header("Cache-Control", "no-cache")
+        elif self.path.startswith("/stories/"):
+            # 故事包（含重渲音频）：URL 不带版本号，与生产 nginx 同策略协商缓存（⑪号备忘）
+            self.send_header("Cache-Control", "no-cache")
         elif "/assets/" in self.path:
             # vite hash 产物：内容定哈希，可永久缓存
             self.send_header("Cache-Control", "public, max-age=31536000, immutable")

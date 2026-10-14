@@ -1,0 +1,65 @@
+/* The compact/VN reader shares the book's paper and ink, including portrait fallback. */
+body:not(.book-mode) #dialog{background:var(--paper);background-image:radial-gradient(color-mix(in srgb,var(--paper-ink) 1.5%,transparent) .7px,transparent .8px);background-size:4px 4px;color:var(--paper-ink);border:1px solid color-mix(in srgb,var(--paper-line) 65%,transparent);border-radius:20px;box-shadow:0 14px 40px #07151f25;backdrop-filter:none;-webkit-backdrop-filter:none;padding:22px 24px;font-family:var(--font-reader)}
+body:not(.book-mode) #speaker-label{color:var(--paper-muted);font:12px var(--font-shell);letter-spacing:.13em;padding:0 0 13px;margin-bottom:13px;border-bottom:1px solid color-mix(in srgb,var(--paper-line) 50%,transparent)}
+body:not(.book-mode) #story-text{color:var(--paper-ink);font:17px/2 var(--font-reader);font-style:normal;letter-spacing:.03em;scrollbar-color:var(--paper-line) transparent}
+body:not(.book-mode) #story-text .codex-link{color:var(--gold);border-bottom-color:var(--gold)}
+body:not(.book-mode) #choices{gap:10px}
+body:not(.book-mode) #choices .choice-btn{min-height:48px;background:var(--surface);border:1px solid var(--paper-line);border-radius:13px;box-shadow:0 3px 10px color-mix(in srgb,var(--paper-ink) 6%,transparent);color:var(--paper-ink);font:15px/1.65 var(--font-reader);padding:10px 16px;letter-spacing:.02em}
+body:not(.book-mode) #choices .choice-btn:hover{background:color-mix(in srgb,var(--surface) 90%,var(--gold));border-color:var(--gold);transform:none}
+body:not(.book-mode) #choices .choice-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+body:not(.book-mode):has(#mic-fab.recording) #choices .voice-chip{color:var(--gold);border-color:var(--gold);background:var(--panel-tint)}
+body:not(.book-mode) #choices .choice-input{background:color-mix(in srgb,var(--surface) 65%,var(--paper));border:1px solid var(--paper-line);border-radius:13px;min-height:52px;padding:4px 5px 4px 15px;box-shadow:none;color:var(--paper-ink)}
+body:not(.book-mode) #choices .choice-input:focus-within{border-color:var(--gold);box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 15%,transparent)}
+body:not(.book-mode) #choices .choice-input input{color:var(--paper-ink);font:16px var(--font-reader)}
+body:not(.book-mode) #choices .choice-input input::placeholder{color:var(--paper-muted);letter-spacing:.04em;opacity:1}
+body:not(.book-mode) #choices .choice-input button{min-width:44px;min-height:44px;border:1px solid var(--paper-line);color:var(--paper-ink);background:var(--paper);border-radius:10px}
+body:not(.book-mode) #choices .choice-input button:hover,body:not(.book-mode) #choices .choice-input button.recording{border-color:var(--gold);color:var(--gold)}
+body:not(.book-mode) #listen-bar span{color:var(--paper-muted);font:12px/1.8 var(--font-reader);letter-spacing:.08em}
+body:not(.book-mode) #listen-bar .progress-track{background:var(--paper-line)}
+body:not(.book-mode) #listen-bar .progress-fill{background:var(--gold)}
+body:not(.book-mode) .mic-fab{background:var(--surface);border-color:var(--paper-line);color:var(--paper-ink);box-shadow:0 5px 18px #07151f30}
+body:not(.book-mode) .mic-fab.recording{color:var(--gold);border-color:var(--gold)}
+body:not(.book-mode) .mic-guide-bubble{background:var(--paper);border-color:var(--paper-line);color:var(--paper-ink);font-family:var(--font-reader);box-shadow:0 7px 20px #07151f30}
+body:not(.book-mode) .mic-guide-bubble::after{border-top-color:var(--paper-line)}
+body:not(.book-mode) .mic-guide-bubble .mgb-sub{color:var(--paper-muted)}
+body:not(.book-mode) .mic-guide-bubble.guide-inline{position:static;max-width:none;width:100%;box-sizing:border-box;pointer-events:none;margin:2px 0;background:var(--surface);box-shadow:none;padding:12px 16px}
+body:not(.book-mode) .mic-guide-bubble.guide-inline::after{display:none}
+body:not(.book-mode) .mic-guide-bubble.guide-inline .mgb-anim{display:none}
+.rotate-hint .rh-card{background:var(--paper);color:var(--paper-ink);border-color:var(--paper-line);font-family:var(--font-reader)}
+@media(orientation:portrait){
+ body:not(.book-mode):not(.on-gate):not(.on-shelf){background:var(--sea);overflow-x:hidden}
+ body:not(.book-mode):not(.on-gate):not(.on-shelf) .bg-layer{filter:brightness(.65) saturate(.85)}
+ body:not(.book-mode):not(.on-gate):not(.on-shelf) .bg-shade{background:#05101b38}
+ body:not(.book-mode) #stage{padding:calc(68px + env(safe-area-inset-top,0px)) 16px calc(90px + env(safe-area-inset-bottom,0px));gap:0}
+ body:not(.book-mode) #stage>.hud{top:calc(12px + env(safe-area-inset-top,0px));right:16px}
+ body:not(.book-mode) #reader-back{top:calc(12px + env(safe-area-inset-top,0px));left:16px}
+ body:not(.book-mode) .taka-figure{margin:4px 0 14px}
+ body:not(.book-mode) .taka-figure svg{height:clamp(180px,25svh,240px)}
+ body:not(.book-mode) #dialog{margin-top:0;padding:22px 21px;width:100%;height:auto}
+ body:not(.book-mode) #story-text{flex:none;max-height:none;overflow-y:visible;line-height:2.1}
+ body:not(.book-mode) #choices{position:static;min-width:0;width:100%;margin-top:20px}
+ :is([data-theme=dark-forest],[data-theme=forest-light]) body:not(.book-mode):not(.on-gate):not(.on-shelf) .bg-shade{background:#e2ebe63d}
+ :is([data-theme=dark-forest],[data-theme=forest-light]) body:not(.book-mode):not(.on-gate):not(.on-shelf) .bg-layer{filter:brightness(.9) saturate(.65)}
+ :is([data-theme=dark-forest],[data-theme=forest-light]) body:not(.book-mode):not(.on-gate):not(.on-shelf) .bg-layer.show{opacity:.5}
+}
+
+.rotate-hint .rh-text{color:var(--paper-ink);font-family:var(--font-reader)}
+.rotate-hint .rh-phone{border-color:var(--paper-muted)}
+.rotate-hint .rh-ok{background:var(--surface);color:var(--paper-ink);border:1px solid var(--paper-line);min-height:44px;font-family:var(--font-reader)}
+.rotate-hint .rh-never{color:var(--paper-muted)}
+
+/* Compact landscape uses the same flowing reader when there is no room for a book. */
+@media(pointer:coarse) and (orientation:landscape){
+ body:not(.book-mode):not(.on-gate):not(.on-shelf){overflow-y:auto}
+ body:not(.book-mode) #stage{display:flex;flex-direction:column;align-items:center;height:auto;min-height:100dvh;padding:68px 16px 32px}
+ body:not(.book-mode) .taka-figure{position:static;order:1;margin:0 0 16px}
+ body:not(.book-mode) .taka-figure svg{height:160px}
+ body:not(.book-mode) #dialog{position:static;order:2;width:100%;height:auto;margin:0}
+ body:not(.book-mode) #story-text{flex:none;max-height:none;overflow-y:visible}
+ body:not(.book-mode) #choices{position:static;width:100%;min-width:0;margin-top:20px}
+ body:not(.book-mode) #choices .choice-btn{width:100%}
+}
+@media(pointer:coarse) and (max-height:500px){
+ body.book-mode .hotspot{min-height:44px;min-width:0;max-width:calc(100% - 16px);width:max-content;padding:6px 8px;gap:6px}
+ body.book-mode .hotspot .actor{width:26px;flex-basis:26px}
+}

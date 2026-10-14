@@ -1,4 +1,9 @@
 :root {
+            --font-story: "LXGW WenKai", "STKaiti", "KaiTi", "YouYuan", "PingFang SC", Georgia, serif;
+            --paper: #fbf6ea;
+            --paper-ink: #2c221e;
+            --paper-muted: #8c7b6c;
+            --paper-line: #5a4b3c;
             --bg-deep: #0a141f;
             --bg-sea: #13283a;
             --bg-dialog: rgba(8,14,20,.88);
@@ -23,12 +28,15 @@
         body {
             background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-sea) 100%);
             color: var(--text-primary);
-            /* 华为/荣耀设备无 -apple-system：显式补 PingFang / HarmonyOS Sans / 雅黑 */
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+            /* 本地楷体优先，缺少楷体的设备沿用中文字体与衬线回退。 */
+            font-family: var(--font-story);
+            font-style: normal;
             height: 100vh;
             height: 100dvh; /* 动态视口高：地址栏/手势条收放不顶跑底部（不支持的浏览器吃上一行兜退） */
             overflow: hidden;
         }
+
+        button, input, textarea, select { font-family: var(--font-story); font-style: normal; }
 
         /* 场景背景图：双层交叉淡化（无背景的故事保持原渐变底） */
         .bg-layer {
@@ -534,7 +542,7 @@
             height: 300px;
             display: block;
             /* 光线描边：贴轮廓一圈暖黄——塔卡的灯就是光源，亮边叙事自洽 */
-            filter: drop-shadow(0 0 6px rgba(255, 200, 80, .9));
+            filter: drop-shadow(0 0 8px rgba(255, 200, 80, .28));
         }
 
         /* 对话框：半透明深海蓝 + 背景模糊，透出手绘笔触，不再是黑贴片 */
@@ -689,6 +697,23 @@
             height: 100%;
             background: var(--accent-dim);
         }
+
+        /* 1013 手绘金属：材质滤镜内置于主角 SVG，不依赖角色包。 */
+        .tk-loose-screw {
+            animation: tkScrewWobble 2.5s infinite ease-in-out;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+        @keyframes tkScrewWobble {
+            0%, 100% { transform: rotate(0deg) translate(0, 0); }
+            20% { transform: rotate(8deg) translate(.5px, -.5px); }
+            25% { transform: rotate(-6deg) translate(-.5px, .5px); }
+            30% { transform: rotate(0deg) translate(0, 0); }
+        }
+        .tk-status-dot { filter: drop-shadow(0 0 3px #00e676); }
+        #taka-figure.st-off:not(.px-mode) svg { filter: none; }
+        .st-off .tk-loose-screw { animation: none; }
+        .st-off .tk-status-dot { fill: #37474f; filter: none; }
 
         /* ===== 塔卡 6 态灯光（动画只作用在眼睛的光上） ===== */
         .eyeGlow { transform-box: fill-box; transform-origin: center; }
@@ -1368,14 +1393,24 @@ body.on-shelf #book-stage { display: none; }
 }
 body.book-mode #book-stage { display: flex; }
 
-/* 书台模式：顶栏/HUD 浮在书台两侧的整屏背景上，该背景被书壳阴影 + 压暗层压低、整体偏暗；
-   on-light-bg 采样的是背景图「原图」顶部（偏亮），会把图标误判成深色、在暗背景上糊掉。
-   书台模式统一用浅色图标/浅色 HUD 最稳（能量环的暖黄本身醒目，不受影响）。 */
-body.book-mode .hud { color: rgba(235, 245, 250, .95); }
+/* 顶栏退为书页之外的工具，保留点击热区与电量档位色。 */
+body.book-mode .hud { color: #dedbcd; font-size: 11px; }
 body.book-mode .settings-btn, body.book-mode .log-btn, body.book-mode .ach-btn,
-body.book-mode .speech-btn, body.book-mode .parent-btn { color: rgba(235, 245, 250, .95); }
-body.book-mode .lang-toggle { color: rgba(235, 245, 250, .95); border-color: rgba(235, 245, 250, .4); }
-body.book-mode .lang-toggle:hover { color: #ffd670; border-color: #ffd670; }
+body.book-mode .speech-btn, body.book-mode .parent-btn {
+    color: #e2dfd2; opacity: .72; min-width: 36px; min-height: 36px;
+}
+body.book-mode .settings-btn:hover, body.book-mode .log-btn:hover, body.book-mode .ach-btn:hover,
+body.book-mode .speech-btn:hover, body.book-mode .parent-btn:hover { opacity: 1; }
+body.book-mode .settings-btn svg, body.book-mode .log-btn svg, body.book-mode .ach-btn svg,
+body.book-mode .speech-btn svg, body.book-mode .parent-btn svg {
+    width: 21px; height: 21px; filter: url(#handDrawnEdge) saturate(.2);
+}
+body.book-mode .lang-toggle {
+    color: #e2dfd2; border: 0; border-radius: 0;
+    border-bottom: 1px solid rgba(226, 223, 210, .4);
+    min-height: 32px; padding: 3px 8px; font-size: 12px;
+}
+body.book-mode .lang-toggle:hover { color: #fff5d5; border-color: #fff5d5; }
 
 /* 书本：16:9，宽度自适应（矮屏等比缩小兜底） */
 body.book-mode #book-stage .spread {
@@ -1445,49 +1480,50 @@ body.book-mode #taka-figure {
 }
 body.book-mode #taka-figure svg { width: 100%; height: auto; }
 
-/* ---------- hotspot：长在画面里的发光选项 ---------- */
+/* ---------- 绘本交互：B 版图文合一手绘纸签 ---------- */
 body.book-mode .hotspot {
     position: absolute; transform: translate(-50%, -50%);
-    cursor: pointer; border: none; background: none; padding: 0; z-index: 3;
-    min-width: 64px; min-height: 64px; /* 小孩手指粗：触控热区保底（光晕是纯视觉，不吃点击） */
-    animation: bookBob 5s ease-in-out infinite;
+    display: flex; align-items: center; gap: 8px;
+    width: max-content; max-width: min(46%, 230px);
+    min-width: 64px; min-height: 56px;
+    padding: 8px 12px;
+    cursor: pointer; z-index: 3;
+    background: rgba(251, 246, 234, .9);
+    border: 2px solid #645844; border-radius: 22px;
+    color: #2c221e;
+    box-shadow: 0 4px 14px rgba(7, 21, 39, .14);
+    filter: url(#handDrawnEdge);
+    transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
 }
-@keyframes bookBob { 50% { margin-top: -2%; } }
-body.book-mode .hotspot .actor { display: block; }
+body.book-mode .hotspot .actor { display: block; width: 38px; flex: 0 0 38px; }
 body.book-mode .hotspot .actor svg { width: 100%; height: auto; display: block; }
-/* 常驻角色（非交互演出件，2026-09-03）：纯展示，不吃点击；位置/尺寸/镜像由 story.json 的 book.actors 内联样式给 */
+body.book-mode .hotspot .label {
+    display: flex; flex-direction: column; gap: 3px;
+    min-width: 0; max-width: 160px;
+    white-space: normal; overflow-wrap: anywhere; text-align: left;
+    font-size: clamp(11px, 1.15vw, 15px); font-weight: 600; line-height: 1.5;
+}
+body.book-mode .hotspot .hotspot-hint { font-size: clamp(10px, .85vw, 12px); font-weight: 400; opacity: .8; }
+body.book-mode .hotspot:hover { background: #fff9e9; transform: translate(-50%, -50%) translateY(-2px); z-index: 5; }
+body.book-mode .hotspot:focus-visible { outline: 3px solid #b39a63; outline-offset: 4px; z-index: 5; }
+body.book-mode .hotspot:active { transform: translate(-50%, -50%) scale(.97); }
+body.book-mode .hotspot:disabled { opacity: .55; pointer-events: none; }
+/* UI 图标收为纸上的墨线；角色缩略图仍保留自己的羽毛或金属颜色。 */
+body.book-mode .hotspot[data-actor="deep"] .actor circle,
+body.book-mode .hotspot[data-actor="mic"] .actor circle { display: none; }
+body.book-mode .hotspot[data-actor="deep"] .actor path { stroke: #495954; stroke-width: 3; }
+body.book-mode .hotspot[data-actor="sun"] .actor circle { fill: none; stroke: #987d43; stroke-width: 2.5; }
+body.book-mode .hotspot[data-actor="sun"] .actor g { stroke: #987d43; stroke-width: 2.5; }
+body.book-mode .hotspot[data-actor="mic"] .actor path,
+body.book-mode .hotspot[data-actor="mic"] .actor rect { stroke: #695d44; }
+@media (max-width: 760px) {
+    body.book-mode .hotspot { max-width: calc(100% - 16px); width: min(210px, calc(100% - 16px)); padding: 8px 10px; }
+    body.book-mode .hotspot .actor { width: 32px; flex-basis: 32px; }
+}
+/* 常驻角色独立于交互纸签，继续按故事包排布。 */
 body.book-mode .scene-actor { position: absolute; pointer-events: none; }
 body.book-mode .scene-actor svg { width: 100%; height: auto; display: block; }
-body.book-mode .hotspot .halo {
-    position: absolute; inset: -45%; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, rgba(255, 240, 190, .9) 0%, rgba(255, 220, 130, .35) 45%, transparent 70%);
-    animation: bookHalo 2.4s ease-in-out infinite;
-}
 @keyframes bookHalo { 50% { transform: scale(1.25); opacity: .65; } }
-body.book-mode .hotspot .label {
-    position: absolute; left: 50%; bottom: 108%; transform: translateX(-50%);
-    width: max-content;            /* 跳出按钮窄容器（hotspot 宽只有左页的 ~11%），按内容撑开 */
-    max-width: 13em;               /* 长文案换行收拢，防顶出左页 */
-    white-space: normal; text-align: center;
-    background: rgba(255, 251, 240, .94);
-    color: #4a3a20; font-size: clamp(11px, 1.15vw, 15px); font-weight: 600;
-    padding: .45em 1em; border-radius: 2em;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
-    border: 1.5px solid rgba(255, 255, 255, .9);
-}
-body.book-mode .hotspot .label::after {
-    content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
-    border: 6px solid transparent; border-top-color: rgba(255, 251, 240, .94);
-}
-/* 上半页 hotspot：标签放下方，箭头朝上 */
-body.book-mode .hotspot .label.below { bottom: auto; top: 108%; }
-body.book-mode .hotspot .label.below::after {
-    top: auto; bottom: 100%;
-    border-top-color: transparent; border-bottom-color: rgba(255, 251, 240, .94);
-}
-body.book-mode .hotspot:hover .label { background: #fff; transform: translateX(-50%) scale(1.06); }
-body.book-mode .hotspot:hover { z-index: 5; }
-body.book-mode .hotspot:disabled { opacity: .55; pointer-events: none; }
 
 body.book-mode .flip-hint {
     position: absolute; bottom: 4%; left: 50%; transform: translateX(-50%);
@@ -1503,7 +1539,8 @@ body.book-mode .page-text {
     width: 42%;
     height: 100%;
     position: relative;
-    background: rgba(250, 246, 235, .96);
+    background: var(--paper);
+    color: var(--paper-ink);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1517,66 +1554,75 @@ body.book-mode .page-text::before {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)' opacity='0.08'/%3E%3C/svg%3E");
 }
 body.book-mode .bubbles {
-    display: flex; flex-direction: column; gap: .85em;
+    display: flex; flex-direction: column; gap: .55em;
     flex: 1; min-height: 0;          /* 可收缩：气泡多了内部滚动，不顶出纸面 */
     overflow-y: auto;
-    padding-top: 2em;                /* 顶部给书名（pagenum 左上角）留位 + 第一颗气泡 who 名牌 -.9em 探头防裁切 */
+    padding-top: 2em;          /* 给纸页左上角的章节标题留位 */
     scrollbar-width: thin;
 }
+/* 对话与旁白都印在纸上；逐段揭示机制沿用原有 .bubble / .in。 */
 body.book-mode .bubble {
     position: relative;
-    background: #fff;
-    border-radius: 1.1em;
-    padding: .75em 1.05em;
-    font-size: clamp(12px, 1.3vw, 17px);
-    line-height: 1.7;
-    color: #33455a;
-    box-shadow: 0 4px 14px rgba(90, 110, 140, .14);
-    opacity: 0;
-    transform: translateY(10px);
+    background: transparent; border: 0; border-radius: 0;
+    padding: .1em 0 .15em;
+    font-size: clamp(15px, 1.45vw, 18px);
+    line-height: 1.9;
+    color: var(--paper-ink);
+    box-shadow: none;
+    opacity: 0; transform: translateY(10px);
     transition: opacity .5s ease, transform .5s ease;
 }
 body.book-mode .bubble.in { opacity: 1; transform: none; }
 body.book-mode .bubble .who {
-    position: absolute; top: -.9em; left: 1em;
-    font-size: .72em; font-weight: 700; letter-spacing: .08em;
-    background: #5b9bc4; color: #fff; border-radius: 2em; padding: .2em .8em;
+    position: relative; display: table; isolation: isolate;
+    margin: 0 0 .35em; padding: 0 .65em;
+    font-size: .72em; font-weight: 600; letter-spacing: .08em;
+    background: none; color: #596559;
+    border-radius: 0; line-height: 1.8;
 }
-body.book-mode .bubble.taka-b { border: 1.5px solid rgba(240, 168, 62, .5); }
-body.book-mode .bubble.taka-b .who { background: #f0a83e; }
-body.book-mode .bubble.char-b { border: 1.5px solid rgba(91, 155, 196, .55); }
-body.book-mode .bubble.narr { background: transparent; box-shadow: none; color: #6b7f95; font-style: italic; padding-left: .3em; }
+body.book-mode .bubble .who::before {
+    content: ""; position: absolute; inset: 2px 0; z-index: -1;
+    background: #dce2d5; border-radius: 3px 6px 4px 5px;
+    filter: url(#handDrawnEdge); transform: rotate(-1deg);
+}
+body.book-mode .bubble.taka-b .who { color: #735b32; }
+body.book-mode .bubble.taka-b .who::before { background: #ead5ae; }
+body.book-mode .bubble.narr { color: #3d312a; font-style: normal; }
 /* 记忆库关键词在纸面上的高亮（米白纸底，虚线改深金） */
 body.book-mode .codex-link { color: #b07800; border-bottom-color: rgba(176, 120, 0, .6); }
 body.book-mode .pagenum {
     position: absolute; top: 3.5%; left: 6%;   /* 2026-09-01：从右下角挪到左上——离话筒太近，小孩老误长按 */
-    font-size: clamp(10px, .95vw, 13px); color: #a39072; font-style: italic;
+    font-size: clamp(11px, 1vw, 13px); color: var(--paper-muted); font-style: normal; letter-spacing: 2px;
 }
 
 /* 右页选项区：气泡按钮 + 自由输入（虚线邀请气泡） */
 body.book-mode .book-choices { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; margin-top: .4em; }
 body.book-mode .book-choices .choice-btn {
-    background: rgba(255, 251, 240, .96);
-    border: 1.5px solid rgba(91, 155, 196, .5);
-    color: #3a4a5c;
-    border-radius: 2em;
-    padding: .5em 1.2em;
-    font-size: clamp(12px, 1.15vw, 15px);
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 3px 10px rgba(90, 110, 140, .12);
+    background: rgba(251, 246, 234, .92);
+    border: 2px solid var(--paper-line); color: var(--paper-ink);
+    border-radius: 18px; padding: .5em 1.2em;
+    font-size: clamp(13px, 1.25vw, 16px); font-weight: 600;
+    min-height: 44px; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(90, 75, 60, .1);
+    filter: url(#handDrawnEdge);
 }
-body.book-mode .book-choices .choice-btn:hover { background: #fff; border-color: var(--accent-warm); }
+body.book-mode .book-choices .choice-btn:hover { background: #fff9e9; border-color: var(--paper-line); }
+body.book-mode .book-choices .choice-btn:focus-visible { outline: 3px solid #b39a63; outline-offset: 4px; }
 body.book-mode .book-choices .choice-input {
-    border: 2px dashed rgba(91, 155, 196, .65);
-    border-radius: 1.1em;
-    padding: .55em .9em;
-    background: rgba(255, 255, 255, .55);
-    animation: bookDashBlink 2.2s ease-in-out infinite;
+    border: 2px dashed var(--paper-muted); border-radius: 16px;
+    padding: 8px 10px 8px 14px; background: rgba(245, 238, 222, .9);
+    box-shadow: 0 2px 8px rgba(90, 75, 60, .08);
+    filter: url(#handDrawnEdge); animation: none;
 }
-@keyframes bookDashBlink { 50% { border-color: rgba(240, 168, 62, .8); background: rgba(255, 248, 235, .8); } }
-body.book-mode .book-choices .choice-input input { color: #33455a; }
-body.book-mode .book-choices .choice-input button { color: #5b9bc4; }
+body.book-mode .book-choices .choice-input:focus-within { border-color: var(--paper-line); }
+body.book-mode .book-choices .choice-input input { color: var(--paper-ink); font-size: 16px; }
+body.book-mode .book-choices .choice-input input::placeholder { color: #8c7b6c; }
+body.book-mode .book-choices .choice-input button {
+    color: #6b5a4c; border: 1.5px solid var(--paper-line);
+    background: var(--paper); border-radius: 9px;
+    min-width: 44px; min-height: 44px;
+}
+body.book-mode .book-choices .choice-input button:hover { background: #fff9e9; }
 
 /* 聆听条在绘本右页底部 */
 body.book-mode .listen-bar { margin-top: .4em; }
@@ -1771,12 +1817,6 @@ body.on-shelf .mic-fab { display: none; }
     flex: none;
     object-fit: cover;
     border-radius: 8px;
-}
-
-/* 绘本话筒 hotspot（2026-09-28）：freeInput 场景左页的语音入口，halo 比选项 hotspot 更暖更实 */
-body.book-mode .hotspot.mic-hotspot .halo {
-    background: radial-gradient(circle, rgba(255, 200, 80, .95) 0%, rgba(255, 183, 3, .4) 45%, transparent 70%);
-    animation-duration: 1.8s;
 }
 
 /* 引导气泡图标化（2026-09-28）：手指按住圆钮的循环动画，给不识字的孩子看的 */
@@ -2026,3 +2066,12 @@ body.book-mode .hotspot.mic-hotspot .halo {
 .cc-tags { margin-top: 8px; }
 .cc-tags-label { font-size: 12px; color: #7a93a8; margin-right: 8px; }
 .cc-tag { display: inline-block; border: 1px solid rgba(255,183,3,.55); color: #ffb703; border-radius: 999px; padding: 3px 12px; font-size: 13px; margin: 3px 4px 0 0; }
+
+/* 绘本语音引导也是一张纸签，不与纸上正文争夺视觉层次。 */
+body.book-mode .mic-guide-bubble {
+    background: var(--paper); color: var(--paper-ink);
+    border: 2px solid var(--paper-line); border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(7, 21, 39, .18); filter: url(#handDrawnEdge);
+}
+body.book-mode .mic-guide-bubble::after { border-top-color: var(--paper-line); }
+body.book-mode .mic-guide-bubble .mgb-sub { color: #6b5a4c; opacity: 1; }

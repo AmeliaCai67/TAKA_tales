@@ -50,7 +50,7 @@ export async function selectChild(id: number): Promise<void> {
 function dismissAsGuest(): void {
     localStorage.setItem("taka_guest", "1");
     document.getElementById("parent-overlay")!.hidden = true;
-    document.getElementById("gate-btn")?.click(); // 大门还立着则顺势进入
+    // 家长动作不替孩子触碰灯；关闭后保留唤醒/探索状态。
 }
 
 function closeBtn(): string {
@@ -69,7 +69,7 @@ function advanceIfOnGate(body: HTMLElement): void {
     const gateBtn = document.getElementById("gate-btn");
     if (gateBtn) {
         document.getElementById("parent-overlay")!.hidden = true;
-        gateBtn.click();
+        // 保留两次触碰仪式，选择档案后仍由孩子开启。
         return;
     }
     renderLoggedIn(body);

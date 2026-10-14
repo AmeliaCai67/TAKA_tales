@@ -1,502 +1,1802 @@
 {
- "prologue/01_narrator.mp3": {
-  "hash": "b605399cf30cb4c294dc6e9a7ee57ead485b2928",
-  "who": "narrator",
-  "text": "This is TAKA."
- },
- "prologue/02_narrator.mp3": {
-  "hash": "86d74d9b5a86bc92d48c3b84bf85fc14e64eced6",
-  "who": "narrator",
-  "text": "TAKA lives at the bottom of the sea."
- },
- "prologue/03_narrator.mp3": {
-  "hash": "8567ba0a4aa77341b5c32ceb518f9378d6345d03",
-  "who": "narrator",
-  "text": "Every day, TAKA cleans the coral."
- },
- "prologue/04_narrator.mp3": {
-  "hash": "fec6dbc8de72dfdb446e46684ecde04abbcccc18",
-  "who": "narrator",
-  "text": "Every day, TAKA listens to the Old Machine tell stories."
- },
- "prologue/05_narrator.mp3": {
-  "hash": "67cf2e73bf3cf9b78d232ac5c9a61b53abc8a42d",
-  "who": "narrator",
-  "text": "TAKA is old."
- },
- "prologue/06_narrator.mp3": {
-  "hash": "9eaa86332205954ac1586c720586201ad114c84a",
-  "who": "narrator",
-  "text": "TAKA is made of iron."
- },
- "prologue/07_narrator.mp3": {
-  "hash": "7e93e16e6222c31bb718ec2dc43f3f840d7a608d",
-  "who": "narrator",
-  "text": "TAKA is calm and quiet."
- },
- "prologue/08_narrator.mp3": {
-  "hash": "7cba5ef323c6e14a4360ae299ab5ff09da5880ad",
-  "who": "narrator",
-  "text": "But today, TAKA wants to go up."
- },
- "prologue/choices.mp3": {
-  "hash": "15cf3d0bddd311728d62a83748abc222130bc78a",
-  "who": "narrator",
-  "text": "Start the story. "
- },
- "start/01_narrator.mp3": {
-  "hash": "e77ce840337a801d3866ad0abf5ac3c422dbfa8b",
-  "who": "narrator",
-  "text": "The sea bottom is full of lights."
- },
- "start/02_narrator.mp3": {
-  "hash": "c99867380fa9c7ff5d37a2102e408d59ec394483",
-  "who": "narrator",
-  "text": "TAKA cleans the coral in the shiny lights."
- },
- "start/03_narrator.mp3": {
-  "hash": "fd2f72a3dfc3c46f060d37267ab9cccd2c6b1873",
-  "who": "narrator",
-  "text": "TAKA hears a sound."
- },
- "start/04_narrator.mp3": {
-  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
-  "who": "narrator",
-  "text": "Ooo... ooo..."
- },
- "start/05_narrator.mp3": {
-  "hash": "ed91f6375f53afebcfdd3e2b3fb515fb2844014c",
-  "who": "narrator",
-  "text": "It comes from up there."
- },
- "start/06_narrator.mp3": {
-  "hash": "99429820acde4e132e5adcc67fbd4c660d19c9f5",
-  "who": "narrator",
-  "text": "The Old Machine says,"
- },
- "start/07_oldmachine.mp3": {
-  "hash": "a1a3ff42fad0b6ac2691a536b9e7842b053ac925",
-  "who": "oldmachine",
-  "text": "Do not go. There is no water up there."
- },
- "start/choices.mp3": {
-  "hash": "6779174478831f0a11aa13a2b83a0d654213cfc5",
-  "who": "narrator",
-  "text": "You choose. A. Swim up and see. B. Keep cleaning the coral. Or tell me your own idea."
- },
- "clean_branch/01_narrator.mp3": {
-  "hash": "4f01753851302a715d454be46ccfe696625de582",
-  "who": "narrator",
-  "text": "TAKA stays."
- },
- "clean_branch/02_narrator.mp3": {
-  "hash": "c0ea6dde8472b5c6f6d53a753414b13b2880ffed",
-  "who": "narrator",
-  "text": "TAKA cleans the coral."
- },
- "clean_branch/03_narrator.mp3": {
-  "hash": "ebaa07a01abe4dad5d8caa824775cbac443be4fc",
-  "who": "narrator",
-  "text": "At night, TAKA's light stays on."
- },
- "clean_branch/04_narrator.mp3": {
-  "hash": "f457fe076f6540d33165540591b19f514f9f22e4",
-  "who": "narrator",
-  "text": "TAKA cannot sleep."
- },
- "clean_branch/05_narrator.mp3": {
-  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
-  "who": "narrator",
-  "text": "Ooo... ooo..."
- },
- "clean_branch/06_narrator.mp3": {
-  "hash": "f6a092f464b679daf0b8239ff0fc379fdc1546d4",
-  "who": "narrator",
-  "text": "The sound is still there."
- },
- "clean_branch/choices.mp3": {
-  "hash": "95ba981e85bf20a54a0a60faf5c5d75d57c83795",
-  "who": "narrator",
-  "text": "A. Close your eyes and sleep. Or tell me your own idea."
- },
- "dream/01_narrator.mp3": {
-  "hash": "2b19ddd00040daee92542bfffc92bdb0349eb5b1",
-  "who": "narrator",
-  "text": "TAKA falls asleep."
- },
- "dream/02_narrator.mp3": {
-  "hash": "61b3810439eef841487ee49c66cb966c30e3ba2a",
-  "who": "narrator",
-  "text": "TAKA dreams of light."
- },
- "dream/03_narrator.mp3": {
-  "hash": "2e80ee3cdf35254e39b7f13d3226998a5dc0cf3e",
-  "who": "narrator",
-  "text": "Very, very bright."
- },
- "dream/04_narrator.mp3": {
-  "hash": "7aebbe8f3b6545fc3df37e21bb0cc4260dc42a02",
-  "who": "narrator",
-  "text": "TAKA dreams of wind."
- },
- "dream/05_narrator.mp3": {
-  "hash": "48bda735a7447d2d709b4779c2e84e24cd034108",
-  "who": "narrator",
-  "text": "Like waves."
- },
- "dream/06_narrator.mp3": {
-  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
-  "who": "narrator",
-  "text": "Ooo... ooo..."
- },
- "dream/07_narrator.mp3": {
-  "hash": "c49799ec01d06ac40c3b59b8ce7e208f8860539f",
-  "who": "narrator",
-  "text": "TAKA dreams of coral."
- },
- "dream/08_narrator.mp3": {
-  "hash": "a2c1c8ddc3d2689876a4d6b9f2b68a99dd61d2fb",
-  "who": "narrator",
-  "text": "So big. Not shiny."
- },
- "dream/09_narrator.mp3": {
-  "hash": "ae5e1490298c13f6a61c287e674a738fe6396c41",
-  "who": "narrator",
-  "text": "The Old Machine pokes TAKA."
- },
- "dream/10_oldmachine.mp3": {
-  "hash": "933cb709cf38c4360646e6a2fd3b5fac05991b15",
-  "who": "oldmachine",
-  "text": "Time to work."
- },
- "dream/11_narrator.mp3": {
-  "hash": "2d898e1764fae613c2918825e591013bcaa7e4fa",
-  "who": "narrator",
-  "text": "TAKA looks at the coral."
- },
- "dream/12_narrator.mp3": {
-  "hash": "3515c7772d0f2daf8b2649fdac79d808c3adf08d",
-  "who": "narrator",
-  "text": "TAKA looks up."
- },
- "dream/choices.mp3": {
-  "hash": "867a324ea9d71619c9ce2ef1e3f79d43fedde60a",
-  "who": "narrator",
-  "text": "Go up and see. Or tell me your own idea."
- },
- "surface/01_narrator.mp3": {
-  "hash": "d1843da38bdf2eb574089319026c9b0d377ac937",
-  "who": "narrator",
-  "text": "TAKA floats up."
- },
- "surface/02_narrator.mp3": {
-  "hash": "c3ada500bc57187e61c39184f5d3b6f40ce3ce7e",
-  "who": "narrator",
-  "text": "No water."
- },
- "surface/03_narrator.mp3": {
-  "hash": "56b74b3dd632b262a344e4e7c9a8b1ab4fed9a10",
-  "who": "narrator",
-  "text": "Ouch."
- },
- "surface/04_narrator.mp3": {
-  "hash": "5d0682bc9cdbaaafa58738d8e1a1b088e99726a5",
-  "who": "narrator",
-  "text": "But TAKA hears the sound clearly now."
- },
- "surface/05_narrator.mp3": {
-  "hash": "95108170f282adc87df0ff586f2100e57ecdb0d8",
-  "who": "narrator",
-  "text": "Wind."
- },
- "surface/06_narrator.mp3": {
-  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
-  "who": "narrator",
-  "text": "Ooo... ooo..."
- },
- "surface/07_narrator.mp3": {
-  "hash": "150e401488dcf83b2fc1f3ad6c4033892aceebe1",
-  "who": "narrator",
-  "text": "A seagull flies over."
- },
- "surface/08_seagull.mp3": {
-  "hash": "886a551bf9516a5f887cd827bf650158a4894a5a",
-  "who": "seagull",
-  "text": "You will fall!"
- },
- "surface/09_narrator.mp3": {
-  "hash": "3340f310fa27e7a78d08494ea43053a13e1eb1ef",
-  "who": "narrator",
-  "text": "TAKA says,"
- },
- "surface/10_taka.mp3": {
-  "hash": "39f023db71511d896cc128b581acd90cfe4fd4ac",
-  "who": "taka",
-  "text": "I am listening."
- },
- "surface/11_seagull.mp3": {
-  "hash": "5faaee668e162d0545d6e1169b4ee0ba5b45033a",
-  "who": "seagull",
-  "text": "To what?"
- },
- "surface/12_narrator.mp3": {
-  "hash": "c7e7aa52646f33a7b6868036dad4b5a7d5fba497",
-  "who": "narrator",
-  "text": "asks the seagull."
- },
- "surface/13_taka.mp3": {
-  "hash": "8e435261be0ab4d3e8080e89bc2f322936d1e30b",
-  "who": "taka",
-  "text": "I do not know. But I want to hear it all."
- },
- "surface/choices.mp3": {
-  "hash": "8dd9c762629329653f292f34319ca60da233540a",
-  "who": "narrator",
-  "text": "You choose. A. Ask the wind: Where do you come from?. B. Just listen. Or tell me your own idea."
- },
  "ask_wind/01_taka.mp3": {
-  "hash": "92f8165ef6ff5f55019cc9b00f8ecc9b70900297",
+  "hash": "8dabc96035a1e0726fe96709c0ae2bc0c22e0bde",
   "who": "taka",
-  "text": "Where do you come from?"
+  "text": "Where do you come from?",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c4d7d79967fe1a952e7ffd18fdd5f62f401037af1f284944c07acbcd307fca3d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/02_narrator.mp3": {
-  "hash": "f1a2ca322d8508ec5b65f6831dca8bd8f41d4c6c",
+  "hash": "4d88878b76d16fe21b7054d495c600f07ca2bfef",
   "who": "narrator",
-  "text": "asks TAKA."
+  "text": "asks Taka.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7ac46614046e42929211dc0bfafc17e3a79cb6ad501d79c3192b299f0b2ca134",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/03_seagull.mp3": {
-  "hash": "269903c70d253366fb98b68f0fcb8eaff5f5fdb6",
+  "hash": "3bff00a1d079cf3fd857771050a49753c59a3011",
   "who": "seagull",
-  "text": "I come from where the clouds live,"
+  "text": "I come from where the clouds live,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongcally_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "707a98565fc4159bb4d636cd7ef4fc24e2b7de23acfcd402ba55c0b20dfdc2dd",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/04_narrator.mp3": {
-  "hash": "34902189758fda0627ca2b1b911051ed1e34d2e9",
+  "hash": "ea29a5f87c037820ef7a93c0a0200f0a5d9cb3a2",
   "who": "narrator",
-  "text": "says the seagull."
+  "text": "says the seagull.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "35c17404e3879ffb68d22b26cd7b3a18ebca27b778a61fb975c01bd1a5d6e0d8",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/05_taka.mp3": {
-  "hash": "b61b6dc487be66593490e74bbe39c5078c5f166a",
+  "hash": "7eba479b2466bb3a922882c45a05756f554e0769",
   "who": "taka",
-  "text": "What are clouds?"
+  "text": "What are clouds?",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "dbec1c6702a12dd6bcd9b8ee4a36f73be3b4cef408b8ed864f6ecf95273ba7f4",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/06_seagull.mp3": {
-  "hash": "b5a21d697085ea447e8f5e04ddd34a31e265d874",
+  "hash": "228b3524ce9dd924145feae97328f5815ea7c406",
   "who": "seagull",
-  "text": "Clouds are the sea in the sky. You cannot hold them."
+  "text": "Clouds are the sea in the sky. You cannot hold them.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongcally_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "59f03db4aa1ea9e83e650948960627cf315efbafaa691a8bbc97ef566d565d84",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/07_narrator.mp3": {
-  "hash": "bfa58e744342e94b4ec154f9806682612e252c80",
+  "hash": "832ec0fd631438cf841221024c3a13c938a7f483",
   "who": "narrator",
-  "text": "The Sun rises, slow and warm."
+  "text": "The Sun rises, slow and warm.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6422e1f55251cd33132488e21d18039d3231a179348aecf97585780cb92775c5",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/choices.mp3": {
-  "hash": "05f576f59615c61b558dca9cf82006d64cb7f8d4",
+  "hash": "0caf9ecaf9f5f4a22fd18bcce83786ccd6457939",
   "who": "narrator",
-  "text": "Continue. "
+  "text": "Continue.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "731c532857d754b2f9d7f73e82a7be85c62b0121cb664791ad9ec9264ce3d16b",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
- "just_listen/01_narrator.mp3": {
-  "hash": "81f6092e02e242f837b1b2bbfea68301f064342a",
+ "clean_branch/01_narrator.mp3": {
+  "hash": "46511c222bb3b590a15cb5d97b396bc7e8edb956",
   "who": "narrator",
-  "text": "TAKA stays still."
+  "text": "Taka stays.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "38394b6d0f0857a65895af40a1b4eb4d124cbc72bd3743abe8e7b750af1a0e78",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
- "just_listen/02_narrator.mp3": {
-  "hash": "1c9a94b7aa3885b7602893eaeb07e56d6e38204a",
+ "clean_branch/02_narrator.mp3": {
+  "hash": "bdbc787e493747fff64bada86dfad61f314f43bd",
   "who": "narrator",
-  "text": "TAKA's light glows brighter."
+  "text": "Taka cleans the coral.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "d2dc83e0c3890360c391580abcad0832287541c604feb75259ffc5a55d1d5c5d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
- "just_listen/03_narrator.mp3": {
-  "hash": "4dedabfcc73d3d6f8a8e523fecc875fdebf18e24",
+ "clean_branch/03_narrator.mp3": {
+  "hash": "af6609cf4e82115bac8c8f0acfb7b4c721ef9ac6",
   "who": "narrator",
-  "text": "The wind is so clear now."
+  "text": "At night, Taka's light stays on.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "06e75105561b7dfd783b9df1716b04fd94a1ae8275b98827f63d37bd58e49828",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "clean_branch/04_narrator.mp3": {
+  "hash": "f79203f92214c41127aadf9be02c986e37e88c62",
+  "who": "narrator",
+  "text": "Taka cannot sleep.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "93a810a6402ac5b6dfb734519e069240edd74b427ab6e7a58261f944f016886b",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "clean_branch/05_narrator.mp3": {
+  "hash": "020aaceea648c48be90dc850f1a1524560398dc7",
+  "who": "narrator",
+  "text": "Ooo... ooo...",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "60e848534fd4d7b7b8893df65812f3fff4b5a2d269d200c4ca53bf02f3aae80d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/06_narrator.mp3": {
+  "hash": "020aaceea648c48be90dc850f1a1524560398dc7",
+  "who": "narrator",
+  "text": "Ooo... ooo...",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "60e848534fd4d7b7b8893df65812f3fff4b5a2d269d200c4ca53bf02f3aae80d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "just_listen/04_narrator.mp3": {
-  "hash": "d2f1f25b1d3546a9a3aa6d1a37310b4c5c4cbd21",
+  "hash": "020aaceea648c48be90dc850f1a1524560398dc7",
   "who": "narrator",
-  "text": "Ooo... ooo..."
+  "text": "Ooo... ooo...",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "60e848534fd4d7b7b8893df65812f3fff4b5a2d269d200c4ca53bf02f3aae80d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
- "just_listen/choices.mp3": {
-  "hash": "5d99f2b5fc23df13158ee1b5955760265f51e7dc",
+ "start/04_narrator.mp3": {
+  "hash": "020aaceea648c48be90dc850f1a1524560398dc7",
   "who": "narrator",
-  "text": "TAKA opens its eyes. The sun is up, big and round."
+  "text": "Ooo... ooo...",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "60e848534fd4d7b7b8893df65812f3fff4b5a2d269d200c4ca53bf02f3aae80d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/06_narrator.mp3": {
+  "hash": "020aaceea648c48be90dc850f1a1524560398dc7",
+  "who": "narrator",
+  "text": "Ooo... ooo...",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "60e848534fd4d7b7b8893df65812f3fff4b5a2d269d200c4ca53bf02f3aae80d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "clean_branch/06_narrator.mp3": {
+  "hash": "6a7f050f3f4ddbd01b4caa73dd8b6e9d4b0bf59d",
+  "who": "narrator",
+  "text": "The sound is still there.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "f9be04507c20732a5adfb40b0df4c3d3e78b83a439bf9286084e6e08931a44ba",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "clean_branch/choices.mp3": {
+  "hash": "b02d69615ce35f7d9137fd969a44a8719c03ca73",
+  "who": "narrator",
+  "text": "A. Close your eyes and sleep. Or tell me your own idea.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "87b937fdcc0be4477c25fa66d220013f1d1848b087dbdf693c3fe3bb4229d951",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/01_narrator.mp3": {
-  "hash": "0902629cccb53f318ff08a74bd374877650f289d",
+  "hash": "22d7a816ce03a02a3111ae662ef02aea1f235cb8",
   "who": "narrator",
-  "text": "The Sun rises. It shines on TAKA. It shines on the seagull."
+  "text": "The Sun rises. It shines on Taka. It shines on the seagull.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "34d0ed121f1e167646900cdf8506c2e09c8f9fe77231cba4e1bcc29e20d6653f",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/02_narrator.mp3": {
-  "hash": "ecde9bb0c11a3fa428c594bfd8c1464e5e6ea94b",
+  "hash": "1b8923fb410eab021bf5ae9171f19a76b5a20808",
   "who": "narrator",
-  "text": "TAKA's battery is low."
+  "text": "Taka's battery is low.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "f80f6c892561f6ea2a244cd0a1a4cef6e0c49bdc815f9a0b996c121df3ea862a",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/03_narrator.mp3": {
-  "hash": "1112df247e6c06cab536dff5259ae44e69e61d53",
+  "hash": "b99f6f3aa8403a9bcacfd0f21e6dca2634c25bbf",
   "who": "narrator",
-  "text": "The Old Machine calls, weak and far."
+  "text": "The Old Machine calls, weak and far.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "bf64efdc63422f7a60a2e7d4e2cb50523aaa7a9a9f9c68b755d170c4cb23cf86",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/04_oldmachine.mp3": {
-  "hash": "92002782c76c05b9a2aa4720133967e2086974e0",
+  "hash": "127e8965a8e2479ccbfc910023f540148843fdb2",
   "who": "oldmachine",
-  "text": "Come back."
+  "text": "Come back.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongdavid_v3",
+   "rate": 0.9,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "b148219aa3dbc2e3052a0056e2222ff940a43f2abf9f799220d94d81c43bd6db",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/05_narrator.mp3": {
-  "hash": "d2257dc1e97f760860dd1f700e26e022ee4a58b1",
+  "hash": "2b7c36f654ea68b1afbd17b6d0ad2629be303bc4",
   "who": "narrator",
-  "text": "TAKA looks at the surface. The wind is still here."
+  "text": "Taka looks at the surface. The wind is still here.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9b37cfe4830b5ddf78e30c1f28045bc8a0fa1da6fa8c588193cd90707a562b9f",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/06_narrator.mp3": {
-  "hash": "85c9abcd2fd18a743f7ff71a14b00b82c1b10523",
+  "hash": "2cc818b4ce6a415eeb87ec1723ce44c15773592b",
   "who": "narrator",
-  "text": "The seagull says,"
+  "text": "The seagull says,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "f5afc8bc896100d6401261c4cd6065d33d621e0fad911fc7ed2a622e61503102",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/07_seagull.mp3": {
-  "hash": "1d68ac64d4d3ea9e892427d2a2ddc97de4e87220",
+  "hash": "3b4b9643c803545b4f7d03982d3c30215f2eacf0",
   "who": "seagull",
-  "text": "You choose. I will not choose for you."
+  "text": "You choose. I will not choose for you.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongcally_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "99623b62fa8b2ee500546d53b1a8005a1b14a1914ce07ef4e19bc87c530f0de7",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/08_narrator.mp3": {
-  "hash": "3382caa4b4cd572b69f46f00f88977ce3ab43fb3",
+  "hash": "37fc2a29e01261ce737f5da66cf32be583125ee0",
   "who": "narrator",
-  "text": "TAKA's light blinks. One. Two. Three."
+  "text": "Taka's light blinks. One. Two. Three.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "713c1a02d05e68c94b299dfee7ab44a14f0dc66a0f0124f57f3677e3682591ba",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "climax/choices.mp3": {
-  "hash": "542773426cae3288c83c113fc06e46a652e06eb9",
+  "hash": "ff84c5fa223b949b409b96e5460ee42581bb540c",
   "who": "narrator",
-  "text": "You choose. A. Dive back to recharge. B. Listen one more minute. "
- },
- "ending_a/01_narrator.mp3": {
-  "hash": "32abcd80e0df975069de4358c125eaa82c680403",
-  "who": "narrator",
-  "text": "TAKA dives back down."
- },
- "ending_a/02_narrator.mp3": {
-  "hash": "f2096e6487b3bb2b21b76b360fc6503d99bfb439",
-  "who": "narrator",
-  "text": "TAKA plugs in."
- },
- "ending_a/03_narrator.mp3": {
-  "hash": "3cdabfcdae09e9b0574e9bb1ecf0f9dab040802b",
-  "who": "narrator",
-  "text": "TAKA saves the wind song in the Memory Bank."
- },
- "ending_a/04_narrator.mp3": {
-  "hash": "6cf22b2b120f5c31bf599b11461da1a75be8d85b",
-  "who": "narrator",
-  "text": "The next day, TAKA is full of power."
- },
- "ending_a/05_narrator.mp3": {
-  "hash": "d66811df4dcdff5f3285d62eb50c7d2eeb269d36",
-  "who": "narrator",
-  "text": "TAKA plays the song for the Old Machine."
- },
- "ending_a/06_narrator.mp3": {
-  "hash": "a1af474723b23b59f622920fb59325d0e6b16efe",
-  "who": "narrator",
-  "text": "For the first time, the Old Machine's light blinks."
- },
- "ending_a/07_oldmachine.mp3": {
-  "hash": "4b7f4c6d45f689e80339a8d279bf098f213ee2e8",
-  "who": "oldmachine",
-  "text": "Sounds good,"
- },
- "ending_a/08_narrator.mp3": {
-  "hash": "f9afebd188a34c66c23c765176d65af851a9e12e",
-  "who": "narrator",
-  "text": "says the Old Machine."
- },
- "ending_a/choices.mp3": {
-  "hash": "f9aa57b516324e1791aff91e1d6a8bd30d683ca7",
-  "who": "narrator",
-  "text": "Restart the story. "
- },
- "ending_b/01_narrator.mp3": {
-  "hash": "0d87569bbf5cdc327054ca98c23e07808864c3f2",
-  "who": "narrator",
-  "text": "TAKA does not move."
- },
- "ending_b/02_narrator.mp3": {
-  "hash": "3fdd62c058019c4c76fd867eabc9319a1161baad",
-  "who": "narrator",
-  "text": "One minute. Two minutes."
- },
- "ending_b/03_narrator.mp3": {
-  "hash": "bcd058ba9c7ef9d51f6d43be26f3f5602b527cc4",
-  "who": "narrator",
-  "text": "TAKA hears the whole song."
- },
- "ending_b/04_narrator.mp3": {
-  "hash": "1d8c5e57ac9544fb776477e8463168c35ee49485",
-  "who": "narrator",
-  "text": "Click."
- },
- "ending_b/05_narrator.mp3": {
-  "hash": "3fa8be236f4072f4ca730e6e1520882b2b56130d",
-  "who": "narrator",
-  "text": "TAKA's power goes out."
- },
- "ending_b/06_narrator.mp3": {
-  "hash": "eea140cec173a5b6d4b20234291d97343b4ebeb3",
-  "who": "narrator",
-  "text": "Little by little, the seagull pushes TAKA back down to the sea with big wings."
- },
- "ending_b/07_narrator.mp3": {
-  "hash": "6a130d637d8b175882b38980d73cd8c949dfd848",
-  "who": "narrator",
-  "text": "TAKA wakes up at sunset."
- },
- "ending_b/08_narrator.mp3": {
-  "hash": "b6dcd8669d0098ba5abcf55cade126866f898b3c",
-  "who": "narrator",
-  "text": "Battery: 0%."
- },
- "ending_b/09_narrator.mp3": {
-  "hash": "b81bc953e3bc09a2f6d64ae7c3410b58de253a70",
-  "who": "narrator",
-  "text": "But in TAKA's Memory Bank, there is one finished wind song."
- },
- "ending_b/10_taka.mp3": {
-  "hash": "a66b1e912fd6eed764d771197afaa57f888d5bb7",
-  "who": "taka",
-  "text": "Worth it,"
- },
- "ending_b/11_narrator.mp3": {
-  "hash": "3964e8411ec63a2e47d85e9013546f4d587e5cc1",
-  "who": "narrator",
-  "text": "says TAKA."
- },
- "ending_b/12_narrator.mp3": {
-  "hash": "e39aef5e7610903b7226bd77d04957a83defffc2",
-  "who": "narrator",
-  "text": "The seagull sits close by."
- },
- "ending_b/choices.mp3": {
-  "hash": "f9aa57b516324e1791aff91e1d6a8bd30d683ca7",
-  "who": "narrator",
-  "text": "Restart the story. "
+  "text": "You choose. A. Dive back to recharge. B. Listen one more minute.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a717436010a395d77b92c98832b81f63691a480d352f698ce6af8e7c73d9e282",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/coral.science.mp3": {
-  "hash": "fa5cd147809cb0712079f4a287761758eea9f506",
+  "hash": "0b266bcae17acc5e249e02714bfcf8038869515d",
   "who": "narrator",
-  "text": "Coral looks like stone, but it is actually a huge family of tiny animals.Each tiny animal is called a coral polyp, only the size of a sesame seed.Generation after generation, polyps live together and build hard little houses.A coral reef is home to so many sea animals."
+  "text": "Coral looks like stone, but it is actually a huge family of tiny animals.Each tiny animal is called a coral polyp, only the size of a sesame seed.Generation after generation, polyps live together and build hard little houses.A coral reef is home to so many sea animals.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "d22899f78d318cc0a04f9bc0119d2836cc1c2415f6c08fde155786d46a1ac51a",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/coral.taka.mp3": {
-  "hash": "8cf0c9b1903d7af03e03749f631b7091c6d0c7f8",
+  "hash": "5e4f3afffbe86d36d41ce8a401004c43cab9918e",
   "who": "taka",
-  "text": "Coral is not stone. It is a house built by many little bugs. What I clean every day is their home."
+  "text": "Coral is not stone. It is a house built by many little bugs. What I clean every day is their home.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "01c3dec48ae289bfafb4bb459381e1aa86ffadee73843b2b801b7afd4dc6a25d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.science.mp3": {
-  "hash": "62000b7ae76dfc9246442eac091136edff675ac1",
+  "hash": "6cccdc7a5fa4258096fd7cb72dcfb7c66f469145",
   "who": "narrator",
-  "text": "A seagull is a bird that loves living by the sea.It has big wings and can ride the wind for a long, long time.Seagulls are not picky eaters. Fish, little shrimp, shells — they eat them all.Its call is very loud, 'ah—ah—', like saying hello."
+  "text": "A seagull is a bird that loves living by the sea.It has big wings and can ride the wind for a long, long time.Seagulls are not picky eaters. Fish, little shrimp, shells . they eat them all.Its call is very loud, 'ah.ah.', like saying hello.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "44311dc0cbde23e2c4d1c1defe151fc25a7dd1c2bd5d7f78065ce30dad58ea78",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.taka.mp3": {
-  "hash": "cbe74f6bceadfb3489560ed8baa8d9c65fa9f5eb",
+  "hash": "156aecdbfa78607951eeeee69f52860813c4a5f1",
   "who": "taka",
-  "text": "The seagull has wings. I do not. But I have a propeller."
+  "text": "The seagull has wings. I do not. But I have a propeller.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "85f3ac6ed3a68149a72f4f5c987182a6728fe0691e876ff5fe59c98641a5dc18",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/01_narrator.mp3": {
+  "hash": "300a3b3b1fe9220102d8e7ffca311662822babbd",
+  "who": "narrator",
+  "text": "Taka falls asleep.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "755339e17a18998e8d993cb1413d4bac00a60ef0effd046dc581238f1c21dfe1",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/02_narrator.mp3": {
+  "hash": "a552647b085721cabdb56bca6c0f2970c505011f",
+  "who": "narrator",
+  "text": "Taka dreams of light.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9af5d8ee2cdc2d04b4e794c59b94cfb5aa4d719d73004fbec68f3fea277d5c41",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/03_narrator.mp3": {
+  "hash": "2c195e3f2b50dee74e123f5aa4185b8a167e86c1",
+  "who": "narrator",
+  "text": "Very, very bright.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ac7528d0ee0d28f8874fb121d07a52ae082ec5d88418c5b43141c41eccc39682",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/04_narrator.mp3": {
+  "hash": "7761fe78d379a3271aa860dae4f1b45ced4aa2e9",
+  "who": "narrator",
+  "text": "Taka dreams of wind.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "855e7b6eb84a99c1305f46cf6b68fd470d544095605f44a6dde463a863bf16d1",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/05_narrator.mp3": {
+  "hash": "144d9b053d85a27ed2c3139b3d205c1c6a958917",
+  "who": "narrator",
+  "text": "Like waves.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6943f417f7755a7f664c1300589449f9f44ffe86b09adcf9b22de4c3edb0c948",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/07_narrator.mp3": {
+  "hash": "e94fdfdd62a22456468aa6518b6f6bbc6607bddd",
+  "who": "narrator",
+  "text": "Taka dreams of coral.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2576b53d6665b750f54d5227ff99bd541f8eb29159e5bedc0c82f211f59a8f0f",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/08_narrator.mp3": {
+  "hash": "7bff1536680c1a23ad2fc21ff5532e451ea64374",
+  "who": "narrator",
+  "text": "So big. Not shiny.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6ff3edc4fa768c92b9ca50c6a8163d8625075db577c7000d6b173c76a95f5aa0",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/09_narrator.mp3": {
+  "hash": "4f3208c6735e912be3540d08f3252c85121d605a",
+  "who": "narrator",
+  "text": "The Old Machine pokes Taka.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ef229108aadab9884c77be068c91f45c0598a38aa13fb68670f306745970a43b",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/10_oldmachine.mp3": {
+  "hash": "dc5c634e259e4d00073bf48a8271f0cb9e7af00a",
+  "who": "oldmachine",
+  "text": "Time to work.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongdavid_v3",
+   "rate": 0.9,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7f5606f72bcb7516e2fa4b33ea9fbc3caf306198c3acce91e00a223ea0257fee",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/11_narrator.mp3": {
+  "hash": "e644ec2c2f81e95bee02f3ed6702adc6aa24528a",
+  "who": "narrator",
+  "text": "Taka looks at the coral.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "0a4082518b587445e6f49a312410ff4813f076b717a85eca3bb61c00b69b6777",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/12_narrator.mp3": {
+  "hash": "6fa539bc4e5967d69b4cd334bda42e1bacf95ffd",
+  "who": "narrator",
+  "text": "Taka looks up.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6432677f999eb1b95a291ee5c7606b4c56e558e1da7df476328fd7bace415868",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "dream/choices.mp3": {
+  "hash": "55e78fc730a0608799cd51466e75c8c9a99d598c",
+  "who": "narrator",
+  "text": "Go up and see. Or tell me your own idea.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4b07b9c22f349eb2ec02dafa4d7175591b73e5a19fa2357ba3e9dd8ecf79664a",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/01_narrator.mp3": {
+  "hash": "4762222634b8156875418c262f6ecdf7e15f2004",
+  "who": "narrator",
+  "text": "Taka dives back down.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "8e1e14470a992cf2488ef5c1f63fb2d6385633805f57e07c2c213b33ea2bd708",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/02_narrator.mp3": {
+  "hash": "d5d50347eb8013eb4bad4afebc734674266f350a",
+  "who": "narrator",
+  "text": "Taka plugs in.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7d67334b8e505f7756622c57d3ee10ac3c9d2dd0a47a7762689502fc8d93c167",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/03_narrator.mp3": {
+  "hash": "04816d9844ebd9d75a34fbb7060c9f13f22caf85",
+  "who": "narrator",
+  "text": "Taka saves the wind song in the Memory Bank.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "b2a9956f307280a0b28e79f8fce8ba121b08bf13e5d2842462d3cc19e9ab2df6",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/04_narrator.mp3": {
+  "hash": "133bbdd54584135c2f3cba6c6044a97af1a6d4dd",
+  "who": "narrator",
+  "text": "The next day, Taka is full of power.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "6dc81eb3397b77dce95f9f5b40bf73c4b53b290f35066b78bbe36d357264cbbe",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/05_narrator.mp3": {
+  "hash": "61fb038a9c91222a7c0d2ed793427958b113291f",
+  "who": "narrator",
+  "text": "Taka plays the song for the Old Machine.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "62d6abc09e3ba794a629c30eb654b7d8b30121dc38dd401efb94ebf8428385af",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/06_narrator.mp3": {
+  "hash": "b2fb601522a93edbc3de47e10cb625dbf23de96f",
+  "who": "narrator",
+  "text": "For the first time, the Old Machine's light blinks.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2abc09667655792de8a5d51bdba7e7621e62b9e75c711d5967fe9cfb0d9ccdb0",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/07_oldmachine.mp3": {
+  "hash": "2bcf1ac63b97bcedf06983bd1ad8e82cd8e6ad3a",
+  "who": "oldmachine",
+  "text": "Sounds good,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongdavid_v3",
+   "rate": 0.9,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "c584e34320b5480cb16c16dfcf203f30cbf2505768ec50b278bbb873fea20df9",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/08_narrator.mp3": {
+  "hash": "91c1db81d7b41815f948aadb62f227b17623b7bb",
+  "who": "narrator",
+  "text": "says the Old Machine.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "f53c705d37fd954b64fbaf54d8411bad73d977eef8a7bcc9655fe93e1bc561ea",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_a/choices.mp3": {
+  "hash": "5e74b890547b7ffc5c4e0d4400e1f149b4ef47f9",
+  "who": "narrator",
+  "text": "Restart the story.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "dd0473aa3a4acfbcab9ee2d7c9f6947f53ddbe9bf1db67ee7097b805b8e49c9d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/choices.mp3": {
+  "hash": "5e74b890547b7ffc5c4e0d4400e1f149b4ef47f9",
+  "who": "narrator",
+  "text": "Restart the story.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "dd0473aa3a4acfbcab9ee2d7c9f6947f53ddbe9bf1db67ee7097b805b8e49c9d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/01_narrator.mp3": {
+  "hash": "5ae38fa8800f1e457ccb189b62444114c859cf08",
+  "who": "narrator",
+  "text": "Taka does not move.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "8c56f97c4acc8af46f8fb250c43a5285b64ff4b7bdf15e6dd15f2dfe1c9719a2",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/02_narrator.mp3": {
+  "hash": "683e92f80643e926f5e8e257b59fc9925f7c5071",
+  "who": "narrator",
+  "text": "One minute. Two minutes.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2106d00d2168be6a26959ce1e0acc475c30f017b2b9e584e9accc6e5b75c61bb",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/03_narrator.mp3": {
+  "hash": "0f91d1240b822595995ea213356f03b872021b74",
+  "who": "narrator",
+  "text": "Taka hears the whole song.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "8bc9a4816d2a125fe2df31202e1a99bc897d54a7beb206d43201eaecaa7b21d7",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/04_narrator.mp3": {
+  "hash": "e3f15a6e6f6d38a8ec0f99982363601bcc5f799f",
+  "who": "narrator",
+  "text": "Click.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "678f07bfcb5a1c58a425219353763d93cd9c9e06f98d1bc4ca417c87d103e4a3",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/05_narrator.mp3": {
+  "hash": "dfaf7d0dad4347a2bfad3352ae5968dc761573b1",
+  "who": "narrator",
+  "text": "Taka's power goes out.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "536bf4e856e8ab01fae5df24635c2f9236851f76a4c5dcbc3daf6e0ab183d948",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/06_narrator.mp3": {
+  "hash": "2493751ca768e6d92d9c265b58e5168b62210863",
+  "who": "narrator",
+  "text": "Little by little, the seagull pushes Taka back down to the sea with big wings.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "278471a97dfb876c8213b0bdcc451a9544c0edcc77afc2ce2d496b60033a3c89",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/07_narrator.mp3": {
+  "hash": "69e0b1cd9477195ed24925152e341bc36981e366",
+  "who": "narrator",
+  "text": "Taka wakes up at sunset.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "07274309778b20e77e269465ef30cbe319f9775150d2231dcebead24f1e2c2f6",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/08_narrator.mp3": {
+  "hash": "09ce8635cd6de532a7aab0de4cab739199557f45",
+  "who": "narrator",
+  "text": "Battery: 0%.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "72e413168ec36d723344e8063d50970ea4746d09803cd75e98a2fb2739f00453",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/09_narrator.mp3": {
+  "hash": "d806ee2a4ff62985e2794241a6f29a057d732758",
+  "who": "narrator",
+  "text": "But in Taka's Memory Bank, there is one finished wind song.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7b3fe83cb8d8bd12af6f2e25faadb9a183d93d4eacf39a818ba3c23c665a84f5",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/10_taka.mp3": {
+  "hash": "7e5d2fce3f62ef4fbc661c8e670c012e4b78c8db",
+  "who": "taka",
+  "text": "Worth it,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "543691f1a756cdcd0aab55131019e1fe19c7095e291e099d21ae484064bd27bc",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/11_narrator.mp3": {
+  "hash": "32850caffd048765b757685a8a123f53bdeca63b",
+  "who": "narrator",
+  "text": "says Taka.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "739be982f32e7968397df3a4d6d8df57d0aa00799218b7a7d77d452fd36010c4",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "ending_b/12_narrator.mp3": {
+  "hash": "5dfcb31ca982838aec315c17619314c502db4964",
+  "who": "narrator",
+  "text": "The seagull sits close by.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ca33b0c1d45e8c3e23379041e2967d2a126aa1abe45d3432b2a3888a5eac2c95",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "just_listen/01_narrator.mp3": {
+  "hash": "be8d6130fe693c6f678d7c93536b8ca6f66fb897",
+  "who": "narrator",
+  "text": "Taka stays still.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a339f40accb4bf8c729690c78062474a5fae1d9edbc59866b197ae3dcb7f2c4e",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "just_listen/02_narrator.mp3": {
+  "hash": "213fdffbe20f2e5696eb71077cf06b6541bf168a",
+  "who": "narrator",
+  "text": "Taka's light glows brighter.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "384073ca97fc6cf8a7a087ecca2f8519249ff06807abd596940e9ad8efd465af",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "just_listen/03_narrator.mp3": {
+  "hash": "bd6b8837cd38c0b0ab1fd7b59cced49ec7bb730d",
+  "who": "narrator",
+  "text": "The wind is so clear now.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a4d8775177ec7496ab88967070626b8eb98264e7c7dd26a67f6d08dff6b98d8e",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "just_listen/choices.mp3": {
+  "hash": "b031f4411e173d8438cf2d60203629ffa828e059",
+  "who": "narrator",
+  "text": "Taka opens its eyes. The sun is up, big and round.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9fb49d657fda2ad48319d86a8b8a392f10e7e5e0548110673ac62567f8f057ad",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "onboarding/voice-guide.mp3": {
-  "hash": "3d06c7f025019f42876d8a9bcc08b398a547d106",
+  "hash": "3bc7be0ef1e00965c7dc7b7ffab647840f1f9197",
   "who": "taka",
-  "text": "I'm listening. Tap the microphone, or press and hold it. Talk to me."
+  "text": "I'm listening. Tap the microphone, or press and hold it. Talk to me.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "9ea592ab2700fdf455994eb53726e5d975b32937e3546863c8de49a18d8256f5",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/01_narrator.mp3": {
+  "hash": "76d9c577b671e13995fe978ff9c4f6fc2796ab93",
+  "who": "narrator",
+  "text": "This is Taka.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "127ad53f8498d4ad7f4b1db4c83b56df40f0381d1370b7cbd6f888466d90cac0",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/02_narrator.mp3": {
+  "hash": "bbb7238cd009092f27e14fb6d232f5da1fe3f7a3",
+  "who": "narrator",
+  "text": "Taka lives at the bottom of the sea.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "2799ea442f333fec943aff6f81c2d520e2c01896896f1c9841fcc045a6cf3e7d",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/03_narrator.mp3": {
+  "hash": "1ed8cece8800a2af58f68f38552e43c665de88ae",
+  "who": "narrator",
+  "text": "Every day, Taka cleans the coral.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "72fdf59e801f8161794dd75f6d109825cd3f8cc6c8b6c52ec18c8721c5705cdb",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/04_narrator.mp3": {
+  "hash": "f73776cd633e93ad4e376ed463d4f164394f1fa3",
+  "who": "narrator",
+  "text": "Every day, Taka listens to the Old Machine tell stories.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "3539415ddd23f50f4c8bfc99caa53b02ddda3e6166eb1d598bf3c0197ab836c9",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/05_narrator.mp3": {
+  "hash": "27b8c897fc21aef2981cc5f735a921cf3fb6cddf",
+  "who": "narrator",
+  "text": "Taka is old.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4b88b6df834b6ab5f04c1d6879ace468855189ee8d4a764f659a0dc09fbe2564",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/06_narrator.mp3": {
+  "hash": "eced639fe991d1d9a77d90672ead85d16a396d88",
+  "who": "narrator",
+  "text": "Taka is made of iron.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "cb181ef1917d98be7f7215fcc0e813987cc41522a363012597db6c4f987d351f",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/07_narrator.mp3": {
+  "hash": "ecb73c419937edf202a4107d23d55429c48e3a10",
+  "who": "narrator",
+  "text": "Taka is calm and quiet.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7d39e697d5959a34747341d9bb95fef470900f904fedf0ff50c01cd09723616c",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/08_narrator.mp3": {
+  "hash": "b4bd16dac132ff8acc8a85cd95b1c2a5a39b560e",
+  "who": "narrator",
+  "text": "But today, Taka wants to go up.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "ccee3aa6b8d5cd7da46d1d90fbb988e4d2d917e97967bb8a4d8f0139ecdadefa",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "prologue/choices.mp3": {
+  "hash": "527662bb9753bcf49a971bf4fa014d2a57d32182",
+  "who": "narrator",
+  "text": "Start the story.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "23698ced15fba096180e6901ab22085cf26165b93c0fe673f6a426f4de30dece",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/01_narrator.mp3": {
+  "hash": "af5cff9d46207dcd7e7c9116fcbd34fa1de96002",
+  "who": "narrator",
+  "text": "The sea bottom is full of lights.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "902bac1a7113ccc5269535e8e2ab916669749aa3cee8d25dbf954088aca0b7c1",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/02_narrator.mp3": {
+  "hash": "0645e5cf50314b3d5e88af60a2115db15f01748e",
+  "who": "narrator",
+  "text": "Taka cleans the coral in the shiny lights.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "7cd28007881c5d81331a3baf8c0346a0c97752a748cde02e1b69b6c97bf1c067",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/03_narrator.mp3": {
+  "hash": "30a2285196d642588c38a3cbfa856cac889395c4",
+  "who": "narrator",
+  "text": "Taka hears a sound.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "71278e187e71d1380cac334a97d10d90c0f268810c399490f78da42dc0972c03",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/05_narrator.mp3": {
+  "hash": "f46b567c001333b31023cbbfb3e58a90eb060f78",
+  "who": "narrator",
+  "text": "It comes from up there.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "625dd061546730bc66166d529d7cdc357d7420cd15aec299125a3aa8f6d4063e",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/06_narrator.mp3": {
+  "hash": "0ac8ea828b9bdcc6b8729296b1a109046c083382",
+  "who": "narrator",
+  "text": "The Old Machine says,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "240bfc1ba81b69aadfdcbed28980be8cd3b2442319bd0897ce2c16418d71a0b0",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/07_oldmachine.mp3": {
+  "hash": "8e72f586d7ed338ce87716270d4aa09e15caf6d5",
+  "who": "oldmachine",
+  "text": "Do not go. There is no water up there.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongdavid_v3",
+   "rate": 0.9,
+   "pitch": 0.95,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "077fbb1684362b4e1a2d77aa004b56655797962137a9a047bd9f004bbc389e27",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "start/choices.mp3": {
+  "hash": "5c4579ba11d66901725c7c3b89087370b9ddb97e",
+  "who": "narrator",
+  "text": "You choose. A. Swim up and see. B. Keep cleaning the coral. Or tell me your own idea.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "4900c0a8400dc15877560263f3b0ab349fceaf00560e8f8d520c94db7b02ca69",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/01_narrator.mp3": {
+  "hash": "d80307734ff3176c0cd4aabf1f34d57601e578bd",
+  "who": "narrator",
+  "text": "Taka floats up.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "79b544f7413f19085668ed896adbef9fedb6f2ef6ff8d53ce86224ec91eccd7a",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/02_narrator.mp3": {
+  "hash": "432a971b7abecc8dded1d9537c10610ad1db9393",
+  "who": "narrator",
+  "text": "No water.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a840258c646ed9e62f5551fa9a4c45b56b062c8c99f11c0143f2c5629e7bf53a",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/03_narrator.mp3": {
+  "hash": "163f774f121b1dc6ad80ac949ef9ed759eb8cae9",
+  "who": "narrator",
+  "text": "Ouch.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "b8e53d1bb858377e3da852102769bfbc89e15733f55f7c8ecdc9db87e368d04e",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/04_narrator.mp3": {
+  "hash": "bcff68c9e6985367f9390c6da99181e2c8ad2ca9",
+  "who": "narrator",
+  "text": "But Taka hears the sound clearly now.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "848860836269cc949d3e6c886a3ff42db577bf6551dab5055a22cb75d8dd0fe5",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/05_narrator.mp3": {
+  "hash": "f86ce39537cfbd04adc119d76a92a36960dab6cc",
+  "who": "narrator",
+  "text": "Wind.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "54d5009feb1f290806e02e3e41556f4099c3fc50f2e4ae500e1ea9d90dc89a60",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/07_narrator.mp3": {
+  "hash": "9a33837708fd64e4083259235778a06afd5463c0",
+  "who": "narrator",
+  "text": "A seagull flies over.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "399885715e63a7e1c201eea0b3efdf384cf2cbfa60dc661e9b6c18b37b1a49c6",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/08_seagull.mp3": {
+  "hash": "2b4703f44bd1bbf6ba00cfa9c32156da3f49d3e3",
+  "who": "seagull",
+  "text": "You will fall!",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongcally_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "b81563096dfb4af470b066d277c10d5dc7954d396c89a850fa1f26f58269624f",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/09_narrator.mp3": {
+  "hash": "a886377de8cd025cc1005dec20e8152a4ea90b0a",
+  "who": "narrator",
+  "text": "Taka says,",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "a7ca762e5d04d2160d663ef368e4e722a862ad5ee68881e8d6e5d72b64d53c86",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/10_taka.mp3": {
+  "hash": "ba39fd27cbcd5887a6ae49a7ca9e4933d18b6340",
+  "who": "taka",
+  "text": "I am listening.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "090bc6baf38df86181c4c7c5a6fabbaf5dddeb8ff6c6af47616a4862cc6a78df",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/11_seagull.mp3": {
+  "hash": "7b9319e79e8a92189a8a9d6d85ebd73cc8b40147",
+  "who": "seagull",
+  "text": "To what?",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongcally_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "1d42781616e3eb76373fb16b5747a5c6a16c7c3650da2167aed3d68264a95998",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/12_narrator.mp3": {
+  "hash": "1854e113d91fbd0ad40776d7eadca3a57f7a7f7b",
+  "who": "narrator",
+  "text": "asks the seagull.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "805676ce139f800b22d27a4c2fbdbfa31cbb1e557f7c034f84f102aa60ce3e1b",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/13_taka.mp3": {
+  "hash": "c0dd24bf8db73e5493e841e958222149403a160a",
+  "who": "taka",
+  "text": "I do not know. But I want to hear it all.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongannie_v3",
+   "rate": 1.0,
+   "pitch": 0.8,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "e1de4d7f0341c68863fed036e3caf0ec8fc8b0f2de2e7aa9deb3d189da2a2e23",
+  "hash_schema": "provider-aware-aliyun-import-v1"
+ },
+ "surface/choices.mp3": {
+  "hash": "db1bb1f608c3e81feb64971181c1273acc5090a7",
+  "who": "narrator",
+  "text": "You choose. A. Ask the wind: Where do you come from?. B. Just listen. Or tell me your own idea.",
+  "provider": "aliyun",
+  "model": "cosyvoice-v3-flash",
+  "voice_config": {
+   "model": "cosyvoice-v3-flash",
+   "voice": "loongbeth_v3",
+   "rate": 1.0,
+   "pitch": 1.0,
+   "fx": null,
+   "fx_ar": null,
+   "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
+  },
+  "audio_sha256": "abc84f7caf0dde6c1d22b985d3039c5938ca508465c2586afbc78a21053456b9",
+  "hash_schema": "provider-aware-aliyun-import-v1"
  }
 }
