@@ -306,9 +306,10 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
 
     /* 集满后可点「继续」 */
     const continueEl = document.createElement("button");
-    continueEl.className = "collect-continue";
+    continueEl.className = "collect-continue continue-action";
     continueEl.hidden = true;
     continueEl.textContent = t("book.collect_continue");
+    continueEl.insertAdjacentHTML("beforeend", uiIcon("play"));
     continueEl.onclick = () => ctx.nav(col.next!, "");
     ctx.spread.appendChild(continueEl);
     if (colState.size >= col.required) continueEl.hidden = false;  // 恢复态：早已集满

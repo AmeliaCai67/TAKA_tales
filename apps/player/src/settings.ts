@@ -1,4 +1,5 @@
 // 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
+import { soundEffectsOn, setSoundEffects } from "./sfx";
 import { ICON_SHELF } from "./icons";
 import { t } from "./i18n";
 import { themeControl } from "./theme";
@@ -17,7 +18,7 @@ export function loadSettings(): AiSettings {
     } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
-/* ===== 语音偏好（开关兼总音量 / 是否朗读选项 / 基础语速） ===== */
+/* ===== 语音偏好（朗读开关 / 主音量 / 是否朗读选项 / 基础语速） ===== */
 export interface SpeechPref {
     on: boolean;
     readChoices: boolean;
@@ -87,6 +88,10 @@ export function setDrawerCollections(books: () => void, codex: () => void): void
 export function initSettingsPanel(): void {
     document.getElementById("settings-btn")!.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 4 6 .3 1 4 3 1.5 4-1 3 5-3 3v3l2 3-4 4-3-2-3 1-1.5 4-6-.4-.8-4-3-1.6-4 1-2.7-5 3-2.8v-3l-2-3 4-4 3 2 3-1Z" transform="translate(0 -1) scale(.96)"/><circle cx="16" cy="16" r="4.8"/></svg>`;
     document.querySelector("#sp-toshelf .sp-shelf-ico")!.innerHTML = ICON_SHELF;
+    const sfxButton = document.getElementById('sfx-btn')!;
+    const syncSfx = () => sfxButton.setAttribute('aria-pressed', String(soundEffectsOn()));
+    syncSfx();
+    sfxButton.onclick = () => { setSoundEffects(!soundEffectsOn()); syncSfx(); };
     const s = loadSettings();
     const enabledEl = document.getElementById("sp-enabled") as HTMLInputElement;
     const readChoicesEl = document.getElementById("sp-readchoices") as HTMLInputElement;

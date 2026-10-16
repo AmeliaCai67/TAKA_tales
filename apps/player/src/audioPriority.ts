@@ -38,3 +38,6 @@ export function acquireAudio(layer: AudioLayer, pause: () => void, resume: () =>
         }
     };
 }
+
+/** Decorative effects can duck under either story or codex narration without acquiring focus. */
+export function narrationHasFocus(): boolean { return active !== null; }

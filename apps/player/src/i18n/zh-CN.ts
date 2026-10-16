@@ -1,6 +1,7 @@
 // 中文文案基准（2026-08-28 i18n）：逐字提取自现有代码，一字不动（保证中文零回归）
 export const zhCN = {
     reader: {
+        "sfx": "音效",
         "settings": "阅读设置",
         "paper_text": "纸面与文字",
         "language": "语言",
@@ -124,7 +125,7 @@ export const zhCN = {
         mic_unavailable: "这台设备不支持语音输入，打字告诉塔卡吧",
         submit: "提交",
         resume: "继续上次的故事",
-        continue: "继续 ▶",
+        continue: "继续",
         back_shelf: "回到书架",
         listen_fallback: "睁开眼睛，太阳升起来了",
         listen_done_choice: "静静听完风声",
@@ -234,7 +235,7 @@ export const zhCN = {
         hint_title: "横过来，故事会更好看",
         hint_ok: "知道了，继续",
         hint_never: "不再提示",
-        collect_continue: "继续 ▶",
+        collect_continue: "继续",
         collect_rotate: "横过来，更好收集",
         collect_hint: "长按塔卡，拖到发光的东西旁边",
         collect_hint_follow: "移动鼠标，塔卡跟着你游",

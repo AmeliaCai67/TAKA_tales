@@ -34,7 +34,7 @@ body.book-mode .page-text .listen-bar{flex:none}
 #settings-panel select,#settings-panel .shell-theme select{min-height:44px;background:var(--surface);border:1px solid var(--paper-line);border-radius:9px;color:var(--drawer-ink);font:12px var(--font-shell);padding:8px 10px;max-width:176px;width:auto}#settings-panel option{background:var(--paper);color:var(--drawer-ink)}
 #settings-panel .rd-row button{position:static;inset:auto;min-width:44px;min-height:44px;width:auto;height:auto;display:flex;align-items:center;justify-content:center;border:0;background:none;color:var(--drawer-ink);opacity:1;padding:6px;transform:none;font:13px var(--font-shell);cursor:pointer}
 #settings-panel .rd-row button svg{width:21px;height:21px;filter:none;stroke-width:1.7}
-#settings-panel .rd-row #speech-btn[aria-pressed=false]{opacity:.45}
+#settings-panel .rd-row :is(#speech-btn,#sfx-btn)[aria-pressed=false]{opacity:.45}
 .rd-volume{display:flex;align-items:center;justify-content:space-between;margin:17px 0 8px;color:var(--drawer-ink)}.rd-volume output{font:11px var(--font-shell);color:var(--drawer-muted)}
 #sp-volume{width:100%;height:30px;accent-color:var(--gold);cursor:pointer}#sp-volume:disabled{opacity:.3}
 #sp-energy-value{font:20px var(--font-shell);color:var(--gold)}
@@ -52,12 +52,12 @@ body.book-mode .page-text .listen-bar{flex:none}
 @media(prefers-reduced-motion:reduce){#settings-panel.reading-drawer,.settings-overlay{transition:none}}
 body.on-shelf #stage>.hud,body.on-gate #stage>.hud{display:none}
 #settings-panel .rd-volume{display:flex;justify-content:space-between;align-items:center;width:100%;margin:17px 0 8px}
-#settings-panel .rd-row #speech-btn{position:relative;width:44px;height:44px;padding:0;background:none;opacity:1}
-#settings-panel #speech-btn svg{display:none}
-#settings-panel #speech-btn::before{content:"";position:absolute;left:0;right:0;top:9px;height:26px;border:1px solid var(--paper-line);border-radius:20px;background:var(--gold)}
-#settings-panel #speech-btn::after{content:"";position:absolute;left:21px;top:13px;width:18px;height:18px;border-radius:50%;background:var(--paper);transition:left .22s,background .22s}
-#settings-panel #speech-btn[aria-pressed=false]::before{background:var(--surface);border-color:var(--paper-line)}
-#settings-panel #speech-btn[aria-pressed=false]::after{left:3px;background:var(--drawer-muted)}
+#settings-panel .rd-row :is(#speech-btn,#sfx-btn){position:relative;width:44px;height:44px;padding:0;background:none;opacity:1}
+#settings-panel :is(#speech-btn,#sfx-btn) svg{display:none}
+#settings-panel :is(#speech-btn,#sfx-btn)::before{content:"";position:absolute;left:0;right:0;top:9px;height:26px;border:1px solid var(--paper-line);border-radius:20px;background:var(--gold)}
+#settings-panel :is(#speech-btn,#sfx-btn)::after{content:"";position:absolute;left:21px;top:13px;width:18px;height:18px;border-radius:50%;background:var(--paper);transition:left .22s,background .22s}
+#settings-panel :is(#speech-btn,#sfx-btn)[aria-pressed=false]::before{background:var(--surface);border-color:var(--paper-line)}
+#settings-panel :is(#speech-btn,#sfx-btn)[aria-pressed=false]::after{left:3px;background:var(--drawer-muted)}
 
 :is([data-theme="dark-forest"], [data-theme="forest-light"]) body.book-mode:not(.on-shelf):not(.on-gate){background:var(--bg-gradient)}
 :is([data-theme="dark-forest"], [data-theme="forest-light"]) body.book-mode:not(.on-shelf):not(.on-gate) .bg-layer{filter:brightness(.65) saturate(.8)}

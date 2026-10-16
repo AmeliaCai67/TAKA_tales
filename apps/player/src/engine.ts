@@ -1,8 +1,10 @@
+import { suppressSoundEffects } from "./sfx";
 // 播放引擎：场景渲染 / 打字机 / 选项 / 自由输入 / 电量状态机 / 聆听条
 // 与内容完全解耦——所有故事数据来自 pack()（story.json），本模块只负责“怎么播”
 import { pack } from "./pack";
 import { positionVoiceGuide } from "./voice-guide";
 import { ICON_MIC } from "./icons";
+import { uiIcon } from "./ui-icons";
 import type { Scene } from "./story";
 import { loadSettings, showStatus, speechPref } from "./settings";
 import { unlockForScene, showToast, unlock } from "./achievements";
@@ -352,6 +354,8 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
 
     // 语音输入（浏览器能力：Chrome/ArkWeb 走云端；不支持时打字行常驻、悬浮钮隐藏）
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    let releaseEffects: (() => void) | null = null;
+    const releaseSfx = () => { releaseEffects?.(); releaseEffects = null; };
     let recording = false, slideUp = false, transcript = "";
     let pressTimer: ReturnType<typeof setTimeout> | null = null;
     let startY = 0;
@@ -383,12 +387,14 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
         // 收尾必须在 onend：华为 ArkWeb 等内核在 stop() 之后才一次性给结果，
         // pointerup 时立刻读 transcript 必为空（2026-09-01 Mate 60 实测 bug）
         rec.onend = () => {
+            releaseSfx();
             const fab = document.getElementById("mic-fab");
             fab?.classList.remove("recording");
             if (activeRec === rec) activeRec = null;
             finalize();
         };
         rec.onerror = (e: any) => {
+            releaseSfx();
             // 先恢复 UI（onerror 不一定跟着 onend，不清理会卡在录音脉冲态——Mate 60 实测）
             recording = false;
             hint.hidden = true;
@@ -465,6 +471,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
     let pendingAction: "send" | "edit" | null = null;
     let finalizeTimer: ReturnType<typeof setTimeout> | null = null;
     const finalize = () => {
+        releaseSfx();
         if (!pendingAction) return;
         if (finalizeTimer) { clearTimeout(finalizeTimer); finalizeTimer = null; }
         const action = pendingAction;
@@ -511,7 +518,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
     let dismissGuide: ((silent?: boolean) => void) | null = null;
     {
         const cleanupTasks: (() => void)[] = [];
-        fiCleanup = () => { cleanupTasks.forEach(fn => fn()); fab.classList.remove("awaiting", "guiding"); activeVoice = null; };
+        fiCleanup = () => { releaseSfx(); cleanupTasks.forEach(fn => fn()); fab.classList.remove("awaiting", "guiding"); activeVoice = null; };
         const solo = !(scene.choices && scene.choices.length); // 专属场景：话筒是唯一推进通路
         const guided = localStorage.getItem("taka_voice_guided") === "1";
         // 漏斗顶层：曝光（进 freeInput 场景且语音入口可见——FAB 或绘本 hotspot 任一）。
@@ -576,6 +583,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
     if (SR && rec) {
         const startRec = () => {
             if (voiceBroken) return; // 已知不可用：话筒已隐藏，理论到不了这里（防御）
+            releaseSfx(); releaseEffects = suppressSoundEffects();
             recording = true;
             slideUp = false;
             transcript = "";
@@ -597,7 +605,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement): HTMLDivElement {
                         showStatus(t("engine.mic_too_long"), 2500);
                     }
                 }, 20000);
-            } catch { recording = false; hint.hidden = true; fab.classList.remove("recording"); }
+            } catch { releaseSfx(); recording = false; hint.hidden = true; fab.classList.remove("recording"); }
         };
         const stopRec = () => {
             recording = false;
@@ -755,7 +763,9 @@ function mountChoices(scene: Scene, sceneKey: string): void {
     if (scene.next && !(scene.choices && scene.choices.length) && !scene.freeInput) {
         const btn = document.createElement("button");
         btn.className = "choice-btn";
-        btn.innerText = t("engine.continue");
+        btn.classList.add("continue-action");
+        btn.textContent = t("engine.continue");
+        btn.insertAdjacentHTML("beforeend", uiIcon("play"));
         btn.onclick = (e) => {
             e.stopPropagation();
             btn.disabled = true;
@@ -822,6 +832,7 @@ function runListenBar(scene: Scene): void {
 /** 设置面板「保存并返回书架」：冲刷云端防抖 + 清理语音/计时器 + 回书架。
  *  进度本来就连场景即存（本地即时 / 云端 800ms 防抖），这里补的是最后一哩的确定性。 */
 export function exitToShelf(): void {
+    fiCleanup?.(); fiCleanup = null;
     if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
     if (session.token && session.childId && currentSceneKey) {
         api.saveProgress(session.childId, pack().id, currentSceneKey, battery, runPath).catch(() => {});
@@ -839,6 +850,7 @@ export function exitToShelf(): void {
 export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const scene = pack().scenes[key];
     if (!scene) return;
+    fiCleanup?.(); fiCleanup = null;
     currentSceneKey = key;
     if (listenTimer) { clearInterval(listenTimer); listenTimer = null; }
     // 玩法场景（mechanic）：卸载上一场景的玩法组件（还原立绘/卸监听/摘布局类；无玩法时为空操作）

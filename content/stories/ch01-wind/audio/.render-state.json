@@ -1425,7 +1425,7 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.science.mp3": {
-  "hash": "3bfc872876c7106353420f15d3ac4b99ff74bca2",
+  "hash": "0022583a00fe83358f58f1b89220623f2ecadcca",
   "who": "narrator",
   "text": "海鸥是一种喜欢住在海边的鸟。它有一双大翅膀，可以迎着风飞很久。海鸥不挑食，鱼、小虾、贝壳，它都吃。它的叫声很响，「啊——啊——」，像在打招呼。",
   "provider": "aliyun",
@@ -1439,8 +1439,14 @@
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "db1a564e357f3b52618fa0b642437bc459c63ebe20ce8726c3a66847b611a8e5",
-  "synthesis_override": null,
+  "audio_sha256": "928c9116dbcfd01e81d3ea7a596b76897724b695682204f61514b2b832ce7410",
+  "synthesis_override": {
+   "method": "plain_text_without_dash",
+   "tts_input": [
+    "海鸥是一种喜欢住在海边的鸟。它有一双大翅膀，可以迎着风飞很久。海鸥不挑食，鱼、小虾、贝壳，它都吃。它的叫声很响，啊，啊，像在打招呼。"
+   ],
+   "source": "seagull-call-repair-20261016 用户试听确认；两声啊之间改用停顿"
+  },
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.taka.mp3": {

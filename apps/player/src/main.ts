@@ -1,5 +1,7 @@
 // 入口：i18n → 故事索引 → 首个故事包 → 各子系统初始化 → 启动门 → 书架
 import "./styles.css";
+import { initSoundEffects, loadingSound } from "./sfx";
+import { narrationHasFocus } from "./audioPriority";
 import { initShell } from "./shell";
 import "./reader-stage.css";
 import "./portrait-reader.css";
@@ -43,6 +45,7 @@ if (new URLSearchParams(location.search).get("debug") === "1") {
    （本仓老坑：class 的 display 会盖掉 hidden 语义，.bs-out 用 opacity+visibility 双断）。 */
 let bootStories: StoryMeta[] = []; // boot 时拉到的书架索引（boot 预载封面 + 闲时预取其余包用）
 
+let stopLoadingSound: (() => void) | null = null;
 let splashStatusOverride = false;
 function splashProgress(pct: number): void {
     const el = document.getElementById('boot-splash');
@@ -57,6 +60,8 @@ function splashProgress(pct: number): void {
     }
 }
 function splashShow(statusText: string): void {
+    stopLoadingSound?.();
+    stopLoadingSound = loadingSound();
     const el = document.getElementById("boot-splash");
     if (!el) return;
     el.classList.remove("bs-out");
@@ -66,6 +71,7 @@ function splashShow(statusText: string): void {
     if (st) { st.removeAttribute("data-i18n"); st.textContent = statusText; }
 }
 function splashHide(): void {
+    stopLoadingSound?.(); stopLoadingSound = null;
     document.getElementById("boot-splash")?.classList.add("bs-out");
 }
 
@@ -320,4 +326,5 @@ async function boot(): Promise<void> {
     });
 }
 
+initSoundEffects({ volume: () => speechPref.volume, narrating: () => !sceneAudioIdle() || narrationHasFocus() });
 boot();

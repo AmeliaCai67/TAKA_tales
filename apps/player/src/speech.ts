@@ -1,7 +1,7 @@
 // 语音系统（生产版，M2 起）：**不依赖浏览器 speechSynthesis**
 //   固定场景 → 故事包预渲染 mp3（edge-tts 定稿声线，manifest 驱动播放链）
 //   动态文本（选项 C 现场生成 / manifest 缺失补读）→ 服务端 /api/tts 实时渲染
-// 两者共用同一条 Audio 播放链；🔊 开关兼作总音量；家长语速滑块 = playbackRate。
+// 两者共用同一条 Audio 播放链；朗读与音效独立开关；主音量共享；家长语速滑块 = playbackRate。
 import { pack } from "./pack";
 import { ICON_SOUND_ON, ICON_SOUND_OFF } from "./icons";
 import { speechPref, saveSpeechPref } from "./settings";
@@ -91,6 +91,9 @@ async function warmTts(items: { text: string; who: string }[]): Promise<void> {
 
 /* ===== 统一播放链：mp3 包与动态 TTS 共用 ===== */
 const scenePlayer = new Audio();
+for (const event of ['playing', 'pause', 'ended', 'error']) {
+    scenePlayer.addEventListener(event, () => document.dispatchEvent(new Event('taka-narration-change')));
+}
 
 /** Prime this same media element in the wake gesture before the reveal animation. */
 export function unlockStoryAudio(): void {
@@ -647,7 +650,7 @@ export function initSpeech(): void {
     const sync = () => {
         btn.innerHTML = speechPref.on ? ICON_SOUND_ON : ICON_SOUND_OFF;
         btn.setAttribute("aria-pressed", String(speechPref.on));
-        volumeSlider.disabled = !speechPref.on;
+        volumeSlider.disabled = false; // Shared volume also controls independent sound effects.
     };
     volumeSlider.value = String(Math.round(speechPref.volume * 100));
     volumeValue.textContent = volumeSlider.value + "%";
@@ -675,7 +678,7 @@ export function initSpeech(): void {
     };
     btn.onclick = () => {
         speechPref.on = !speechPref.on;
-        if (!speechPref.on) { stopSpeech(); stopWind(); } // 静音=全部静音
+        if (!speechPref.on) { stopSpeech(); stopWind(); } // Narration off; effects have their own switch.
         saveSpeechPref();
         sync();
     };

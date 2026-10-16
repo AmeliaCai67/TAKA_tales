@@ -1,3 +1,4 @@
+import { playConfirm } from "./sfx";
 // 家长入口：邮箱验证码登录 → 孩子档案选择/新建 → 断点续玩与成就上云
 // 未登录完全可玩（本地存储），登录是「家长动作」，不挡孩子
 import { pack } from "./pack";
@@ -116,6 +117,7 @@ function renderLoggedOut(body: HTMLElement): void {
             await refreshMe();
             renderLoggedIn(body);
             syncParentBtn();
+            playConfirm();
         } catch (e: any) { hint.textContent = e.message; }
     });
 }

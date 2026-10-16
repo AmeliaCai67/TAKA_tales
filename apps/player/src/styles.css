@@ -2075,3 +2075,7 @@ body.book-mode .mic-guide-bubble {
 }
 body.book-mode .mic-guide-bubble::after { border-top-color: var(--paper-line); }
 body.book-mode .mic-guide-bubble .mgb-sub { color: #6b5a4c; opacity: 1; }
+
+/* Navigation uses the same rounded SVG strokes across Safari and other browsers. */
+.choice-btn.continue-action,.collect-continue.continue-action{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.continue-action .ui-icon{width:14px;height:14px}

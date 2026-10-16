@@ -6,6 +6,7 @@ type Dict = typeof zhCN;
 
 export const enUS: Dict = {
     reader: {
+        "sfx": "Sound effects",
         "settings": "Reading settings",
         "paper_text": "Paper and text",
         "language": "Language",
@@ -129,7 +130,7 @@ export const enUS: Dict = {
         mic_unavailable: "Voice input doesn't work on this device — type to TAKA instead",
         submit: "Send",
         resume: "Continue the story",
-        continue: "Continue ▶",
+        continue: "Continue",
         back_shelf: "Back to shelf",
         listen_fallback: "TAKA opens its eyes. The sun is up, big and round.",
         listen_done_choice: "Listened to the whole wind",
@@ -239,7 +240,7 @@ export const enUS: Dict = {
         hint_title: "Turn it sideways — the story looks better",
         hint_ok: "Got it",
         hint_never: "Don't show again",
-        collect_continue: "Continue ▶",
+        collect_continue: "Continue",
         collect_rotate: "Turn sideways to collect",
         collect_hint: "Hold & drag TAKA to the glowing items",
         collect_hint_follow: "Move the mouse — TAKA follows",

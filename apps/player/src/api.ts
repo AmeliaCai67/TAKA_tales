@@ -109,7 +109,7 @@ export const api = {
         req<{ books: BookInfo[] }>(`/api/books?child_id=${childId}`),
     bookDetail: (bookId: number) =>
         req<BookDetail>(`/api/books/${bookId}`),
-    bookAudioUrl: (bookId: number) => "/api/books/" + bookId + "/audio",
+    bookAudioUrl: (bookId: number) => API_BASE + "/api/books/" + bookId + "/audio",
     exportBook: (bookId: number) =>
         req<{ audio_status: string }>(`/api/books/${bookId}/export`, { method: "POST" }),
     unlockAchievement: (childId: number, achievementId: string) =>

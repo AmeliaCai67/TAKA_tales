@@ -1,3 +1,4 @@
+import { playConfirm } from "./sfx";
 // 成就系统：进场景即解锁，幂等，localStorage 持久化（M3 后同步服务端）
 // 成就定义与场景绑定均在故事包内（story.json achievements[].unlockScene）
 import { pack } from "./pack";
@@ -110,6 +111,7 @@ export function unlock(id: string): AchievementState | null {
     const a = achievements[id];
     if (!a || a.unlocked) return null;
     a.unlocked = true;
+    playConfirm();
     writeUnlockedIds([...readUnlockedIds(), id]); // 并入全局集，不覆写
     renderAchievements();
     setBadge("ach", true); // 成就更新 → 「成 就」按钮亮橙黄点

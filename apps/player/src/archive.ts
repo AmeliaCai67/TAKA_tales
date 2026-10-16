@@ -1,3 +1,4 @@
+import { playConfirm } from "./sfx";
 import { uiIcon } from "./ui-icons";
 // 如我所书（2026-08-19）：旅程存档系统前端
 // - 旅程日志抽屉：故事页左上角 📖 打开，实时展示当前故事线的对话流（左滑抽屉）
@@ -287,6 +288,7 @@ async function downloadBookAudio(id: number, title: string): Promise<void> {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        playConfirm();
         showStatus(t("archive.download_started"), 2500);
     } catch {
         showStatus(t("archive.download_fail"), 3000);

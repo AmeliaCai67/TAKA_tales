@@ -1,5 +1,6 @@
 import { t } from './i18n';
 import { speechPref } from './settings';
+import { loadingSound, soundEffectsOn, unlockSoundEffects } from './sfx';
 import { themeControl } from './theme';
 import './shell.css';
 import './opening.css';
@@ -17,6 +18,7 @@ export function initShell(onEnter: () => void | Promise<void>, onWake: () => voi
     let stage: 'sleeping' | 'waking' | 'opening' | 'gone' = 'sleeping';
     let frame = 0;
     let audio: HTMLAudioElement | null = null;
+    let endWater: (() => void) | null = null;
     const timers = new Set<ReturnType<typeof setTimeout>>();
     const later = (fn: () => void, ms: number) => {
         const timer = setTimeout(() => { timers.delete(timer); fn(); }, ms);
@@ -33,9 +35,9 @@ export function initShell(onEnter: () => void | Promise<void>, onWake: () => voi
         ['--near-x','--near-y','--mid-x','--mid-y','--far-x','--far-y','--taka-reveal','--title-light'].forEach(k => cover.style.removeProperty(k));
         cover.querySelectorAll('.torch-clue').forEach(c => c.classList.remove('is-lit'));
     }
-    function stopSound(): void { if (audio) { audio.pause(); audio.currentTime = 0; } }
+    function stopSound(): void { endWater?.(); endWater = null; if (audio) { audio.pause(); audio.currentTime = 0; } }
     function pulseSound(): void {
-        if (!speechPref.on) return;
+        if (!soundEffectsOn()) return;
         try {
             audio ??= new Audio(bootSoundUrl);
             audio.volume = speechPref.volume;
@@ -70,22 +72,25 @@ export function initShell(onEnter: () => void | Promise<void>, onWake: () => voi
         fine.removeEventListener('change',stopTorch); reduced.removeEventListener('change',stopTorch);
         stopSound();
         window.removeEventListener('blur',stopSound);
+        document.removeEventListener('taka-sfx-change',syncSound);
+        document.removeEventListener('taka-volume-change',syncSound);
         document.removeEventListener('visibilitychange',visibility);
         if (audio) { audio.removeAttribute('src'); audio.load(); }
         cover.remove(); document.body.classList.remove('on-gate');
     }
+    function syncSound(): void { if (!soundEffectsOn()) stopSound(); else if (audio) audio.volume = speechPref.volume; }
     function visibility(): void { if (document.hidden) stopSound(); }
     cover.hidden = false; cover.classList.add('bubble-opening','intro-light','intro-ready'); document.body.classList.add('on-gate');
     cover.querySelector('h1')!.insertAdjacentHTML('beforeend',nameplate);
     cover.insertAdjacentHTML('beforeend',`<div class="opening-cone" aria-hidden="true"></div><div class="wake-bubbles" aria-hidden="true">${Array.from({length:7},(_,i)=>`<i style="--bx:${20+(i*17)%65}%;--size:${3+i%3*2}px;--delay:${i*.065}s;--drift:${i%2?8:-7}px"></i>`).join('')}</div>`);
-    if (speechPref.on) { audio = new Audio(bootSoundUrl); audio.preload = 'auto'; }
+    if (soundEffectsOn()) { audio = new Audio(bootSoundUrl); audio.preload = 'auto'; }
     cover.querySelector('.cover-header')!.insertAdjacentHTML('afterbegin',themeControl());
     cover.querySelector('.depth-motes')!.innerHTML = Array.from({length:15},(_,i)=>`<i class="depth-mote${i%4===0?' near':''}" style="--mx:${5+(i*37)%90}%;--my:${15+(i*29)%80}%;--ms:${i%4===0?5:2}px;--mb:${i%4===0?1.2:0}px;--md:${10+i%7}s;--delay:-${i%9}s"></i>`).join('');
     cover.querySelectorAll('.torch-clue').forEach((c,i)=>c.textContent=t(i?'shell.curious':'shell.light_moves'));
     button.disabled = false; text();
     button.onclick = () => {
         if (stage !== 'sleeping') return;
-        stage='waking';button.disabled=true;stopTorch();onWake();pulseSound();cover.classList.add('is-awakening');
+        stage='waking';button.disabled=true;stopTorch();onWake();unlockSoundEffects();endWater=loadingSound(0,false);pulseSound();cover.classList.add('is-awakening');
         text();
         // Build the destination beneath the opaque cover; preserve the lettering and wake sequence.
         const destination = Promise.resolve().then(onEnter).then(() => true, () => false);
@@ -106,6 +111,8 @@ export function initShell(onEnter: () => void | Promise<void>, onWake: () => voi
     cover.addEventListener('keydown',e=>{if(e.key==='Tab')stopTorch();});
     window.addEventListener('blur',stopTorch);
     window.addEventListener('blur',stopSound);
+    document.addEventListener('taka-sfx-change',syncSound);
+    document.addEventListener('taka-volume-change',syncSound);
     document.addEventListener('visibilitychange',visibility);
     fine.addEventListener('change',stopTorch);reduced.addEventListener('change',stopTorch);
 }
