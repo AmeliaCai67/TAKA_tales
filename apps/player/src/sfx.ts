@@ -39,7 +39,7 @@ function stopCue(cue: Cue): void {
     voice.gain.gain.linearRampToValueAtTime(0, now + .025);
     try { voice.source.stop(now + .03); } catch { /* already ended */ }
 }
-export function stopSoundEffects(): void {
+function stopSoundEffects(): void {
     epoch++; waterRun++;
     (['water', 'click', 'confirm'] as const).forEach(stopCue);
 }
@@ -47,7 +47,7 @@ export function stopSoundEffects(): void {
 export function unlockSoundEffects(): void {
     if (!canPlay()) return;
     try {
-        const Constructor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        const Constructor = window.AudioContext || window.webkitAudioContext;
         if (!Constructor) return;
         context ??= new Constructor();
         resuming = context.resume().catch(() => {});
@@ -89,7 +89,7 @@ async function play(cue: Cue): Promise<void> {
         source.start();
     } catch { /* rejected playback leaves the story untouched */ }
 }
-export function playClick(): void { void play('click'); }
+function playClick(): void { void play('click'); }
 export function playConfirm(): void { void play('confirm'); }
 /** Paired token: stale recognition callbacks cannot unmute a newer recording. */
 export function suppressSoundEffects(): () => void {

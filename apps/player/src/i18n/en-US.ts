@@ -179,6 +179,7 @@ export const enUS: Dict = {
         qa_ignored: "The console did not respond.",
         qa_quota: "Too many questions today. Come back tomorrow.",
         qa_error: "Bad signal. Try again.",
+        qa_disabled: "Your parent turned off little wonders. Try Facts or Tags instead.",
         tags_tip: "Pick {{n}} tags that fit it",
         tags_submit: "Stick them on",
         tags_right: "Tags on! It's saved in TAKA's memory bank.",
@@ -231,6 +232,7 @@ export const enUS: Dict = {
         btn_title: "Journey log",
     },
     misc: {
+        energy_title: "TAKA’s energy core",
         settings_btn_title: "Settings",
         parent_btn_title: "For parents",
         doc_title: "TAKA",

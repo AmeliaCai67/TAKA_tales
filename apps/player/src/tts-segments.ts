@@ -24,11 +24,11 @@ function escapeRe(s: string): string {
  *  zh：角色名 + 最多 8 字引导 + 冒号 + 引号定界台词；
  *  en：Name: "…" / Name says, "…" / The Old Machine calls, weak and far. "…"——
  *      大小写不敏感 + 容忍 The 前缀 + 引语前 ≤40 字符必须含发言动词（防纯叙述误配） */
-export function dialogRe(speakers: Record<string, string>, lang: "zh" | "en"): RegExp {
+function dialogRe(speakers: Record<string, string>, lang: "zh" | "en"): RegExp {
     const names = Object.keys(speakers).map(escapeRe).join("|");
     if (lang === "en") {
         return new RegExp(
-            "(?:the\\s+)?(" + names + ")(\\s*:\\s*|(?=[^\\u201c\"]{0,40}?\\b(?:" + EN_SPEECH_VERBS + ")\\b)[^\\u201c\"]{0,40}?)\\s*" +
+            "(?:the\\s+)?(" + names + ")(\\s*[:：]\\s*|(?=[^\\u201c\"]{0,40}?\\b(?:" + EN_SPEECH_VERBS + ")\\b)[^\\u201c\"]{0,40}?)\\s*" +
             EN_Q_OPEN + "([^\\u201d\"]+?)" + EN_Q_CLOSE, "i");
     }
     // 冒号后允空格（2026-10-13：LLM 中文生成实测「塔卡说： “…”」，此前全段塌 narrator）
@@ -162,7 +162,7 @@ function enQuoteSpans(p: string): Array<["quote" | "text", string]> {
     return spans;
 }
 
-export function parseTextSegsEn(text: string, speakers: Record<string, string>,
+function parseTextSegsEn(text: string, speakers: Record<string, string>,
                                 overrides?: Record<string, string>): Seg[] {
     const re = dialogRe(speakers, "en");
     const segs: Seg[] = [];
@@ -253,7 +253,7 @@ export function parseTextSegsEn(text: string, speakers: Record<string, string>,
                 }
                 if (overrides && overrides[name]) who = overrides[name];
                 let introText = intro;
-                if (stripChars(introText, ":").trim() === name) introText = name + " says";
+                if (stripChars(introText, ":：").trim() === name) introText = name + " says";
                 if (introText) segs.push({ who: "narrator", text: introText });
                 segs.push({ who, text: mm[3] });
                 note(who); lastSpeaker = who;

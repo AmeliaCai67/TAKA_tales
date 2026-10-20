@@ -1,7 +1,7 @@
 // 按钮通知点（2026-08-27）：「如我所书 / 成就 / 记忆库」各有更新时，在对应顶栏按钮上亮一个橙黄点。
 // 点击该按钮（打开面板）即清除；状态存 localStorage，返回书架仍显示未读点。
 
-export type BadgeDomain = "books" | "ach" | "codex";
+type BadgeDomain = "books" | "ach" | "codex";
 import { t } from "./i18n";
 const KEY = "taka_badges";
 const BTN: Record<BadgeDomain, string> = {

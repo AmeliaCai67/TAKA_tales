@@ -1,10 +1,10 @@
+import { errorMessage } from "./errors";
 import { playConfirm } from "./sfx";
 // 家长入口：邮箱验证码登录 → 孩子档案选择/新建 → 断点续玩与成就上云
 // 未登录完全可玩（本地存储），登录是「家长动作」，不挡孩子
 import { pack } from "./pack";
 import { ICON_PARENT } from "./icons";
 import { api } from "./api";
-import type { ChildInfo } from "./api";
 import { session, setToken, setChild, clearSession } from "./session";
 import { syncFromServer, carryGuestAchievements } from "./achievements";
 import { setResumePoint } from "./engine";
@@ -25,8 +25,8 @@ function syncParentBtn(): void {
 }
 
 /** 选中孩子后的回调（书架重渲用），main.ts 可注入 */
-export let afterChildSelect: (() => void) | null = null;
-export function setAfterChildSelect(fn: (() => void) | null): void { afterChildSelect = fn; }
+let afterChildSelect: (() => void | Promise<void>) | null = null;
+export function setAfterChildSelect(fn: (() => void | Promise<void>) | null): void { afterChildSelect = fn; }
 
 /** 选中孩子：成就合并 + 拉断点 */
 export async function selectChild(id: number): Promise<void> {
@@ -42,7 +42,7 @@ export async function selectChild(id: number): Promise<void> {
         }
     } catch { setResumePoint(null); }
     syncParentBtn();
-    if (afterChildSelect) afterChildSelect();
+    if (afterChildSelect) await afterChildSelect();
 }
 
 /* ===== 弹窗两种状态渲染 ===== */
@@ -104,7 +104,7 @@ function renderLoggedOut(body: HTMLElement): void {
             devCode = r.dev_code || "";
             hint.textContent = r.sent ? t("auth.sent")
                                       : t("auth.dev_code_prefix") + devCode; // SMTP 未配置时回显
-        } catch (e: any) { hint.textContent = t("auth.send_fail_prefix") + e.message; }
+        } catch (e) { hint.textContent = t("auth.send_fail_prefix") + errorMessage(e); }
     });
     body.querySelector("#pm-login")!.addEventListener("click", async () => {
         const email = (body.querySelector("#pm-email") as HTMLInputElement).value.trim();
@@ -118,7 +118,7 @@ function renderLoggedOut(body: HTMLElement): void {
             renderLoggedIn(body);
             syncParentBtn();
             playConfirm();
-        } catch (e: any) { hint.textContent = e.message; }
+        } catch (e) { hint.textContent = errorMessage(e); }
     });
 }
 
@@ -163,7 +163,7 @@ function renderLoggedIn(body: HTMLElement): void {
             session.children.push(c);
             await selectChild(c.id);
             advanceIfOnGate(body);
-        } catch (e: any) { showStatus(e.message, 3000); }
+        } catch (e) { showStatus(errorMessage(e), 3000); }
     });
     body.querySelector("#pm-logout")!.addEventListener("click", () => {
         logoutEverywhere();
@@ -178,6 +178,7 @@ export function logoutEverywhere(): void {
     setResumePoint(null);
     syncParentBtn();
     showStatus(t("auth.logged_out"), 2500);
+    void afterChildSelect?.();
 }
 
 async function refreshMe(): Promise<void> {

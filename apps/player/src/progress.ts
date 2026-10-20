@@ -2,7 +2,7 @@
 // 登录用户的真源仍在云端（M3），本模块是本地镜像——离线/游客也能有角标和断点
 import { session } from "./session";
 
-export interface LocalProgress {
+interface LocalProgress {
     sceneKey: string;
     battery: number;
     path: string[];

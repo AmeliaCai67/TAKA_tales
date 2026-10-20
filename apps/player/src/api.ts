@@ -1,89 +1,21 @@
-// API 客户端：所有后端调用的唯一出口
-// VITE_API_BASE 默认同源（nginx 反代 /api/），本地联调可指 http://localhost:8000
-import { session } from "./session";
-
-const API_BASE: string = (import.meta.env?.VITE_API_BASE as string | undefined) || "";
-
-export class ApiError extends Error {
-    status: number;
-    constructor(status: number, message: string) {
-        super(message);
-        this.status = status;
-    }
-}
-
-async function req<T>(path: string, opts: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
-    const headers: Record<string, string> = { "Content-Type": "application/json", ...(opts.headers || {}) };
-    if (session.token) headers["Authorization"] = "Bearer " + session.token;
-    const doFetch = () => fetch(API_BASE + path, {
-        method: opts.method || "GET",
-        headers,
-        body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
-        cache: "no-store"
-    });
-    // XHR 回退（2026-09-01 Mate 60 Chrome/99 实测：探针页证明 XHR POST 在其浏览器上 100% 通）
-    const doXhr = () => new Promise<T>((resolve, reject) => {
-        const x = new XMLHttpRequest();
-        x.open(opts.method || "GET", API_BASE + path);
-        for (const [k, v] of Object.entries(headers)) x.setRequestHeader(k, v);
-        x.onload = () => {
-            let data: any = {};
-            try { data = JSON.parse(x.responseText || "{}"); } catch {}
-            if (x.status >= 200 && x.status < 300) return resolve(data as T);
-            let msg = "HTTP " + x.status;
-            if (data && data.detail) msg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
-            reject(new ApiError(x.status, msg));
-        };
-        x.onerror = () => reject(new TypeError("xhr onerror (status=" + x.status + ")"));
-        x.ontimeout = () => reject(new TypeError("xhr timeout"));
-        x.timeout = 15000;
-        x.send(opts.body === undefined ? undefined : JSON.stringify(opts.body));
-    });
-    // 移动浏览器对复用的已死 keep-alive 连接不重试 POST（非幂等）→ TypeError「Failed to fetch」。
-    // 阶梯：fetch → fetch 重试（新连接）→ XHR 回退；HTTP 错误不进入重试（2026-09-01 实机排查）
-    let res: Response | undefined;
-    let fetchErr: Error | null = null;
-    try {
-        res = await doFetch();
-    } catch (e: any) {
-        fetchErr = e;
-        try {
-            await new Promise(r => setTimeout(r, 400));
-            res = await doFetch();
-            fetchErr = null;
-        } catch (e2: any) {
-            fetchErr = e2;
-        }
-    }
-    if (fetchErr) {
-        try {
-            return await doXhr();
-        } catch (xe: any) {
-            // 两种传输全挂：把两边的错误都带上去（排障需要）
-            throw new TypeError(fetchErr.message + "；xhr: " + (xe && xe.message ? xe.message : xe));
-        }
-    }
-    if (!res) throw fetchErr; // 理论不可达（fetchErr 非空已在上面 return/throw）
-    if (!res.ok) {
-        let msg = "HTTP " + res.status;
-        try {
-            const err = await res.json();
-            if (err && err.detail) msg = typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
-        } catch {}
-        throw new ApiError(res.status, msg);
-    }
-    return res.json() as Promise<T>;
+// Backend contract and session-aware wrapper; transport is isolated in http.ts.
+import { session } from './session';
+import { requestJson, type RequestOptions } from './http';
+export { ApiError } from './http';
+const API_BASE: string = import.meta.env.VITE_API_BASE || '';
+function req<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+    return requestJson<T>(API_BASE + path, opts, session.token || '');
 }
 
 export interface ChildInfo { id: number; nickname: string; age_band: string; prefs: Record<string, unknown>; }
-export interface MeInfo { parent: { id: number; email: string }; children: ChildInfo[]; }
-export interface ProgressInfo { found: boolean; scene_key?: string; battery?: number; path?: string[]; }
+interface MeInfo { parent: { id: number; email: string }; children: ChildInfo[]; }
+interface ProgressInfo { found: boolean; scene_key?: string; battery?: number; path?: string[]; }
 export interface BookInfo {
     id: number; story_id: string; title: string; edition: number; cover: string;
     ending: string | null; total_events: number; audio_status: string;
     finished_at: string | null; created_at: string;
 }
-export interface BookEvent { seq: number; scene_key: string; role: string; text: string; type: string; created_at: string; }
+interface BookEvent { seq: number; scene_key: string; role: string; text: string; type: string; created_at: string; }
 export interface BookDetail extends BookInfo { events: BookEvent[]; }
 
 export const api = {

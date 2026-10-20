@@ -24,7 +24,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "packages" / "tts-pipeline"))
 
-STORIES = ["ch01-wind", "ch02-whale", "ch03-rivet", "ch04-hello757"]  # 加新故事记得登记，否则这份校验会静默漏掉（2026-09-15 补 ch04）
 BASE = ROOT / "content" / "stories"
 
 
@@ -33,8 +32,8 @@ def check_files(sid: str, lang: str):
     pack_dir = BASE / sid
     audio_dir = pack_dir / ("audio-en" if lang == "en" else "audio")
     story_file = pack_dir / ("story.en.json" if lang == "en" else "story.json")
-    story = json.load(open(story_file, encoding="utf-8"))
-    manifest = json.load(open(audio_dir / "manifest.json", encoding="utf-8"))
+    story = json.loads(story_file.read_text(encoding="utf-8"))
+    manifest = json.loads((audio_dir / "manifest.json").read_text(encoding="utf-8"))
 
     scene_ids = set(story["scenes"].keys())
     m_scenes = set(manifest.keys())
@@ -57,7 +56,9 @@ def check_files(sid: str, lang: str):
                 if missing <= 10:
                     problems.append(f"缺失文件: {sc}/{seg['file']}")
         ch = info.get("choices")
-        if isinstance(ch, str) and not (audio_dir / ch).exists():
+        if isinstance(ch, dict):
+            ch = ch.get("file")
+        if ch and not (audio_dir / ch).exists():
             missing += 1
             problems.append(f"缺失文件: {sc}/choices [{ch}]")
     if missing > 10:
@@ -75,7 +76,7 @@ async def check_consistency(sid: str, lang: str):
     pack = load_pack(pack_dir, lang)
     plan = plan_pack(pack)
     exp = await render_pack(pack, plan, audio_dir, dry_run=True, lang=lang)
-    disk = json.load(open(audio_dir / "manifest.json", encoding="utf-8"))
+    disk = json.loads((audio_dir / "manifest.json").read_text(encoding="utf-8"))
 
     problems = []
     for sc in sorted(set(exp) | set(disk)):
@@ -97,7 +98,7 @@ async def main():
     ap.add_argument("--list", action="store_true", help="只跑文件级摘要（不做深度对比）")
     args = ap.parse_args()
 
-    stories = [args.story] if args.story else STORIES
+    stories = [args.story] if args.story else sorted(p.parent.name for p in BASE.glob("*/story.json"))
     langs = [args.lang] if args.lang else ["zh", "en"]
 
     print("=" * 60)

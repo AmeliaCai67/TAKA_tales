@@ -29,6 +29,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    http.server.ThreadingHTTPServer(
+    with http.server.ThreadingHTTPServer(
         ("127.0.0.1", PORT), functools.partial(Handler, directory=str(DIST))
-    ).serve_forever()
+    ) as server:
+        server.serve_forever()

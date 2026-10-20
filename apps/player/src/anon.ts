@@ -9,7 +9,7 @@ import { session } from "./session";
 
 const ANON_KEY = "taka_anon_id";
 
-export interface AnonEventInput {
+interface AnonEventInput {
     story_id: string;
     type: string;        // session_start / session_end / progress / achievement / choice
     scene_key?: string;

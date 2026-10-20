@@ -5,7 +5,7 @@ import i18next from "i18next";
 import { zhCN } from "./zh-CN";
 import { enUS } from "./en-US";
 
-export type Lang = "zh" | "en";
+type Lang = "zh" | "en";
 const LS_KEY = "taka_lang";
 
 function detect(): Lang {
@@ -52,6 +52,9 @@ export function applyStatic(root: ParentNode = document): void {
     });
     root.querySelectorAll<HTMLElement>("[data-i18n-title]").forEach(el => {
         el.title = t(el.dataset.i18nTitle!);
+    });
+    root.querySelectorAll<HTMLElement>("[data-i18n-label]").forEach(el => {
+        el.setAttribute("aria-label", t(el.dataset.i18nLabel!));
     });
     root.querySelectorAll<HTMLInputElement>("[data-i18n-ph]").forEach(el => {
         el.placeholder = t(el.dataset.i18nPh!);

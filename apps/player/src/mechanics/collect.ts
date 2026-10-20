@@ -11,7 +11,7 @@ import { entryUnlocked } from "../codex";
 import { preloadedSvg, warmAudio } from "../preload";
 import { reportEvent } from "../events";
 import { speechPref } from "../settings";
-import { figure, loadActor, decorEl, PIECE_BASE } from "../scene-host";
+import { figure, loadActor, PIECE_BASE } from "../scene-host";
 import { openCollectFlow, closeCollectFlow, type FlowCallbacks } from "./collect-flow";
 import type { CollectDecl, CollectItem, MechanicCtx, MechanicHandle } from "./types";
 
@@ -60,7 +60,8 @@ function routeOutside(sx: number, sy: number, tx: number, ty: number): [number, 
 }
 
 /** 单段直线游（页内钳制）；路由由 swimTakaTo 负责 */
-function swimLeg(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: number, durMs: number): Promise<void> {
+function swimLeg(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: number, durMs: number, isActive: () => boolean): Promise<void> {
+    if (!isActive()) return Promise.resolve();
     const tw = (taka.offsetWidth / (left.clientWidth || 1)) * 100;
     const th = (taka.offsetHeight / (left.clientHeight || 1)) * 100;
     const x = Math.max(0, Math.min(100 - tw, cxPct - tw / 2));
@@ -68,13 +69,14 @@ function swimLeg(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: num
     taka.style.transition = `left ${durMs}ms ease-in-out, top ${durMs}ms ease-in-out`;
     taka.style.left = x + "%";
     taka.style.top = y + "%";
-    return new Promise(res => setTimeout(() => { taka.style.transition = ""; res(); }, durMs + 40));
+    return new Promise(res => setTimeout(() => { if (isActive()) taka.style.transition = ""; res(); }, durMs + 40));
 }
 
 /** 塔卡游动动画（2026-09-28 点击兜底，spec: collect-ux-drag-and-feedback；pixel-taka 起过拱门闸口+绕行路由）：
  *  目标点先过 clampOutsideArch（永远不落墙内），再算 routeOutside（路径也不穿墙——长途从拱门顶部绕行）。
  *  默认落点略低于目标（offsetY=4% 页高，别压着目标物）；贴玻璃传 0。拖动可随时接管（down 清 transition）。 */
-function swimTakaTo(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: number, durMs = 1000, offsetY = 4): Promise<void> {
+function swimTakaTo(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: number, durMs = 1000, offsetY = 4, isActive: () => boolean = () => true): Promise<void> {
+    if (!isActive()) return Promise.resolve();
     [cxPct, cyPct] = clampOutsideArch(cxPct, cyPct + offsetY);
     const tw = (taka.offsetWidth / (left.clientWidth || 1)) * 100;
     const th = (taka.offsetHeight / (left.clientHeight || 1)) * 100;
@@ -84,15 +86,15 @@ function swimTakaTo(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: 
     taka.classList.add("px-swim"); // 游动态（非像素模式时无对应样式，无副作用）
     let p: Promise<void> = Promise.resolve();
     const per = durMs / legs.length;
-    for (const [lx, ly] of legs) p = p.then(() => swimLeg(taka, left, lx, ly, per));
-    return p.then(() => { taka.classList.remove("px-swim"); });
+    for (const [lx, ly] of legs) p = p.then(() => swimLeg(taka, left, lx, ly, per, isActive));
+    return p.then(() => { if (isActive()) taka.classList.remove("px-swim"); });
 }
 
 /** 收集即时音效：WebAudio 合成上行双音「叮-咚」（零网络零资产）；语音总开关兼总音量，关则不响 */
 function playCollectSfx(): void {
     if (!speechPref.on) return;
     try {
-        const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+        const AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
         const ctx: AudioContext = new AC();
         const t0 = ctx.currentTime;
@@ -152,6 +154,8 @@ function makeTakaDraggable(taka: HTMLElement, left: HTMLElement): void {
 /** 收集页挂载（2026-10-03 Phase 2 契约化：宿主已建 spread + 左页画布并翻页，本函数只做玩法本身）。
  *  布局类（collect-mode/collect-active/collect-page）由组件自理——宿主与引擎不认识任何玩法的类名。 */
 export function mountCollect(ctx: MechanicCtx): MechanicHandle {
+    let disposed = false;
+    const isActive = () => !disposed;
     const col = ctx.decl as CollectDecl;
     arch = col.bounds ?? DEFAULT_BOUNDS;   // 几何参数自声明注入（同数据源供闸口/路由/玻璃罩）
     bypass = col.bypass ?? DEFAULT_BYPASS;
@@ -199,7 +203,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
         if (takaOrigHtml === null) takaOrigHtml = taka.innerHTML;
         taka.innerHTML = preloadedSvg(skinUrl) ?? "";
         if (!taka.innerHTML) void loadActor(col.takaSkin).then(svg => {
-            if (svg && taka.classList.contains("px-mode")) taka.innerHTML = svg;
+            if (isActive() && svg && taka.classList.contains("px-mode")) taka.innerHTML = svg;
         });
         taka.classList.add("px-mode", "px-idle");
     }
@@ -232,7 +236,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
             lastFollow = now;
             const r = left.getBoundingClientRect();
             void swimTakaTo(taka, left,
-                ((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100, 380, 0);
+                ((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100, 380, 0, isActive);
         });
     } else {
         makeTakaDraggable(taka, left);
@@ -256,7 +260,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
         const r = left.getBoundingClientRect();
         const px = ((e.clientX - r.left) / r.width) * 100, py = ((e.clientY - r.top) / r.height) * 100;
         reportEvent({ type: "collect_click", payload: { x: +px.toFixed(1), y: +py.toFixed(1), in_arch: archVal(px, py) <= 1 } });
-        void swimTakaTo(taka, left, px, py, 900); // 拱门闸口在 swimTakaTo 内部
+        void swimTakaTo(taka, left, px, py, 900, 4, isActive); // 拱门闸口在 swimTakaTo 内部
     });
     // idle 演示：6s 无操作，塔卡自己游向最近未收集物的玻璃位（不收集；任何按下取消且本场景不再演示）
     const demoTimer = setTimeout(() => {
@@ -268,7 +272,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
             return Math.hypot(ga[0] - tl, ga[1] - tt) < Math.hypot(gb[0] - tl, gb[1] - tt) ? a : b;
         });
         const [gx, gy] = glassAnchorOf(near);
-        void swimTakaTo(taka, left, gx, gy, 1600, 0); // 慢速，演示感
+        void swimTakaTo(taka, left, gx, gy, 1600, 0, isActive); // 慢速，演示感
     }, 6000);
     left.addEventListener("pointerdown", () => clearTimeout(demoTimer), { once: true });
     // 兴趣侦测（规则 4）：塔卡中心靠近某未收集物的玻璃锚点 → 自动兴趣态（灯亮+贴近+物品 halo 增强）
@@ -340,6 +344,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
         }
         // 收集成功统一出口：贴玻璃扫描演出 + 即时音效 + 扫描扩散环 + 灯闪 + 揭晓标签 + 计数 + 观察小剧本
         const doCollect = () => {
+            if (disposed) return;
             if (!firstSuccess) { // 埋点：首次成功交互耗时（自场景进入）
                 firstSuccess = true;
                 reportEvent({ type: "collect_first_success", payload: { elapsed_ms: Date.now() - tEnter, item: it.id } });
@@ -376,7 +381,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
             // 塔卡永远进不了墙内——nearTaka 旧门槛已随拱门边界模型退役。
             collectBusy = true;
             const [gx, gy] = glassAnchorOf(it);
-            void swimTakaTo(taka, left, gx, gy, 900, 0).then(() => {
+            void swimTakaTo(taka, left, gx, gy, 900, 0, isActive).then(() => {
                 collectBusy = false;
                 if (!colState.has(it.id)) doCollect();
             });
@@ -416,6 +421,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
 
     return {
         cleanup: () => {
+            disposed = true;
             if (detachDrag) detachDrag();
             closeCollectFlow();
             const f = document.getElementById("taka-figure");

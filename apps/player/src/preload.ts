@@ -70,7 +70,7 @@ export function preloadImages(
     const total = fresh.length;
     let done = 0;
     // e2e 断言钩子：仅 splash 驱动（带进度回调）的调用更新，闲时预取不覆盖
-    if (onProgress) (window as any).__takaPreload = { loaded: 0, total };
+    if (onProgress) window.__takaPreload = { loaded: 0, total };
 
     if (total === 0) { onProgress?.(0, 0); return Promise.resolve(); }
 
@@ -83,7 +83,7 @@ export function preloadImages(
             await loadOne(url, opts);
             done++;
             if (onProgress) {
-                (window as any).__takaPreload.loaded = done;
+                if (window.__takaPreload) window.__takaPreload.loaded = done;
                 onProgress(done, total);
             }
         }
@@ -109,8 +109,8 @@ export function idlePreload(urls: string[]): void {
     const fresh = urls.filter(u => !loaded.has(u));
     if (!fresh.length) return;
     const ric: (cb: () => void) => void =
-        (window as any).requestIdleCallback
-            ? (cb) => (window as any).requestIdleCallback(cb, { timeout: 4000 })
+        window.requestIdleCallback
+            ? (cb) => window.requestIdleCallback(cb, { timeout: 4000 })
             : (cb) => setTimeout(cb, 1500);
     const step = () => {
         const batch = fresh.splice(0, 2);

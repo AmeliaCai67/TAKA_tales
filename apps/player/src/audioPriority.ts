@@ -3,7 +3,7 @@
 // 规则：更高优先级播放开始时，自动暂停低优先级；高优先级结束(stop)时，自动恢复被暂停的低优先级。
 // 低优先级不会抢占正在播放的高优先级（返回空 release，独立播放、不接管焦点）。
 
-export type AudioLayer = "story" | "codex";
+type AudioLayer = "story" | "codex";
 const ORDER: AudioLayer[] = ["story", "codex"];
 const idx = (l: AudioLayer) => ORDER.indexOf(l);
 

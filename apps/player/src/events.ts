@@ -8,7 +8,7 @@ import { session } from "./session";
 import { ensureAnonId } from "./anon";
 import { pack } from "./pack";
 
-export interface VoiceEventInput {
+interface VoiceEventInput {
     type: string;
     scene_key?: string;
     payload?: Record<string, unknown>;
@@ -30,6 +30,3 @@ export function reportEvent(evt: VoiceEventInput): void {
         });
     }
 }
-
-/** @deprecated 旧名保留（语音漏斗埋点）；新代码用 reportEvent */
-export const reportVoiceEvent = reportEvent;

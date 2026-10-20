@@ -1,12 +1,12 @@
 // 故事包类型契约（与 packages/story-schema/schema.json 对应）+ 加载器
 import type { MechanicDecl } from "./mechanics/types";
 
-export interface Choice {
+interface Choice {
     text: string;
     next: string;
 }
 
-export interface CodexLink {
+interface CodexLink {
     word: string;   // 场景文本里高亮的关键词
     entry: string;  // → codex.entries[].id
 }
@@ -45,10 +45,10 @@ export interface Scene {
     mechanic?: string; // 玩法声明引用（2026-10-03 组件化）：指向包级 mechanics 表的声明 id（如第四章收集 "farm-collect"）
 }
 
-export type EyeState = "st-standby" | "st-thinking" | "st-pondering" | "st-listening" | "st-low" | "st-off";
+type EyeState = "st-standby" | "st-thinking" | "st-pondering" | "st-listening" | "st-low" | "st-off";
 
 /* ===== 横屏绘本模式（2026-08-31，plan: docs/superpowers/plans/2026-08-31-landscape-book-mode.md） ===== */
-export interface BookHotspot {
+interface BookHotspot {
     choice: number;      // 对齐 choices 下标
     actor: string;       // pack.characters 注册的角色，或引擎内置件（public/characters/）
     x: number;           // 左页内位置 %（左上原点）
@@ -57,7 +57,7 @@ export interface BookHotspot {
 }
 
 /* 场景常驻角色（2026-09-03 演出效果）：非交互，随场景渲染即在画面里；与 hotspot 的区别是不绑选项、不可点 */
-export interface BookActor {
+interface BookActor {
     actor: string;       // pack.characters 注册的角色，或引擎内置件（public/characters/）
     x: number;           // 左页内位置 %（左上原点）
     y: number;
@@ -66,7 +66,7 @@ export interface BookActor {
     rotate?: number;     // 旋转角（度，如鲸鱼下沉俯角）
 }
 
-export interface BookLayout {
+interface BookLayout {
     art?: string;        // 左页画面（缺省 = scene.background）
     taka?: { x?: number; y?: number; size?: number; rotate?: number }; // 缺省 14/34/（ch02 29%）/0
     decor?: ("waves" | "sun" | "bubbles")[];

@@ -1,5 +1,5 @@
+import { audioBase, playSrc, playTts, stopCollectAudio } from "./collect-audio";
 import { uiIcon } from "../ui-icons";
-import { speechPref } from "../settings";
 // 海底农场收集闭环（2026-09-07 spec）：收集 → 观察小剧本 → 控制台（信息/打标签/问一问）→ 录入记忆库
 // (a) 聊天卡：observe 小剧本三句一批出字幕 + 包内预渲染音频；猫猫场景有活猫「喵」音效钮
 //     （2026-09-16：删掉跳过/关闭——不连控制台不打标签就通不了关，不给旁路；唯一出口 = 连接控制台）
@@ -8,7 +8,7 @@ import { speechPref } from "../settings";
 // (d) 打标签：机制判定（包数据 correct），预设文案池反馈，不惩罚选错；tab 排在问一问前面（打标是通关必经）
 // (e) 录入：codex unlock + tags → 记忆库词条卡展示「我的标签」
 // 2026-10-03 mechanic 组件化：自 src/collect-flow.ts 平移进 mechanics/（收集玩法组件目录），import 加 ../ 前缀
-import { api } from "../api";
+import { api, ApiError } from "../api";
 import { session } from "../session";
 import { pack } from "../pack";
 import { t, lang } from "../i18n";
@@ -16,8 +16,6 @@ import { selectedChild } from "../session";
 import { loadSettings } from "../settings";
 import { recordCollectEntry } from "../codex";
 import { currentAnonId } from "../anon";
-import { acquireAudio } from "../audioPriority";
-import { prefetchTts, splitTtsUrls } from "../speech";
 import type { CollectItem } from "./types";
 
 export interface FlowCallbacks {
@@ -28,51 +26,17 @@ const esc = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 let overlay: HTMLElement | null = null;
-let curAudio: HTMLAudioElement | null = null;
-let releaseAudio: (() => void) | null = null;
 let dead = false; // 当前流程实例已销毁（异步回调防串场）
 let tagsRecorded = false; // 当前物品已录入过（tags tab 显示「已录入」而不是可重打）
 
 function kill(): void {
     dead = true;
-    if (curAudio) { try { curAudio.pause(); } catch {} curAudio = null; }
-    if (releaseAudio) { releaseAudio(); releaseAudio = null; }
+    stopCollectAudio();
     overlay?.remove();
     overlay = null;
 }
 
 export function closeCollectFlow(): void { kill(); }
-
-function audioBase(): string {
-    return pack().baseUrl + (lang === "en" ? "audio-en/" : "audio/");
-}
-
-async function playSrc(src: string): Promise<void> {
-    if (curAudio) { try { curAudio.pause(); } catch {} }
-    const a = new Audio(src);
-    a.volume = speechPref.volume;
-    curAudio = a;
-    if (!releaseAudio) releaseAudio = acquireAudio("codex", () => a.pause(), () => void a.play().catch(() => {}));
-    try { await a.play(); } catch {}
-    await new Promise<void>(res => {
-        a.onended = () => res();
-        a.onerror = () => res();
-    });
-    if (curAudio === a) curAudio = null;
-}
-
-/** 动态 TTS（问答回答：console 声线实时合成）——2026-10-03 句级流水线：
- *  全部句子立即预取（6s 超时重试 1 次跳句），按序播——首声从「整段渲完」缩到「首句渲完」 */
-async function playTts(text: string): Promise<void> {
-    const ps = prefetchTts(splitTtsUrls(text, "console"));
-    for (const p of ps) {
-        if (dead) return;
-        const blob = await p;
-        if (dead || !blob) continue;
-        await playSrc(blob);
-        URL.revokeObjectURL(blob); // 播完即吊销（kill 中断的留给 GC/页面卸载）
-    }
-}
 
 /* ================= (a) 聊天卡 ================= */
 
@@ -95,7 +59,7 @@ function openChatCard(item: CollectItem, cb: FlowCallbacks): void {
         </div>`;
     document.body.appendChild(overlay);
 
-    overlay.querySelector(".cf-meow")?.addEventListener("click", () => void playSrc(pack().baseUrl + "audio/" + item.meowSfx!));  // 猫叫与语言无关，固定走 audio/
+    overlay.querySelector(".cf-meow")?.addEventListener("click", () => void playSrc(pack().baseUrl + "audio/" + item.meowSfx!, false));  // 猫叫与语言无关，固定走 audio/
     overlay.querySelector(".cf-to-console")!.addEventListener("click", () => openConsole(item, cb, "info"));
 
     const body = overlay.querySelector(".cf-chat-body") as HTMLElement;
@@ -211,7 +175,7 @@ function openConsole(item: CollectItem, cb: FlowCallbacks, tab: TabId): void {
 
     // 关闭钮只在「已录入回看」模式存在（未录入时唯一出路是打完标签，2026-09-16）
     overlay.querySelector(".cf-close")?.addEventListener("click", kill);
-    overlay.querySelector(".cf-meow-big")?.addEventListener("click", () => void playSrc(pack().baseUrl + "audio/" + item.meowSfx!));
+    overlay.querySelector(".cf-meow-big")?.addEventListener("click", () => void playSrc(pack().baseUrl + "audio/" + item.meowSfx!, false));
     overlay.querySelectorAll(".cf-fact-play").forEach(b => b.addEventListener("click", (e) => {
         const i = +(e.currentTarget as HTMLElement).dataset.i!;
         void playSrc(`${audioBase()}collect/${item.id}.fact_${String(i + 1).padStart(2, "0")}.mp3`);
@@ -269,8 +233,9 @@ function wireQa(item: CollectItem): void {
                 await typewriteInline(ans, r.text);
                 if (!dead) void playTts(r.text);
             }
-        } catch (e: any) {
-            if (!dead) ans.textContent = e?.status === 429 ? t("collect.qa_quota") : t("collect.qa_error");
+        } catch (e) {
+            if (!dead) ans.textContent = e instanceof ApiError && e.status === 429 ? t("collect.qa_quota")
+                : e instanceof ApiError && e.status === 403 ? t("collect.qa_disabled") : t("collect.qa_error");
         }
         busy = false;
         logEl.scrollTop = 1e6;
@@ -344,5 +309,3 @@ export function openCollectFlow(item: CollectItem, cb: FlowCallbacks, startAt: "
     if (startAt === "console" || !item.observe?.length) openConsole(item, cb, "info");
     else openChatCard(item, cb);
 }
-
-document.addEventListener("taka-volume-change", () => { if (curAudio) curAudio.volume = speechPref.volume; });

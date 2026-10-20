@@ -13,6 +13,7 @@ import { showStatus } from "./settings";
 import { ICON_LOG } from "./icons";
 import { t, lang } from "./i18n";
 import { loadStoriesIndex } from "./story";
+import type { StoryMeta } from "./story";
 
 function esc(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -102,6 +103,7 @@ function renderLog(): void {
 let archiveOpen = false;
 let currentBooks: BookInfo[] = [];
 let storyCovers = new Map<string, string>();
+let archiveStories = new Map<string, StoryMeta>();
 
 export function initArchive(): void {
     const close = document.getElementById("archive-close");
@@ -129,6 +131,7 @@ export async function openArchive(): Promise<void> {
             api.listBooks(session.childId!), loadStoriesIndex().catch(() => [])
         ]);
         currentBooks = result.books;
+        archiveStories = new Map(stories.map(s => [s.id, s]));
         storyCovers = new Map(stories.filter(s => s.cover).map(s => [s.id, s.cover]));
     } catch { currentBooks = []; }
     const overlay = document.getElementById("archive-overlay");
@@ -141,6 +144,16 @@ export async function openArchive(): Promise<void> {
 /** 书标题 → 故事名：《第一次听见风声·第1版》 → 第一次听见风声 */
 function storyName(title: string): string {
     return title.replace(/^《/, "").replace(/·第\d+版》$/, "").replace(/》$/, "");
+}
+
+function localizedBookTitle(book: BookInfo): string {
+    const story = archiveStories.get(book.story_id);
+    const original = book.title.replace(/^《/, '').replace(/》$/, '');
+    const generatedStory = original.match(/^(.*)·\s*第\s*\d+\s*版$/)?.[1].trim();
+    if (lang === 'en' && story?.alt?.en?.title && generatedStory === story.title) {
+        return story.alt.en.title + ' · ' + t('archive.edition', { n: book.edition });
+    }
+    return book.title;
 }
 
 /** 书架（树状改版 2026-08-25）：故事分组 → 版次行，行内直接「阅读 / 导出」 */
@@ -157,7 +170,8 @@ function renderShelf(): void {
         if (!g) {
             // Historical books retain the old filename; use the current published cover.
             const cover = storyCovers.get(b.story_id) || (b.cover ? (b.cover.startsWith('stories/') ? b.cover : `stories/${b.story_id}/${b.cover}`) : '');
-            g = { storyId: b.story_id, name: storyName(b.title), cover, books: [] };
+            const translated = lang === 'en' ? archiveStories.get(b.story_id)?.alt?.en?.title : undefined;
+            g = { storyId: b.story_id, name: translated || storyName(b.title), cover, books: [] };
             groups.push(g);
         }
         g.books.push(b);
@@ -198,13 +212,13 @@ function stateLabel(s: string): string {
 async function exportBookRow(id: number): Promise<void> {
     const b = currentBooks.find(x => x.id === id);
     if (!b) return;
-    if (b.audio_status === "ready") { void downloadBookAudio(id, b.title); return; }
+    if (b.audio_status === "ready") { void downloadBookAudio(id, localizedBookTitle(b)); return; }
     try {
         const r = await api.exportBook(id); // failed→重新装订；pending→已在装订
         b.audio_status = r.audio_status;
         renderShelf();
-        if (r.audio_status === "ready") { void downloadBookAudio(id, b.title); return; }
-        void pollAndDownload(id, b.title);
+        if (r.audio_status === "ready") { void downloadBookAudio(id, localizedBookTitle(b)); return; }
+        void pollAndDownload(id, localizedBookTitle(b));
     } catch { showStatus(t("archive.export_fail"), 3000); }
 }
 
@@ -255,7 +269,7 @@ async function openBook(id: number): Promise<void> {
     box.innerHTML = `<div class="ar-reader2">
         <div class="ar-r-head">
             <button class="ar-back">← ${t("engine.back_shelf")}</button>
-            <div class="ar-r-title">${esc(detail.title)}</div>
+            <div class="ar-r-title">${esc(localizedBookTitle(detail))}</div>
             <div class="ar-r-meta">${fmtDate(detail.finished_at)} · ${t("archive.sentences", { n: detail.total_events })} · <span class="ar-state ${detail.audio_status}">${stateLabel(detail.audio_status)}</span></div>
             <button class="pg-export" data-id="${id}">${uiIcon("headphones")}${t("archive.export_btn")}</button>
         </div>
@@ -303,7 +317,7 @@ function fmtDate(iso: string | null): string {
 }
 
 /** 关闭我的书架（shelf 重渲时调用） */
-export function closeArchive(): void {
+function closeArchive(): void {
     const overlay = document.getElementById("archive-overlay");
     if (overlay) overlay.hidden = true;
     archiveOpen = false;

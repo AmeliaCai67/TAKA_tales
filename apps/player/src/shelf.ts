@@ -9,7 +9,7 @@ import { session, selectedChild } from "./session";
 import { selectChild, openParentModal } from "./auth";
 import { openArchive } from "./archive";
 import { openCodexPanel } from "./codex";
-import { switchLang } from "./main";
+import { switchLang } from "./language-switch";
 import { lang, t } from "./i18n";
 import { loadLocalProgress } from "./progress";
 import { speechPref } from "./settings";
@@ -18,6 +18,7 @@ import { unlockedAchievementIds } from "./achievements";
 import { ICON_ACHIEVEMENT_SM } from "./icons";
 
 let pickHandler: (s: StoryMeta) => void = () => {};
+let knownStories: StoryMeta[] | undefined;
 
 export function initShelf(onPick: (s: StoryMeta) => void): void {
     pickHandler = onPick;
@@ -34,10 +35,11 @@ export function hideShelf(): void {
 }
 
 export function showShelf(preparedStories?: StoryMeta[]): Promise<void> {
+    if (preparedStories?.length) knownStories = preparedStories;
     const el = document.getElementById("shelf-screen")!;
     el.hidden = false;
     document.body.classList.add("on-shelf"); // 书架模式：藏起 emoji 工具组，换 iBooks 风顶栏
-    return render(el, preparedStories);
+    return render(el, preparedStories ?? knownStories);
 }
 
 function badgeOf(s: StoryMeta): { cls: string; text: string } {
@@ -50,6 +52,7 @@ function badgeOf(s: StoryMeta): { cls: string; text: string } {
 async function render(el: HTMLElement, preparedStories?: StoryMeta[]): Promise<void> {
     const stories = preparedStories ?? await loadStoriesIndex();
     if (!shelfVisible()) return; // 拉索引期间已进故事，别覆盖
+    if (stories.length) knownStories = stories;
 
     const child = selectedChild();
     const chip = session.token

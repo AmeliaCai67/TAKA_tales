@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """结构断言：demo/taka.html 是否符合 UI spec。退出码 0 = 全部通过。"""
 import re, sys
+from pathlib import Path
 
-HTML = open("demo/taka.html", encoding="utf-8").read()
+HTML = Path("demo/taka.html").read_text(encoding="utf-8")
 failures = []
 
 def check(name, cond):
@@ -35,12 +36,12 @@ class _Nest(HTMLParser):
         super().__init__()
         self.stack = []
         self.ok = False
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, _tag, attrs):
         d = dict(attrs)
         if d.get("id") == "choices":
             self.ok = any(a.get("id") == "dialog" for a in self.stack)
         self.stack.append(d)
-    def handle_endtag(self, tag):
+    def handle_endtag(self, _tag):
         if self.stack:
             self.stack.pop()
 _n = _Nest(); _n.feed(HTML)

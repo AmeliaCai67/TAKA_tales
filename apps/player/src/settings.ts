@@ -1,10 +1,9 @@
 // 设置：AI 开关（生成在服务端完成，M4 起本地不再存任何 key）+ 语音偏好
 import { soundEffectsOn, setSoundEffects } from "./sfx";
 import { ICON_SHELF } from "./icons";
-import { t } from "./i18n";
 import { themeControl } from "./theme";
 
-export interface AiSettings {
+interface AiSettings {
     enabled: boolean; // 允许选项 C 调服务端生成（游客不显示选项 C，开关只控制已登录状态）
 }
 
@@ -19,7 +18,7 @@ export function loadSettings(): AiSettings {
 }
 
 /* ===== 语音偏好（朗读开关 / 主音量 / 是否朗读选项 / 基础语速） ===== */
-export interface SpeechPref {
+interface SpeechPref {
     on: boolean;
     readChoices: boolean;
     rate: number;
@@ -45,7 +44,7 @@ export function saveSpeechPref(): void {
 }
 
 /* ===== 布局偏好（2026-08-31 绘本模式）：auto=宽度阈值判定 / book=强制绘本 / vn=强制小说 ===== */
-export type LayoutPref = "auto" | "book" | "vn";
+type LayoutPref = "auto" | "book" | "vn";
 const LAYOUT_KEY = "taka_layout";
 
 export function loadLayoutPref(): LayoutPref {

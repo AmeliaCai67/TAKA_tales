@@ -8,7 +8,7 @@
   tunnel-vortex.jpg 漩涡变体：deep 压暗 + 暖光熄灭（危机时刻灯开始不稳）
 """
 from PIL import Image, ImageDraw, ImageFilter
-import math, os
+import os
 
 W, H = 1440, 810
 OUT = os.path.join(os.path.dirname(__file__), "../content/stories/ch04-hello757/backgrounds")
@@ -88,8 +88,7 @@ def tunnel_deep():
         (1.0, (7, 18, 20)),
     ])
     # 顶部三条柔光带（模拟日照灯带的条带感，很淡）
-    d = ImageDraw.Draw(img, "RGBA")
-    for i, cx in enumerate((0.24, 0.5, 0.76)):
+    for cx in (0.24, 0.5, 0.76):
         band = radial_glow(560, (246, 238, 210), 66)
         img.paste(band, (int(W * cx - 280), int(-H * 0.16)), band)
     # 中央偏上主光域：收集物舞台光

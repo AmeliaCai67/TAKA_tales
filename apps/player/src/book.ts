@@ -14,7 +14,7 @@ import type { MechanicHandle } from "./mechanics/types";
 import { t } from "./i18n";
 
 /* 共享件的既有对外导出（main 消费）经再导出保持不变；collect 相关再导出见文末玩法组件区 */
-export { parkChromeVN, ENGINE_PIECE_URLS } from "./scene-host";
+export { parkChromeVN } from "./scene-host";
 
 /* ---------- 导航注入 ---------- */
 let navFn: (next: string, choiceText: string) => void = () => {};
@@ -117,7 +117,7 @@ function buildLeftPage(scene: Scene, withTaka: boolean): HTMLElement {
 }
 
 /** 场景渲染：填入幕后 spread → 翻页。onTextDone 由 engine 传入（灯光归位 + 选项/聆听条）。 */
-export function renderSceneBook(key: string, scene: Scene, text: string, onTextDone: () => void): void {
+export function renderSceneBook(scene: Scene, text: string, onTextDone: () => void): void {
     resetBook();
     ensureSpreads();
     parkChromeVN(); // 共享节点（立绘/聆听条）先归位到 #stage/#dialog，避免清空 spread 时把它们一并销毁
@@ -324,7 +324,7 @@ export function renderSceneMechanic(key: string, scene: Scene, onDone: () => voi
     const comp = decl ? getMechanic(decl.type) : undefined;
     if (!comp || !decl) {
         console.warn("[mechanics] 玩法声明缺失或类型未注册，退化普通书页:", scene.mechanic);
-        renderSceneBook(key, scene, scene.text || "", onDone);
+        renderSceneBook(scene, scene.text || "", onDone);
         return;
     }
     resetBook();

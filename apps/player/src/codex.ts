@@ -21,6 +21,8 @@ interface EntryState { d: boolean; u: boolean; tags?: string[]; } // discovered 
 const KEY = (storyId: string, entryId: string) => `${storyId}:${entryId}`;
 const GUEST_LS = "taka_codex_v1";
 const state = new Map<string, EntryState>();
+let hydratedScope = "";
+let hydrationGeneration = 0;
 
 const escHtml = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -29,14 +31,22 @@ const escHtml = (s: string) =>
 
 /** 登录（拉后端）或游客（拉 localStorage）水合。孩子切换 / 进故事 / 开面板前调用 */
 export async function hydrateCodex(): Promise<void> {
-    state.clear();
+    const generation = ++hydrationGeneration;
+    const token = session.token, childId = session.childId;
+    const scope = token && childId ? `child:${childId}` : "guest";
+    if (scope !== hydratedScope) { state.clear(); hydratedScope = scope; }
     if (session.token && session.childId) {
         try {
-            const r = await api.codexList(session.childId);
-            for (const e of r.entries)
-                state.set(KEY(e.story_id, e.entry_id), { d: true, u: !!e.unlocked_at, tags: e.tags ?? undefined });
+            const r = await api.codexList(childId!);
+            if (generation !== hydrationGeneration || token !== session.token || childId !== session.childId) return;
+            for (const e of r.entries) {
+                const key = KEY(e.story_id, e.entry_id), local = state.get(key);
+                // Keep an unlock made while this read was in flight; writes are optimistic.
+                state.set(key, { d: true, u: !!e.unlocked_at || !!local?.u, tags: e.tags ?? local?.tags });
+            }
         } catch { /* 离线降级：保持空态，本次游玩仍可正常打卡（写库各自重试） */ }
     } else {
+        state.clear();
         try {
             const raw = JSON.parse(localStorage.getItem(GUEST_LS) || "{}") as Record<string, EntryState>;
             for (const [k, v] of Object.entries(raw)) state.set(k, { d: !!v?.d, u: !!v?.u, tags: v?.tags });
@@ -76,7 +86,7 @@ export function recordCollectEntry(storyId: string, entryId: string, tags: strin
 }
 
 /** 某词条的标签（收集页「已录入」光环 / 词条卡「我的标签」） */
-export function entryTags(storyId: string, entryId: string): string[] | undefined {
+function entryTags(storyId: string, entryId: string): string[] | undefined {
     return state.get(KEY(storyId, entryId))?.tags;
 }
 
@@ -133,14 +143,22 @@ let cardOverlay: HTMLElement | null = null;
 let panelOverlay: HTMLElement | null = null;
 let ttsAudio: HTMLAudioElement | null = null;
 let codexRelease: (() => void) | null = null; // 图鉴层音频焦点（暂停故事剧情用）
+let entryTtsGeneration = 0;
 
 function stopEntryTts(): void {
-    if (ttsAudio) { ttsAudio.pause(); ttsAudio = null; }
+    entryTtsGeneration++;
+    if (ttsAudio) {
+        ttsAudio.onended = ttsAudio.onerror = null;
+        ttsAudio.pause();
+        ttsAudio.removeAttribute('src');
+        ttsAudio.load();
+        ttsAudio = null;
+    }
     if (codexRelease) { codexRelease(); codexRelease = null; } // 释放图鉴层焦点 → 恢复被暂停的故事
     document.querySelector(".cc-tts.playing")?.classList.remove("playing");
 }
 
-export function closeCodexCard(): void {
+function closeCodexCard(): void {
     stopEntryTts();
     cardOverlay?.remove();
     cardOverlay = null;
@@ -151,6 +169,7 @@ export function closeCodexCard(): void {
  *  实时链路冷渲染首段 ~7s + 段间死气，被用户感知为「卡/塔卡说被吞掉」 */
 function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): void {
     if (ttsAudio) { stopEntryTts(); resetTtsBtn(); return; }
+    const generation = ++entryTtsGeneration;
     btn.classList.add("playing");
     btn.innerHTML = uiIcon("stop") + t("codex.stop");
     // 音频路径按词条所属故事拼（面板可跨故事开卡，pack() 是当前加载的故事，会错）
@@ -165,23 +184,27 @@ function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): v
     // 图鉴层（中优先）：开始播放时暂停故事剧情，结束/停止后自动恢复
     codexRelease = acquireAudio("codex", () => ttsAudio?.pause(), () => ttsAudio?.play());
     const playNext = async () => {
+        if (generation !== entryTtsGeneration) return;
         const item = queue.shift();
         if (!item) { stopEntryTts(); resetTtsBtn(); return; }
         const a = new Audio(item[0]);
         a.volume = speechPref.volume;
+        a.playbackRate = speechPref.rate;
         ttsAudio = a;
-        a.onended = () => void playNext();
+        const active = () => generation === entryTtsGeneration && ttsAudio === a;
+        a.onended = () => { if (active()) void playNext(); };
         let fellBack = false;
         a.onerror = () => {
+            if (!active()) return;
             if (!fellBack) {  // 包内文件不存在 → 换动态 TTS 重试本段（只换一次）
                 fellBack = true;
                 a.src = item[1];
-                void a.play().catch(() => { stopEntryTts(); resetTtsBtn(); });
+                void a.play().catch(() => { if (active()) { stopEntryTts(); resetTtsBtn(); } });
                 return;
             }
             stopEntryTts(); resetTtsBtn();
         };
-        try { await a.play(); } catch { stopEntryTts(); resetTtsBtn(); }
+        try { await a.play(); } catch { if (active()) { stopEntryTts(); resetTtsBtn(); } }
     };
     void playNext();
 }
@@ -192,7 +215,7 @@ function resetTtsBtn(): void {
 }
 
 /** 打开词条卡（点关键词=打卡 / 点面板图标=补解锁，殊途同归）。imgSrc 需已拼好完整路径 */
-export function openCodexCard(storyId: string, entry: CodexEntry, imgSrc: string): void {
+function openCodexCard(storyId: string, entry: CodexEntry, imgSrc: string): void {
     const firstUnlock = mark(storyId, entry.id, true);
     closeCodexCard();
     cardOverlay = document.createElement("div");
@@ -232,7 +255,7 @@ function openEntryById(storyId: string, entryId: string): void {
 
 /* ---------- 记忆库面板（书架入口） ---------- */
 
-export function closeCodexPanel(): void {
+function closeCodexPanel(): void {
     closeCodexCard();
     panelOverlay?.remove();
     panelOverlay = null;
@@ -306,3 +329,4 @@ export function initCodex(): void {
 
 // Keep an already playing entry aligned with the global volume slider.
 document.addEventListener("taka-volume-change", () => { if (ttsAudio) ttsAudio.volume = speechPref.volume; });
+document.addEventListener("taka-rate-change", () => { if (ttsAudio) ttsAudio.playbackRate = speechPref.rate; });

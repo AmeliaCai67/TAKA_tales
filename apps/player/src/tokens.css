@@ -1,0 +1,30 @@
+/* Shared immutable palette and spacing; theme roles remain in shell/theme variables. */
+:root {
+  --accent-warm: #ffb703;
+  --memory-blue: #6fa8dc;
+  --chrome-ink: #16324a;
+  --ink-muted-warm: #827a68;
+  --light-warm: #ffe9b8;
+  --text-ice: #e8f2fa;
+  --ink-earth: #3d3930;
+  --text-slate: #7a93a8;
+  --text-sage: #a0aea9;
+  --gold-deep: #b07800;
+  --gold-light: #ffd670;
+  --paper-highlight: #fff9e9;
+  --text-blue-muted: #9db4c6;
+  --black: #000;
+  --white: #fff;
+  --shadow-40: rgba(0,0,0,.4);
+  --text-frost: rgba(235,245,250,.95);
+  --shadow-35: rgba(0,0,0,.35);
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+}

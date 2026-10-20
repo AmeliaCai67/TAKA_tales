@@ -1,0 +1,1 @@
+{"entry":["src/main.ts","vite.config.ts"],"project":["src/**/*.ts","vite.config.ts"],"ignore":["**/* [2-9].*"]}

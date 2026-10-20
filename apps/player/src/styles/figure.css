@@ -1,0 +1,106 @@
+/* ===== 塔卡 6 态灯光（动画只作用在眼睛的光上） ===== */
+        .eyeGlow { transform-box: fill-box; transform-origin: center; }
+
+        .st-standby .eyeGlow { animation: breathe 3.2s infinite alternate ease-in-out; }
+        @keyframes breathe {
+            from { opacity: .55; filter: drop-shadow(0 0 2px rgba(255,183,3,.4)); }
+            to   { opacity: 1;   filter: drop-shadow(0 0 7px rgba(255,183,3,.8)); }
+        }
+
+        .st-speaking .eyeGlow { opacity: 1; filter: drop-shadow(0 0 9px rgba(255,183,3,.95)); }
+        .st-speaking .takaBody { animation: bob 1.6s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
+        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        .st-thinking .eyeGlow { animation: think 2.4s infinite; }
+        @keyframes think {
+            0% { opacity: 1; } 6% { opacity: .15; } 12% { opacity: 1; }
+            18% { opacity: .15; } 24% { opacity: 1; } 30% { opacity: .15; }
+            36% { opacity: 1; } 100% { opacity: 1; }
+        }
+
+        /* ===== 思考演出（AI 生成期间，2026-08-25）：与 0.9s 选项预告的 st-thinking 区分 ===== */
+        /* 眼睛「思索漫游」：左右缓移 + 深脉冲 */
+        .st-pondering .eyeGlow { animation: ponder 3.6s infinite ease-in-out; }
+        @keyframes ponder {
+            0%,100% { opacity: .9;  transform: translateX(0);    filter: drop-shadow(0 0 6px rgba(255,183,3,.7)); }
+            25%     { opacity: .5;  transform: translateX(-3px); }
+            50%     { opacity: .95; transform: translateX(0);    filter: drop-shadow(0 0 10px rgba(255,183,3,.95)); }
+            75%     { opacity: .5;  transform: translateX(3px);  }
+        }
+        /* 身体轻微摇摆（沉思） */
+        .st-pondering .takaBody { animation: sway 3.6s infinite ease-in-out; }
+        @keyframes sway { 0%,100% { transform: rotate(0); } 50% { transform: rotate(1.2deg); } }
+        /* 能量光晕：背后一圈暖黄随呼吸缩放 */
+        .taka-figure::before {
+            content: ""; position: absolute; inset: -25%; z-index: -1;
+            background: radial-gradient(circle, rgba(255,183,3,.14), transparent 65%);
+            opacity: 0; transition: opacity .6s ease; pointer-events: none;
+        }
+        .st-pondering::before { opacity: 1; animation: haloPulse 3.6s infinite ease-in-out; }
+        @keyframes haloPulse { 0%,100% { transform: scale(.92); } 50% { transform: scale(1.06); } }
+        /* 思想泡泡：默认隐藏，pondering 时浮现 */
+        .thought-bubble {
+            position: absolute; left: 64%; top: -6%;
+            display: flex; gap: 5px; align-items: center;
+            padding: 9px 13px;
+            background: rgba(226,232,240,.92); border-radius: 999px;
+            opacity: 0; transform: scale(.6); transform-origin: bottom left;
+            transition: opacity .4s ease, transform .4s ease;
+            pointer-events: none;
+        }
+        .thought-bubble::before, .thought-bubble::after {
+            content: ""; position: absolute; background: rgba(226,232,240,.85); border-radius: 50%;
+        }
+        .thought-bubble::before { width: 10px; height: 10px; left: -5px; bottom: -9px; }
+        .thought-bubble::after  { width: 6px;  height: 6px;  left: -13px; bottom: -19px; }
+        .thought-bubble i {
+            width: 6px; height: 6px; border-radius: 50%; background: #5d6875;
+            animation: tbDot 1.4s infinite;
+        }
+        .thought-bubble i:nth-child(2) { animation-delay: .2s; }
+        .thought-bubble i:nth-child(3) { animation-delay: .4s; }
+        @keyframes tbDot { 0%,100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+        .st-pondering .thought-bubble { opacity: 1; transform: scale(1); }
+
+        .st-listening .eyeGlow { animation: listen 4.5s infinite ease-in-out; }
+        @keyframes listen {
+            0%,100% { opacity: .35; filter: drop-shadow(0 0 1px rgba(255,183,3,.3)); }
+            50%     { opacity: .8;  filter: drop-shadow(0 0 5px rgba(255,183,3,.6)); }
+        }
+
+        .st-low .eyeGlow { fill: var(--low-orange); animation: low 2s infinite; }
+        @keyframes low { 0%,100% { opacity: .3; } 50% { opacity: .65; } }
+
+        /* 关机（spec §5/§7）：缓缓进行——身体 1.2s 倾斜降透明，灯光 1.2s 渐灭 */
+        .takaBody { transition: transform 1.2s ease, opacity 1.2s ease; }
+        .eyeGlow, .eyeHi { transition: opacity 1.2s ease; }
+        .st-off .takaBody { transform: rotate(-3deg); transform-box: fill-box; transform-origin: center; opacity: .75; }
+        .st-off .eyeGlow, .st-off .eyeHi { opacity: 0; }
+
+        /* ===== 竖屏降级：上下堆叠，选项通栏（低频场景） ===== */
+        @media (orientation: portrait) {
+            body { overflow: auto; }
+            /* 竖屏背景：与横屏一样 cover 铺满全屏（2026-08-31 产品定案：裁切两侧也要满屏，
+               顶部一条图 + 底部渐隐的方案废弃——视觉上像「没加载完」） */
+            .bg-layer {
+                background-size: cover;
+                background-position: center;
+            }
+            #stage {
+                height: auto;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: var(--space-16);
+            }
+            .hud { position: static; align-self: flex-end; order: 0; }
+            .taka-figure { position: static; order: 1; margin-top: var(--space-8); }
+            .taka-figure svg { height: 220px; }
+            .dialog { position: static; order: 2; width: 100%; margin-top: var(--space-12); height: auto; /* 竖屏选项在对话框内部文档流，高度自适应 */ }
+            .story-text { flex: none; max-height: none; overflow-y: visible; /* 竖屏全量显示，页面级滚动——iOS 嵌套滚动对低龄用户不可用 */ }
+            /* 竖屏：选项收进对话框底部通栏（choices 是 dialog 子元素，static 即可） */
+            .choices { position: static; width: 100%; min-width: 0; margin-top: var(--space-12); }
+            .choice-btn { width: 100%; }
+        }

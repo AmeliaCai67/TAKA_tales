@@ -174,6 +174,7 @@ export const zhCN = {
         qa_ignored: "控制台没有回应。",
         qa_quota: "今天问太多啦，明天再来。",
         qa_error: "控制台信号不好，再试一次。",
+        qa_disabled: "家长已关闭自由发挥，先看看资料或贴标签吧。",
         tags_tip: "给它贴上 {{n}} 个合适的标签",
         tags_submit: "贴上去",
         tags_right: "标签贴好了！它已经存进塔卡的记忆库。",
@@ -226,6 +227,7 @@ export const zhCN = {
         btn_title: "旅程日志",
     },
     misc: {
+        energy_title: "塔卡的能源核心",
         settings_btn_title: "设置",
         parent_btn_title: "家长入口",
         doc_title: "塔卡 (TAKA)",

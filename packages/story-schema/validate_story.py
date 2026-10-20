@@ -22,6 +22,40 @@ MODES = {"swim", "land"}
 KNOWN_MECHANIC_TYPES = {"collect"}  # 与 apps/player/src/mechanics/registry.ts 注册表对齐（加玩法两处同步）
 
 
+def _validate_collect_items(source: list, translated: list, label: str, errors: list[str]) -> None:
+    if [item.get("id") for item in source] != [item.get("id") for item in translated]:
+        errors.append(f"{label}: collect.items id 序列不一致")
+        return
+    for original, target in zip(source, translated):
+        prefix = f"{label}: 收集物「{original.get('id')}」"
+        for field in ("actor", "x", "y", "size", "codexId", "meowSfx"):
+            if original.get(field) != target.get(field):
+                errors.append(f"{prefix}{field} 不一致")
+        observed, translated_observed = original.get("observe", []), target.get("observe", [])
+        if len(observed) != len(translated_observed):
+            errors.append(f"{prefix}observe 条数不一致")
+        elif [part["who"] for part in observed] != [part["who"] for part in translated_observed]:
+            errors.append(f"{prefix}observe 声线序列不一致")
+        if len(original.get("facts", [])) != len(target.get("facts", [])):
+            errors.append(f"{prefix}facts 条数不一致")
+        tags, translated_tags = original.get("tags", {}), target.get("tags", {})
+        if (tags.get("pick") != translated_tags.get("pick") or
+                len(tags.get("pool", [])) != len(translated_tags.get("pool", [])) or
+                len(tags.get("correct", [])) != len(translated_tags.get("correct", []))):
+            errors.append(f"{prefix}tags 结构不一致")
+
+
+def _validate_scene_collect(source, target, label: str, errors: list[str]) -> None:
+    if (source is None) != (target is None):
+        errors.append(f"{label}: collect 字段有无不一致")
+        return
+    if not source:
+        return
+    if any(source.get(field) != target.get(field) for field in ("required", "next", "achievement")):
+        errors.append(f"{label}: collect required/next/achievement 不一致")
+    _validate_collect_items(source.get("items", []), target.get("items", []), label, errors)
+
+
 def validate(pack_dir: str) -> list[str]:
     errors: list[str] = []
     warn: list[str] = []
@@ -234,29 +268,7 @@ def validate(pack_dir: str) -> list[str]:
             if sc.get("book") != ts.get("book"):
                 errors.append(f"[{lang}] {sid}: book 构图不一致（book 字段不含文案，译文包应原样复制）")
             # collect 闭环字段 parity（2026-09-07）：几何/机制一致，文案条数一致
-            zc2, tc2 = sc.get("collect"), ts.get("collect")
-            if (zc2 is None) != (tc2 is None):
-                errors.append(f"[{lang}] {sid}: collect 字段有无不一致")
-            elif zc2:
-                if zc2.get("required") != tc2.get("required") or zc2.get("next") != tc2.get("next") or zc2.get("achievement") != tc2.get("achievement"):
-                    errors.append(f"[{lang}] {sid}: collect required/next/achievement 不一致")
-                zi, ti = zc2.get("items", []), tc2.get("items", [])
-                if [i.get("id") for i in zi] != [i.get("id") for i in ti]:
-                    errors.append(f"[{lang}] {sid}: collect.items id 序列不一致")
-                else:
-                    for a, b in zip(zi, ti):
-                        for geo in ("actor", "x", "y", "size", "codexId", "meowSfx"):
-                            if a.get(geo) != b.get(geo):
-                                errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」{geo} 不一致")
-                        if len(a.get("observe", [])) != len(b.get("observe", [])):
-                            errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」observe 条数不一致")
-                        elif [o["who"] for o in a["observe"]] != [o["who"] for o in b["observe"]]:
-                            errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」observe 声线序列不一致")
-                        if len(a.get("facts", [])) != len(b.get("facts", [])):
-                            errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」facts 条数不一致")
-                        zt, tt = a.get("tags", {}), b.get("tags", {})
-                        if zt.get("pick") != tt.get("pick") or len(zt.get("pool", [])) != len(tt.get("pool", [])) or len(zt.get("correct", [])) != len(tt.get("correct", [])):
-                            errors.append(f"[{lang}] {sid}: 收集物「{a.get('id')}」tags 结构不一致")
+            _validate_scene_collect(sc.get("collect"), ts.get("collect"), f"[{lang}] {sid}", errors)
         if tr.get("characters", {}) != characters:
             errors.append(f"[{lang}] characters 注册表不一致")
         # 玩法声明 parity（2026-10-03 组件化）：机制/几何一致，文案条数一致（场景级 mechanic 引用已入 flags 对比）
@@ -275,23 +287,8 @@ def validate(pack_dir: str) -> list[str]:
             for k in ("required", "next", "achievement", "takaSkin", "bounds", "bypass", "glass"):
                 if zd.get(k) != td.get(k):
                     errors.append(f"[{lang}] mechanics.{mid}: {k} 不一致")
-            zi, ti = zd.get("items", []), td.get("items", [])
-            if [i.get("id") for i in zi] != [i.get("id") for i in ti]:
-                errors.append(f"[{lang}] mechanics.{mid}: collect.items id 序列不一致")
-            else:
-                for a, b in zip(zi, ti):
-                    for geo in ("actor", "x", "y", "size", "codexId", "meowSfx"):
-                        if a.get(geo) != b.get(geo):
-                            errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」{geo} 不一致")
-                    if len(a.get("observe", [])) != len(b.get("observe", [])):
-                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」observe 条数不一致")
-                    elif [o["who"] for o in a["observe"]] != [o["who"] for o in b["observe"]]:
-                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」observe 声线序列不一致")
-                    if len(a.get("facts", [])) != len(b.get("facts", [])):
-                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」facts 条数不一致")
-                    zt, tt = a.get("tags", {}), b.get("tags", {})
-                    if zt.get("pick") != tt.get("pick") or len(zt.get("pool", [])) != len(tt.get("pool", [])) or len(zt.get("correct", [])) != len(tt.get("correct", [])):
-                        errors.append(f"[{lang}] mechanics.{mid}: 收集物「{a.get('id')}」tags 结构不一致")
+            _validate_collect_items(zd.get("items", []), td.get("items", []),
+                                    f"[{lang}] mechanics.{mid}", errors)
         # 成就/词条 id 集合一致
         if {a["id"] for a in tr.get("achievements", [])} != {a["id"] for a in pack["achievements"]}:
             errors.append(f"[{lang}] 成就 id 集合不一致")

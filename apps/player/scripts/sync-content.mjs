@@ -1,8 +1,9 @@
+import { isPublishedName } from "./content-files.mjs";
 // 构建/开发前把仓库级故事包同步进 public/（public/stories 不入库，单一事实源在 content/）
 // 并生成书架索引 index.json（书架页列出全部故事；加新故事 = content/stories 下加目录）
 // 规则：「_」开头的文件/目录不发布（母带/源文件，如 ch01-wind/_src/风声-钱塘江原录-2026.m4a）
 import { cpSync, rmSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const src = fileURLToPath(new URL("../../../content/stories/", import.meta.url));
@@ -10,7 +11,7 @@ const dst = fileURLToPath(new URL("../public/stories/", import.meta.url));
 
 rmSync(dst, { recursive: true, force: true });
 mkdirSync(dst, { recursive: true });
-cpSync(src, dst, { recursive: true, filter: (s) => !basename(s).startsWith("_") });
+cpSync(src, dst, { recursive: true, filter: (s) => isPublishedName(basename(s)) });
 
 const stories = [];
 for (const dir of readdirSync(dst)) {

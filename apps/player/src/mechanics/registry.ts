@@ -8,7 +8,7 @@ import type { MechanicComponent } from "./types";
 const REGISTRY = new Map<string, MechanicComponent>();
 
 /** 注册玩法组件（type = story.json 包级 mechanics 声明的 type 字段） */
-export function registerMechanic(type: string, comp: MechanicComponent): void {
+function registerMechanic(type: string, comp: MechanicComponent): void {
     if (REGISTRY.has(type)) console.warn("[mechanics] 玩法类型重复注册:", type);
     REGISTRY.set(type, comp);
 }

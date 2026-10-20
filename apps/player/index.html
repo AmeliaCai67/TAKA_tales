@@ -50,7 +50,7 @@
     <button id="reader-back" class="reader-back"><span aria-hidden="true">←</span><span data-i18n="engine.back_shelf">回到书架</span></button>
     <div class="hud">
         <button class="lang-toggle" id="lang-toggle" title="中文 / English">中 / EN</button>
-        <div class="core-ico" id="core-ico" title="塔卡的能源核心">
+        <div class="core-ico" id="core-ico" data-i18n-title="misc.energy_title" title="塔卡的能源核心">
             <svg viewBox="0 0 32 32">
                 <circle class="core-ring" cx="16" cy="16" r="12.5"/>
                 <circle class="core-arc" id="core-arc" cx="16" cy="16" r="12.5"/>
@@ -73,7 +73,7 @@
     </div>
     <div class="settings-overlay" id="settings-overlay" hidden>
     <aside class="settings-panel reading-drawer" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1" hidden>
-        <header class="rd-heading"><div><span class="rd-eyebrow">TAKA TALES</span><h2 id="settings-title" data-i18n="reader.settings">阅读设置</h2></div><button id="settings-close" data-i18n-title="settings.close" aria-label="关闭">×</button></header>
+        <header class="rd-heading"><div><span class="rd-eyebrow">TAKA TALES</span><h2 id="settings-title" data-i18n="reader.settings">阅读设置</h2></div><button id="settings-close" data-i18n-title="settings.close" data-i18n-label="settings.close">×</button></header>
         <section class="rd-section"><h3 data-i18n="reader.paper_text">纸面与文字</h3><div id="rd-theme"></div><div class="rd-row"><span data-i18n="reader.language">语言</span><div id="rd-language"></div></div></section>
         <section class="rd-section"><h3 data-i18n="reader.sound">声音</h3><div class="rd-row"><span data-i18n="reader.voice">语音朗读</span><div id="rd-speech"></div></div><div class="rd-row"><span id="sfx-label" data-i18n="reader.sfx">音效</span><button id="sfx-btn" type="button" aria-pressed="true" aria-labelledby="sfx-label"></button></div><label class="rd-volume" for="sp-volume"><span data-i18n="reader.volume">音量</span><output id="sp-volume-value">100%</output></label><input type="range" id="sp-volume" min="0" max="100" value="100" data-i18n-title="reader.volume"></section>
         <section class="rd-section"><h3 data-i18n="reader.energy">塔卡的能量</h3><span id="sp-energy-value">100%</span></section>

@@ -1,3 +1,4 @@
+import { isPublishedName } from "./content-files.mjs";
 // 构建收尾核验：原始故事包、public 和 dist 的台词音频必须逐字节一致。
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -11,7 +12,7 @@ const errors = [];
 let checked = 0, english = 0;
 function walk(dir) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (entry.name.startsWith("_") || / [23](?:\.|$)/.test(entry.name)) continue;
+        if (!isPublishedName(entry.name)) continue;
         const path = join(dir, entry.name);
         if (entry.isDirectory()) { walk(path); continue; }
         const rel = relative(source, path);
@@ -27,6 +28,17 @@ function walk(dir) {
     }
 }
 walk(source);
+
+// Reject unexpected conflict copies in generated trees as well as filtering source traversal.
+function rejectPrivateAssets(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const path = join(dir, entry.name);
+        if (!isPublishedName(entry.name)) { errors.push(`禁止发布的源文件/同步副本：${path}`); continue; }
+        if (entry.isDirectory()) rejectPrivateAssets(path);
+    }
+}
+for (const target of targets) if (existsSync(target)) rejectPrivateAssets(target);
+
 
 // ── 生产包污染防护（2026-10-14）──
 // apps/player/.env.local 被 vite 全模式加载，裸跑 `npm run build` 会把

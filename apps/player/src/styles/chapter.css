@@ -1,0 +1,52 @@
+/* ===== 章末「下一章」按钮（2026-10-07 章节衔接）：封面缩略 + 文案横排，VN/绘本共用 =====
+   3-6 岁不识字，封面是他们认「下一本书」的唯一线索；四张封面 boot 闪屏已全量预载，零网络成本。 */
+.choice-btn.next-chapter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    text-align: left;
+    border-color: var(--accent-dim); /* 主行动比普通选项亮一档 */
+}
+.choice-btn.next-chapter .nc-cover {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* 引导气泡图标化（2026-09-28）：手指按住圆钮的循环动画，给不识字的孩子看的 */
+.mic-guide-bubble .mgb-anim {
+    position: relative;
+    width: 46px; height: 46px;
+    margin: 0 auto var(--space-6);
+}
+.mic-guide-bubble .mgb-anim::before { /* 圆钮 */
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 26px; height: 26px; border-radius: 50%;
+    transform: translate(-50%, -58%);
+    background: radial-gradient(circle at 45% 40%, #fff6d8 0%, var(--accent-warm) 55%, #9c7108 100%);
+    box-shadow: 0 0 10px rgba(255, 183, 3, .5);
+}
+.mic-guide-bubble .mgb-anim::after { /* 手指圆点：按下→停住→松开循环 */
+    content: ""; position: absolute; left: 50%; top: 0;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--text-frost);
+    box-shadow: 0 1px 4px var(--shadow-40);
+    transform: translateX(-50%);
+    animation: mgbPress 1.6s ease-in-out infinite;
+}
+@keyframes mgbPress {
+    0%, 100% { transform: translate(-50%, 0); }
+    45%, 70% { transform: translate(-50%, 22px); } /* 按住停一拍 */
+}
+
+/* 设置面板 v2（2026-09-02）：即改即存 + 点外自动关闭；底部导航行 */
+.sp-nav { display: flex; flex-direction: column; gap: var(--space-8); margin-top: var(--space-10); }
+#sp-logout {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-secondary); font-size: 12px; letter-spacing: 1px;
+    padding: 7px 0; cursor: pointer;
+}
+#sp-logout:hover { color: var(--low-orange); border-color: var(--low-orange); }
+#sp-logout[hidden] { display: none; } /* class 样式优先级保险（hidden 坑第五防线） */

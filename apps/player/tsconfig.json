@@ -3,12 +3,41 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "types": [
+      "vite/client",
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "../../scripts/vite-build.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/* 2.*",
+    "**/* 3.*",
+    "**/* 4.*",
+    "**/* 5.*",
+    "**/* 6.*",
+    "**/* 7.*",
+    "**/* 8.*",
+    "**/* 9.*"
+  ]
 }

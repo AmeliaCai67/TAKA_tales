@@ -1,0 +1,131 @@
+/* ================================================================
+   自由输入 v2：微信式语音交互（2026-09-01）
+   小话筒常驻右下角；短按展开打字行；长按录音、松开发送、上滑转文字
+   ================================================================ */
+
+/* 绘本模式书外背景：跟随场景切换，不模糊不加重——与竖屏同一层 bg-shade（2026-09-01 回退磨砂方案） */
+.fi-row[hidden] { display: none; } /* .choice-input 的 display:flex 会盖 hidden 语义 */
+.fi-row { width: 100%; }
+
+
+.fi-hint {
+    align-self: center;
+    background: rgba(10, 30, 56, .88);
+    color: #eaf3fa;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: var(--space-6) var(--space-16);
+    border-radius: 999px;
+    border: 1px solid rgba(150, 200, 230, .3);
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}
+.fi-hint.slide { border-color: var(--accent-warm); color: var(--accent-warm); }
+
+/* 绘本模式：话筒与打字行约束在右页内（修复 Mate 60 实测的溢出到左页问题） */
+body.book-mode .book-choices .fi-row { max-width: 100%; box-sizing: border-box; }
+
+/* ===== 语音输入悬浮钮（FAB）：固定屏幕右下角，远离文字区（2026-09-01 Mate 60 误触治理） ===== */
+.mic-fab {
+    position: fixed;
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    z-index: 75;
+    width: 64px;  /* 2026-09-28 发现率优化：56→64，暖黄描边常驻（不再仅 awaiting 态） */
+    height: 64px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 183, 3, .5);
+    background: rgba(10, 35, 60, .82);
+    backdrop-filter: blur(8px);
+    color: var(--text-frost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 20px var(--shadow-40);
+    touch-action: none; /* 按住滑动不滚屏（上滑手势需要） */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.mic-fab svg { width: 26px; height: 26px; }
+.mic-fab[hidden] { display: none; } /* class 的 display:flex 会盖 hidden 语义（同一个坑第四次，这次先写在这） */
+.mic-fab:active { transform: scale(.93); }
+/* 语音可发现性三层（2026-09-22 spec: voice-input-onboarding）：
+   awaiting=freeInput 场景等待输入的呼吸微光（常驻）；guiding=首次强引导脉冲（三下后停）；
+   顺序必须在 .recording 之前——录音态动画优先级最高 */
+.mic-fab.awaiting {
+    border-color: rgba(255, 183, 3, .55);
+    animation: fiAwait 3s ease-in-out infinite;
+}
+@keyframes fiAwait {
+    50% { box-shadow: 0 0 0 7px rgba(255, 183, 3, .13), 0 6px 20px var(--shadow-40); }
+}
+.mic-fab.guiding {
+    border-color: var(--accent-warm);
+    color: var(--accent-warm);
+    animation: fiGuide .9s ease-in-out 3;
+}
+@keyframes fiGuide {
+    50% { transform: scale(1.18); box-shadow: 0 0 0 12px rgba(255,183,3,.28), 0 0 0 22px rgba(255,183,3,.1), 0 6px 20px var(--shadow-40); }
+}
+/* 首次引导气泡：指向话筒，8s 自隐或点任意处消失 */
+.mic-guide-bubble {
+    position: fixed;
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    z-index: 76;
+    max-width: 240px;
+    padding: var(--space-10) 14px;
+    border-radius: 14px;
+    background: rgba(10, 35, 60, .92);
+    border: 1.5px solid rgba(255, 183, 3, .65);
+    color: rgba(235, 245, 250, .96);
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    animation: mgbIn .35s ease;
+}
+.mic-guide-bubble::after { /* 指向话筒的小三角 */
+    content: "";
+    position: absolute;
+    right: 22px;
+    bottom: -7px;
+    border: 7px solid transparent;
+    border-top-color: rgba(255, 183, 3, .65);
+    border-bottom: 0;
+}
+.mic-guide-bubble .mgb-sub { font-size: 12px; opacity: .72; margin-top: 3px; }
+.mic-guide-bubble.bye { opacity: 0; transition: opacity .35s; }
+@keyframes mgbIn { from { opacity: 0; transform: translateY(8px); } }
+.mic-fab.recording {
+    border-color: var(--accent-warm);
+    color: var(--accent-warm);
+    box-shadow: 0 0 0 8px rgba(255, 183, 3, .18), 0 0 0 16px rgba(255, 183, 3, .07), 0 6px 20px var(--shadow-40);
+    animation: fiMicPulse 1.2s ease-in-out infinite;
+}
+@keyframes fiMicPulse {
+    50% { box-shadow: 0 0 0 12px rgba(255, 183, 3, .26), 0 0 0 22px rgba(255, 183, 3, .1), 0 6px 20px var(--shadow-40); }
+}
+/* 亮底背景时 FAB 深色化（on-light-bg 与顶栏同一套） */
+body.on-light-bg .mic-fab {
+    background: rgba(22, 50, 74, .88);
+    color: #eaf3fa;
+    border-color: rgba(22, 50, 74, .45);
+}
+/* 书架页不显示 */
+body.on-shelf .mic-fab { display: none; }
+
+/* ===== 语音 chip（VN 模式，2026-09-28 发现率优化）：与选项同排同权重，点按=打字行/按住=录音 ===== */
+.choice-btn.voice-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    border-color: rgba(255, 183, 3, .55); /* 暖黄边：与 fab 同一视觉签名，提示「这是话筒」 */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+.choice-btn.voice-chip svg { width: 18px; height: 18px; flex: none; }

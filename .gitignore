@@ -6,6 +6,9 @@ AGENTS.md
 # 实验脚本（本地探索，不入库）
 /experiments/
 
+# 章节草稿与声线试听（未定稿：不入库、不上服务器；定稿后移入 content/stories/）
+/content/drafts/
+
 # 环境变量与密钥（绝不提交）
 .env
 .env.*
@@ -68,3 +71,10 @@ demo/*.zip
 
 # 训练产物（可由 train_guardrail.py 随时再生成）
 test/bert_training/guardrail_model*/
+
+# Frontend review tool downloads/cache (screenshots and scripts remain reviewable)
+/__ui_snapshots__/tools/
+/__ui_snapshots__/.npm-cache/
+
+# Isolated E2E runs: throwaway DB, logs, build evidence
+/test/e2e/.artifacts/

@@ -1,5 +1,14 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
+import { compressedAssets } from '../../scripts/vite-build';
 
 export default defineConfig({
-    base: "./" // 产物可挂在任意子路径（内测走 IP:端口/子目录）
+    base: './',
+    plugins: [compressedAssets()],
+    build: {
+        target: 'es2020',
+        cssCodeSplit: true,
+        rollupOptions: {
+            output: { manualChunks: id => id.includes('/node_modules/i18next/') ? 'i18n-vendor' : undefined },
+        },
+    },
 });

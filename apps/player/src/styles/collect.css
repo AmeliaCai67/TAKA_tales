@@ -1,0 +1,226 @@
+/* ===== 收集小游戏节点（2026-09 第四章「你好，757」） =====
+   横屏/整页/塔卡可拖/物化物品可交互收集/集满 N 解锁成就。
+   collect-active 由 engine 在 collect 场景加；即使非 book-mode 也强制展示书台。 */
+.collect-active #book-stage { display: flex; }
+/* The mechanic owns the stage even when the reader preference is portrait VN. */
+body.collect-active:not(.book-mode) .dialog { display: none; }
+.spread.collect-mode { background: #0e1e30; }
+.spread.collect-mode .collect-page {
+    width: 100%; height: 100%; position: relative; overflow: hidden;
+    background-size: cover; background-position: center;
+}
+.spread.collect-mode .page-text { display: none; } /* 收集模式右页文字区消失 */
+
+/* 收集进度角标 */
+.spread.collect-mode .collect-count {
+    position: absolute; left: 18px; top: 16px; z-index: 8;
+    font-size: 13px; letter-spacing: 1px; color: var(--light-warm);
+    background: rgba(10, 35, 60, .72); padding: 5px 14px; border-radius: 999px;
+    border: 1px solid rgba(240, 168, 62, .5);
+}
+
+/* 隧道玻璃罩：罩住拱门内的演员/收集物（z6），塔卡在其上（z7）——「玻璃那边」的层级关系 */
+.spread.collect-mode .tunnel-glass {
+    position: absolute; inset: 0; z-index: 6; pointer-events: none;
+}
+.spread.collect-mode .tunnel-glass svg { width: 100%; height: 100%; display: block; }
+.spread.collect-mode #taka-figure { z-index: 7; }
+
+/* 收集物 */
+.spread.collect-mode .collect-item {
+    position: absolute; transform: translate(-50%, -50%);
+    border: none; background: none; padding: 0; cursor: pointer; z-index: 5;
+}
+.spread.collect-mode .collect-item .actor { display: block; width: 100%; }
+.collect-mode .collect-item svg { width: 100%; height: auto; display: block; }
+.spread.collect-mode .collect-item .halo {
+    position: absolute; inset: -16%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 214, 112, .75), transparent 70%);
+    animation: collectPulse 2.2s ease-in-out infinite;
+}
+@keyframes collectPulse { 50% { opacity: .5; transform: scale(1.14); } }
+.spread.collect-mode .collect-item .label {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    width: max-content; background: rgba(10, 35, 60, .88); color: var(--light-warm);
+    font-size: 12px; letter-spacing: .5px; padding: var(--space-4) 9px; border-radius: 8px;
+    border: 1px solid rgba(240, 168, 62, .5); white-space: nowrap; pointer-events: none;
+}
+.spread.collect-mode .collect-item.want .actor { animation: collectWant .5s ease; }
+@keyframes collectWant { 25% { transform: translateY(-6px) } 55% { transform: translateY(2px) } 80% { transform: translateY(-2px) } }
+.spread.collect-mode .collect-item.collected { opacity: .92; }  /* 已收集可再点（重开控制台补录入/回看） */
+.spread.collect-mode .collect-item.recorded .halo { opacity: .9; background: radial-gradient(circle, rgba(255,183,3,.55), transparent 70%); animation: none; }
+.spread.collect-mode .collect-item.recorded::after { content: "✓"; position: absolute; right: -6px; top: -10px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-warm); color: var(--chrome-ink); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.spread.collect-mode .collect-item.collected .actor { opacity: .22; filter: grayscale(.7); }
+.spread.collect-mode .collect-item.collected .halo { display: none; }
+.spread.collect-mode .collect-item.collected .label { opacity: .55; }
+
+/* 收集即时反馈（2026-09-28 collect UX）：扫描扩散环 + 标签揭晓 pop */
+.spread.collect-mode .collect-item .scan-ring {
+    position: absolute; inset: -18%; border-radius: 50%; pointer-events: none;
+    border: 2.5px solid rgba(255, 200, 80, .9);
+    animation: scanRing .7s ease-out forwards;
+}
+@keyframes scanRing { from { transform: scale(.45); opacity: 1; } to { transform: scale(1.7); opacity: 0; } }
+.spread.collect-mode .collect-item .label.revealed { animation: labelPop .45s ease; opacity: 1; }
+@keyframes labelPop { 40% { transform: translateX(-50%) scale(1.14); } }
+
+/* ===== 像素塔卡（2026-09-28 pixel-taka，plan: docs/ux/ch4-pixel-taka.md）=====
+   collect 场景限定「老机器接入隧道旧摄像头」画质：#taka-figure.px-mode 时 svg 换像素版（book.ts PIXEL_TAKA）。
+   三态 class：px-idle（默认）/ px-swim（游动中由 swimTakaTo 挂）/ px-scan（贴玻璃扫描）/ px-interested（兴趣）。 */
+.spread.collect-mode #taka-figure.px-mode svg { image-rendering: pixelated; }
+.spread.collect-mode .px-taka .px-body { transform-box: fill-box; transform-origin: center; }
+.spread.collect-mode .px-bubs, .spread.collect-mode .px-scanline { display: none; }
+/* 待机：悬浮起伏 + 眼睛呼吸 */
+.spread.collect-mode .px-idle .px-body { animation: pxBob 2.6s ease-in-out infinite; }
+.spread.collect-mode .px-idle .px-eye { animation: pxBreathe 3.2s ease-in-out infinite; }
+/* 游动：身体摇摆 + 手臂后拖 + 尾部像素气泡 */
+.spread.collect-mode .px-swim .px-body { animation: pxSwimTilt 1.1s ease-in-out infinite; }
+.spread.collect-mode .px-swim .px-arm-l, .spread.collect-mode .px-swim .px-arm-r { animation: pxArmTrail 1.1s ease-in-out infinite; transform-box: fill-box; }
+.spread.collect-mode .px-swim .px-bubs { display: block; }
+.spread.collect-mode .px-swim .px-bub { animation: pxBub 1.2s linear infinite; }
+.spread.collect-mode .px-swim .b2 { animation-delay: .3s; }
+.spread.collect-mode .px-swim .b3 { animation-delay: .6s; }
+/* 贴玻璃扫描：扫描线扫过全身 + 眼睛增亮 */
+.spread.collect-mode .px-scan .px-scanline { display: block; animation: pxScan 1s ease-in-out infinite; opacity: .9; }
+.spread.collect-mode .px-scan .px-eye { filter: brightness(1.35); }
+/* 兴趣态（规则 4）：灯变亮 + 身体前倾贴近 */
+.spread.collect-mode .px-interested .px-eye { filter: brightness(1.5); }
+.spread.collect-mode .px-interested .px-body { animation: pxLean 1.6s ease-in-out infinite; }
+/* 收集灯闪（普通立绘打 .eyeGlow，像素版打 .px-eye） */
+.spread.collect-mode #taka-figure.px-mode.collect-flash .px-eye { filter: brightness(2.2); transition: filter .15s; }
+/* 物品兴趣呼应：halo 加强 */
+.spread.collect-mode .collect-item.px-interest .halo { animation-duration: 1.1s; }
+@keyframes pxBob { 50% { transform: translateY(-1px); } }
+@keyframes pxBreathe { 50% { opacity: .55; } }
+@keyframes pxSwimTilt { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg) translateY(-1px); } }
+@keyframes pxArmTrail { 50% { transform: translateY(1px); } }
+@keyframes pxBub { from { opacity: 1; transform: translate(0, 0); } to { opacity: 0; transform: translate(-3px, 3px); } }
+@keyframes pxScan { from { transform: translateY(0); } to { transform: translateY(14px); } }
+@keyframes pxLean { 50% { transform: scale(1.05) translateY(1px); } }
+
+/* 进收集页的「接入旧摄像头」扫描线转场（~900ms 自毁，JS 移除） */
+.collect-scanin {
+    position: absolute; inset: 0; z-index: 12; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(158, 216, 240, .16) 0 2px, transparent 2px 5px);
+    animation: scanInFlicker .9s steps(9) forwards;
+}
+@keyframes scanInFlicker {
+    0% { opacity: 0; } 12% { opacity: 1; } 24% { opacity: .25; } 36% { opacity: .9; }
+    55% { opacity: .4; } 75% { opacity: .75; } 100% { opacity: 0; }
+}
+
+/* 塔卡：收集反馈时灯闪一下 */
+.spread.collect-mode #taka-figure.collect-flash .eyeGlow { animation: collectFlash .7s ease; }
+@keyframes collectFlash { 35% { opacity: .25; filter: brightness(2.1); } }
+
+/* 集满后「继续」按钮 */
+.spread.collect-mode .collect-continue {
+    position: absolute; bottom: 20px; right: 24px; z-index: 9;
+    background: var(--accent-warm); color: #22303a; border: none; border-radius: 999px;
+    font-size: 16px; letter-spacing: 1px; padding: var(--space-12) var(--space-24); cursor: pointer;
+    box-shadow: 0 6px 18px var(--shadow-35);
+}
+.spread.collect-mode .collect-continue:hover { filter: brightness(1.06); }
+.spread.collect-mode .collect-continue[hidden] { display: none; }
+
+/* 首次进入收集页：「长按塔卡拖动」提示（深底药丸漂浮，指向操作） */
+.spread.collect-mode .collect-hint {
+    position: absolute; top: 14px; right: 18px; left: auto; bottom: auto; transform: none;
+    color: rgba(255, 255, 255, .94); font-size: clamp(11px, 1vw, 14px); white-space: nowrap;
+    background: rgba(10, 35, 60, .55); padding: var(--space-6) 14px; border-radius: 999px;
+    border: 1px solid rgba(240, 168, 62, .42); text-shadow: 0 1px 4px var(--shadow-40);
+    animation: collectHintFloat 2s ease-in-out infinite;
+    pointer-events: none; z-index: 9;
+}
+@keyframes collectHintFloat { 50% { transform: translateY(-4px); } }
+
+/* 窄屏（手机竖屏）提示横过来 */
+.spread.collect-mode .collect-rotate {
+    position: absolute; inset: 0; z-index: 20; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-16);
+    background: rgba(6, 22, 40, .82); color: var(--light-warm);
+}
+.cr-phone {
+    width: 44px; height: 78px; border: 3px solid var(--light-warm); border-radius: 9px; position: relative;
+    animation: crRotate 1.8s ease-in-out infinite;
+}
+.cr-phone::after {
+    content: ""; position: absolute; width: 46px; height: 78px; left: -2px; top: 24px;
+    border: 3px solid var(--light-warm); border-radius: 9px;
+}
+@keyframes crRotate { 0% { transform: rotate(0) } 55% { transform: rotate(-90deg) } 100% { transform: rotate(-90deg) } }
+.cr-text { font-size: 15px; letter-spacing: 1px; }
+@media (min-width: 700px) { .spread.collect-mode .collect-rotate { display: none; } }
+
+/* ===== 海底农场收集闭环（2026-09-07）：聊天卡 + 控制台 ===== */
+.cf-chat { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(680px, 92vw); max-height: 46vh; display: flex; flex-direction: column; background: rgba(14,32,46,.94); border: 1px solid rgba(160,200,225,.25); border-radius: 14px; z-index: 60; backdrop-filter: blur(6px); box-shadow: 0 8px 32px var(--shadow-40); }
+.cf-chat-head { display: flex; align-items: center; padding: var(--space-10) 14px; border-bottom: 1px solid rgba(160,200,225,.15); color: var(--text-ice); font-size: 15px; }
+.cf-chat-title { flex: 1; font-weight: 600; }
+.cf-chat-actions { display: flex; gap: var(--space-8); align-items: center; }
+.cf-chat-actions button { background: none; border: 1px solid rgba(160,200,225,.35); color: #cfe0ee; border-radius: 8px; padding: var(--space-4) var(--space-10); font-size: 13px; cursor: pointer; }
+.cf-chat-actions .cf-meow { border-color: var(--accent-warm); color: var(--accent-warm); }
+.cf-chat-body { padding: var(--space-12) 14px; overflow-y: auto; flex: 1; }
+.cf-line { margin-bottom: var(--space-10); display: flex; gap: var(--space-8); align-items: baseline; }
+.cf-line-who { flex: none; font-size: 12px; color: var(--text-slate); min-width: 44px; text-align: right; }
+.cf-who-cat .cf-line-who { color: var(--accent-warm); }
+.cf-line-text { color: var(--text-ice); font-size: 16px; line-height: 1.6; }
+.cf-chat-foot { padding: var(--space-10) 14px; text-align: center; border-top: 1px solid rgba(160,200,225,.15); }
+.cf-to-console { background: var(--accent-warm); color: var(--chrome-ink); border: none; border-radius: 10px; padding: var(--space-10) 26px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
+
+.cf-console-overlay { position: fixed; inset: 0; background: rgba(4,10,18,.72); z-index: 61; display: flex; align-items: center; justify-content: center; }
+.cf-console { width: min(720px, 94vw); max-height: 84vh; display: flex; flex-direction: column; background: linear-gradient(180deg, #12293a, #0c1c2a); border: 1px solid rgba(160,200,225,.3); border-radius: 16px; color: var(--text-ice); overflow: hidden; }
+.cf-con-head { display: flex; align-items: baseline; gap: var(--space-10); padding: 14px var(--space-16) var(--space-10); }
+.cf-con-title { font-size: 17px; font-weight: 700; letter-spacing: 1px; color: #9fd0c8; }
+.cf-con-sub { flex: 1; font-size: 13px; color: var(--text-slate); }
+.cf-con-note { padding: 0 var(--space-16); font-size: 12px; color: #e8c37a; opacity: .85; letter-spacing: .3px; }
+.cf-con-head .cf-close, .cf-chat .cf-close { background: none; border: none; color: var(--text-blue-muted); font-size: 17px; cursor: pointer; }
+.cf-con-tabs { display: flex; gap: var(--space-6); padding: 0 var(--space-16); }
+.cf-con-tabs button { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-slate); font-size: 15px; padding: var(--space-8) 14px; cursor: pointer; }
+.cf-con-tabs button.on { color: var(--accent-warm); border-bottom-color: var(--accent-warm); }
+.cf-con-page { padding: var(--space-16); overflow-y: auto; flex: 1; min-height: 200px; }
+
+.cf-fact { display: flex; gap: var(--space-10); align-items: flex-start; margin-bottom: 14px; }
+.cf-fact-play { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,183,3,.6); background: none; color: var(--accent-warm); font-size: 13px; cursor: pointer; }
+.cf-fact-text { font-size: 16px; line-height: 1.7; padding-top: 5px; }
+.cf-meow-big { margin: var(--space-4) 0 var(--space-10); background: none; border: 1px solid var(--accent-warm); color: var(--accent-warm); border-radius: 10px; padding: var(--space-8) 18px; font-size: 15px; cursor: pointer; }
+.cf-attr { font-size: 11px; color: #5a738a; margin-top: var(--space-8); }
+
+.cf-qa-log { min-height: 120px; max-height: 34vh; overflow-y: auto; margin-bottom: var(--space-12); }
+.cf-qa-q { text-align: right; margin: var(--space-8) 0; color: var(--gold-light); font-size: 15px; }
+.cf-qa-a { margin: var(--space-8) 0; color: var(--text-ice); font-size: 16px; line-height: 1.7; }
+.cf-qa-row { display: flex; gap: var(--space-8); }
+.cf-qa-input { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(160,200,225,.3); border-radius: 10px; padding: var(--space-10) var(--space-12); color: var(--text-ice); font-size: 16px; }
+.cf-qa-send { background: var(--accent-warm); color: var(--chrome-ink); border: none; border-radius: 10px; padding: var(--space-10) var(--space-20); font-size: 15px; font-weight: 700; cursor: pointer; }
+.cf-qa-hint { margin-top: var(--space-8); font-size: 12px; color: #5a738a; }
+
+.cf-tags-tip { font-size: 15px; color: var(--text-blue-muted); margin-bottom: var(--space-12); }
+.cf-chips { display: flex; flex-wrap: wrap; gap: var(--space-10); margin-bottom: 14px; }
+.cf-chip { background: rgba(255,255,255,.06); border: 1.5px solid rgba(160,200,225,.35); color: #cfe0ee; border-radius: 999px; padding: var(--space-10) 18px; font-size: 16px; cursor: pointer; transition: border-color .15s, color .15s; }
+.cf-chip.on { border-color: var(--accent-warm); color: var(--accent-warm); background: rgba(255,183,3,.1); }
+.cf-chip.shake { animation: cfShake .5s ease; }
+@keyframes cfShake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-5px) } 75% { transform: translateX(5px) } }
+.cf-tags-feedback { font-size: 15px; margin: var(--space-6) 0 var(--space-12); line-height: 1.6; }
+.cf-tags-feedback.ok { color: #7dd69a; }
+.cf-tags-feedback.no { color: var(--gold-light); }
+.cf-tags-submit { background: var(--accent-warm); color: var(--chrome-ink); border: none; border-radius: 10px; padding: 11px 26px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.cf-tags-submit:disabled { opacity: .35; cursor: default; }
+.cf-tags-recorded { text-align: center; padding: 40px 0; color: var(--text-blue-muted); font-size: 15px; }
+.cf-tags-recorded-mark { font-size: 40px; color: var(--accent-warm); margin-bottom: var(--space-8); }
+
+/* 记忆库词条卡：我的标签 */
+.cc-tags { margin-top: var(--space-8); }
+.cc-tags-label { font-size: 12px; color: var(--text-slate); margin-right: var(--space-8); }
+.cc-tag { display: inline-block; border: 1px solid rgba(255,183,3,.55); color: var(--accent-warm); border-radius: 999px; padding: 3px var(--space-12); font-size: 13px; margin: 3px var(--space-4) 0 0; }
+
+/* 绘本语音引导也是一张纸签，不与纸上正文争夺视觉层次。 */
+body.book-mode .mic-guide-bubble {
+    background: var(--paper); color: var(--paper-ink);
+    border: 2px solid var(--paper-line); border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(7, 21, 39, .18); filter: url(#handDrawnEdge);
+}
+body.book-mode .mic-guide-bubble::after { border-top-color: var(--paper-line); }
+body.book-mode .mic-guide-bubble .mgb-sub { color: #6b5a4c; opacity: 1; }
+
+/* Navigation uses the same rounded SVG strokes across Safari and other browsers. */
+.choice-btn.continue-action,.collect-continue.continue-action{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-6)}
+.continue-action .ui-icon{width:14px;height:14px}

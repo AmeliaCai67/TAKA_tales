@@ -191,7 +191,7 @@ export function initAchievements(): void {
 }
 
 /** 成就墙：按章节标签展示成就（index.json 内联定义 + 全局解锁集） */
-export async function openAchWall(): Promise<void> {
+async function openAchWall(): Promise<void> {
     const wall = document.getElementById("ach-wall")!;
     const bodyEl = document.getElementById("ach-wall-body")!;
     wall.hidden = false;
@@ -203,7 +203,7 @@ export async function openAchWall(): Promise<void> {
         const achs = (lang === "en" ? (s.alt?.en?.achievements || s.achievements) : s.achievements) || [];
         return `${achs.filter(a => unlocked.has(a.id)).length}/${achs.length}`;
     });
-    bodyEl.innerHTML = `<div class="aw-tabs" role="tablist" aria-label="${t("ach.wall_title")}">${stories.map((s, i) =>
+    bodyEl.innerHTML = `<div class="aw-tabs" role="tablist" aria-label="${t("ach.wall_title")}">${stories.map((_, i) =>
         `<button type="button" class="aw-tab" id="aw-tab-${i}" role="tab" aria-selected="${i === 0}" aria-controls="aw-chapter-${i}" tabindex="${i === 0 ? 0 : -1}"><span>${titles[i]}</span><span class="aw-tab-count">${counts[i]}</span></button>`
     ).join("")}</div>` + stories.map((s, i) => {
         // i18n：en 模式用 alt.en 的成就表和标题（2026-08-28 修：成就墙没跟语言走）
