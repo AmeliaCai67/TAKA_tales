@@ -15,6 +15,7 @@ export interface CollectDecl {
     achievement?: string;   // 录满时解锁的成就 id（须在根 achievements 表）
     next: string;           // 集满后跳转目标场景
     /* ---- collect 组件私有参数（缺省值见 collect.ts；ch04 双包显式声明全量） ---- */
+    station?: boolean; // Clear observation/recording progress header.
     takaSkin?: string;      // 塔卡换装件（loadActor 两级解析：包 characters 注册 > 引擎内置件；缺省不换装）
     bounds?: { cx: number; cy: number; rx: number; ry: number }; // 禁入区椭圆（拱门/玻璃罩同源）
     bypass?: [number, number][]; // 长途游动绕行点（路径不穿禁入区）
@@ -47,7 +48,7 @@ export interface MechanicCtx {
     decl: MechanicDecl;     // 包级玩法声明（scene.mechanic 引用的那条）
     host: HTMLElement;      // 左页 .page-scene 画布（背景/decor/常驻角色就绪，塔卡未放入——挂载与定位归组件）
     spread: HTMLElement;    // 整页 spread（布局类/全屏层挂载点；翻页由宿主执行）
-    nav(next: string, choiceText: string): void;  // 推进剧情（engine 的 navChoice）
+    nav(next: string, choiceText: string, generated?: string): void;  // 推进剧情（engine 的 navChoice）
     unlockAchievement(id: string): void;          // 解锁成就 + toast（engine 实现）
     onDone(): void;         // 场景文本阶段收尾（collect 无打字机，mount 尾部即调）
 }

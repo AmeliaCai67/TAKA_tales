@@ -79,6 +79,7 @@
     "start": {
       "mode": "swim",
       "freeInput": true,
+      "freeInputNext": "surface",
       "text": "海底很亮。有很多光。\n\n塔卡每天清理珊瑚。光在动。\n\n它听到声音。呼呼。从上面来。\n\n老机器说：\"不要去。上面没有水。\"\n\n塔卡的灯闪了一下：\"我想知道。\"",
       "background": "backgrounds/ch01-background.jpg",
       "book": {
@@ -107,7 +108,7 @@
       "choices": [
         {
           "text": "A. 游上去看看",
-          "next": "surface"
+          "next": "ascent-play"
         },
         {
           "text": "B. 继续清理珊瑚",
@@ -157,6 +158,7 @@
     "dream": {
       "mode": "swim",
       "freeInput": true,
+      "freeInputNext": "surface",
       "beats": [
         "塔卡睡着了，梦到了很亮的光",
         "它梦到风，像海浪，呼呼",
@@ -186,7 +188,7 @@
       "choices": [
         {
           "text": "上去看看",
-          "next": "surface"
+          "next": "ascent-play"
         }
       ],
       "speakers": [
@@ -248,6 +250,13 @@
         {
           "word": "海鸥",
           "entry": "seagull"
+        }
+      ],
+      "sounds": [
+        {
+          "id": "splash-accent",
+          "kind": "splash",
+          "match": "塔卡浮出水面。没有水。很疼。"
         }
       ]
     },
@@ -375,6 +384,13 @@
           "text": "重新开始故事",
           "next": "start"
         }
+      ],
+      "sounds": [
+        {
+          "id": "connect-accent",
+          "kind": "connect",
+          "match": "塔卡沉入海底。它接上了充电线。"
+        }
       ]
     },
     "ending_b": {
@@ -396,6 +412,15 @@
           "next": "start"
         }
       ]
+    },
+    "ascent-play": {
+      "text": "循声上浮",
+      "cost": 0,
+      "mode": "swim",
+      "eyeState": "st-standby",
+      "background": "backgrounds/ch01-background.jpg",
+      "mechanic": "sound-ascent",
+      "next": "surface"
     }
   },
   "cover": "cover.jpg",
@@ -445,5 +470,12 @@
         }
       }
     ]
+  },
+  "mechanics": {
+    "sound-ascent": {
+      "type": "journey",
+      "kind": "ascent",
+      "next": "surface"
+    }
   }
 }

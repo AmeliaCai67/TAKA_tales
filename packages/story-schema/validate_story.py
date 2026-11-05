@@ -19,7 +19,39 @@ import sys
 
 EYE_STATES = {"st-standby", "st-thinking", "st-listening", "st-low", "st-off"}
 MODES = {"swim", "land"}
-KNOWN_MECHANIC_TYPES = {"collect"}  # 与 apps/player/src/mechanics/registry.ts 注册表对齐（加玩法两处同步）
+KNOWN_MECHANIC_TYPES = {"collect", "otter-naming", "otter-play", "journey"}  # 与 apps/player/src/mechanics/registry.ts 注册表对齐（加玩法两处同步）
+
+
+def _validate_speech_assets(pack, pack_dir, language, errors):
+    from pathlib import Path
+    root = Path(pack_dir).resolve()
+    disabled = language in (pack.get('audioPolicy') or {}).get('disabledLanguages', [])
+    def asset(path):
+        resolved = (root / path).resolve()
+        if not resolved.is_relative_to(root):
+            raise ValueError('asset escapes story package')
+        return resolved
+    for source in pack.get('speechAssets', []):
+        try:
+            data = json.loads(asset(source).read_text())
+            ids = set()
+            for cues in data.get('speechCues', {}).values():
+                for cue in cues:
+                    if cue['id'] in ids:
+                        raise ValueError('duplicate speech cue id')
+                    ids.add(cue['id'])
+                    if cue['kind'] != 'static' or not cue['text'].strip() or '{{' in cue['text']:
+                        raise ValueError('fixed speech must have literal nonempty text')
+                    if cue['who'] not in set(pack['speakers'].values()) | {'narrator', 'taka'}:
+                        raise ValueError('unknown speech voice')
+                    path = asset(cue['file'])
+                    if not disabled and not path.is_file():
+                        raise ValueError('missing static speech: ' + cue['file'])
+            for rel in data.get('soundAssets', {}).values():
+                if not asset(rel).is_file():
+                    raise ValueError('missing sound asset: ' + rel)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            errors.append(f'[{language}] speechAssets {source}: {error}')
 
 
 def _validate_collect_items(source: list, translated: list, label: str, errors: list[str]) -> None:
@@ -74,6 +106,10 @@ def validate(pack_dir: str) -> list[str]:
     if errors:
         return errors
     scenes = pack["scenes"]
+    _validate_speech_assets(pack, pack_dir, 'zh', errors)
+    for old, new in (pack.get("sceneAliases") or {}).items():
+        if old in scenes or new not in scenes:
+            errors.append(f"sceneAliases.{old}: 必须从旧场景指向现有场景")
     characters = pack.get("characters", {})  # 绘本模式角色 SVG 注册表（第 8/9 节共用）
 
     # --- 2/3. 场景字段 + 分支闭合 + 可达性 ---
@@ -123,9 +159,13 @@ def validate(pack_dir: str) -> list[str]:
             queue.extend(c["next"] for c in sc.get("choices", []) if c.get("next") in scenes)
             if sc.get("next") in scenes:
                 queue.append(sc["next"])
+            if sc.get("freeInputNext") in scenes:
+                queue.append(sc["freeInputNext"])
             md = (pack.get("mechanics") or {}).get(sc.get("mechanic") or "")  # 玩法声明（2026-10-03 组件化）：集满后跳转也构成边
             if isinstance(md, dict) and md.get("next") in scenes:
                 queue.append(md["next"])
+                queue.extend(c["next"] for c in md.get("choices",[]) if c.get("next") in scenes)
+                if md.get("freeInputNext") in scenes:queue.append(md["freeInputNext"])
         depleted = pack.get("depletedScene")
         for sid in scenes:
             if sid not in seen and sid != depleted:  # depletedScene 由引擎电量机制跳入，无需剧情边
@@ -148,6 +188,15 @@ def validate(pack_dir: str) -> list[str]:
         ic = a.get("icon", "")
         if not (ic.startswith("<svg") or len(ic) <= 4):
             errors.append(f"成就 {a.get('id')}: icon 应为内联 SVG（<svg 开头）或单个 emoji: {ic[:40]}")
+        if a.get("unlockScene") is None and a.get("unlockEvent") in ("naming-success", "free-input-success"):
+            if a["unlockEvent"] == "naming-success":
+                wired = any(d.get("type") == "otter-naming" and d.get("achievement") == a["id"]
+                            for d in (pack.get("mechanics") or {}).values())
+            else:
+                wired = any(s.get("freeInput") and s.get("freeInputAchievement") == a["id"] for s in scenes.values())
+            if not wired:
+                errors.append(f"成就 {a['id']} 的 unlockEvent 没有对应事件接线")
+            continue
         if a.get("unlockScene") not in scenes:
             errors.append(f"成就 {a.get('id')} 的 unlockScene 不存在: {a.get('unlockScene')}")
     if not pack["speakers"]:
@@ -161,7 +210,7 @@ def validate(pack_dir: str) -> list[str]:
         with open(manifest_path, encoding="utf-8") as f:
             manifest = json.load(f)
         for sid in scenes:
-            if sid not in manifest:
+            if sid not in manifest and not scenes[sid].get("mechanic"):
                 errors.append(f"manifest 缺少场景: {sid}")
         for sid in manifest:
             if sid not in scenes:
@@ -237,6 +286,9 @@ def validate(pack_dir: str) -> list[str]:
             errors.append(f"{os.path.basename(tp)} 解析失败: {e}")
             continue
         tscenes = tr.get("scenes", {})
+        _validate_speech_assets(tr, pack_dir, lang, errors)
+        if tr.get("sceneAliases") != pack.get("sceneAliases"):
+            errors.append(f"[{lang}] sceneAliases 不一致")
         # 场景键一致
         if set(tscenes) != set(scenes):
             errors.append(f"[{lang}] 场景键不一致：多 {sorted(set(tscenes)-set(scenes))} / 缺 {sorted(set(scenes)-set(tscenes))}")
@@ -253,9 +305,11 @@ def validate(pack_dir: str) -> list[str]:
             if sc.get("next") != ts.get("next"):
                 errors.append(f"[{lang}] {sid}: next 不一致")
             # 结构标记一致
-            for flag in ["freeInput", "isSpecialListen", "setBattery", "ending", "mode", "outputMaxLength", "background", "mechanic"]:
+            for flag in ["freeInput", "freeInputNext", "freeInputAchievement", "isSpecialListen", "setBattery", "ending", "mode", "outputMaxLength", "background", "mechanic", "interactions"]:
                 if sc.get(flag) != ts.get(flag):
                     errors.append(f"[{lang}] {sid}: 结构标记 {flag} 不一致（zh={sc.get(flag)} {lang}={ts.get(flag)}）")
+            if [(c.get("id"),c.get("kind")) for c in sc.get("sounds",[])] != [(c.get("id"),c.get("kind")) for c in ts.get("sounds",[])]:
+                errors.append(f"[{lang}] {sid}: sounds id/kind 不一致")
             # codex 标注：entry 引用一致，word 必须真的出现在译文文本里
             zlinks = {l["entry"]: l for l in sc.get("codex", [])}
             tlinks = {l["entry"]: l for l in ts.get("codex", [])}
@@ -282,9 +336,18 @@ def validate(pack_dir: str) -> list[str]:
             if zd.get("type") != td.get("type"):
                 errors.append(f"[{lang}] mechanics.{mid}: type 不一致")
                 continue
+            if zd.get("type") == "journey":
+                if zd != td: errors.append(f"[{lang}] mechanics.{mid}: journey 声明不一致")
+                continue
+            if zd.get("type") in ("otter-naming", "otter-play"):
+                for k in ("kind", "next", "achievement", "mapFile", "assetBase", "freeInputNext"):
+                    if zd.get(k) != td.get(k):errors.append(f"[{lang}] mechanics.{mid}: {k} 不一致")
+                if [c.get("next") for c in zd.get("choices",[])] != [c.get("next") for c in td.get("choices",[])]:
+                    errors.append(f"[{lang}] mechanics.{mid}: choices.next 不一致")
+                continue
             if zd.get("type") != "collect":
                 continue
-            for k in ("required", "next", "achievement", "takaSkin", "bounds", "bypass", "glass"):
+            for k in ("required", "next", "achievement", "takaSkin", "bounds", "bypass", "glass", "station"):
                 if zd.get(k) != td.get(k):
                     errors.append(f"[{lang}] mechanics.{mid}: {k} 不一致")
             _validate_collect_items(zd.get("items", []), td.get("items", []),
@@ -292,6 +355,10 @@ def validate(pack_dir: str) -> list[str]:
         # 成就/词条 id 集合一致
         if {a["id"] for a in tr.get("achievements", [])} != {a["id"] for a in pack["achievements"]}:
             errors.append(f"[{lang}] 成就 id 集合不一致")
+        for a in tr.get("achievements",[]):
+            original = next((z for z in pack["achievements"] if z["id"] == a["id"]),None)
+            if original and any(original.get(k) != a.get(k) for k in ("unlockScene","unlockEvent")):
+                errors.append(f"[{lang}] 成就 {a['id']} 解锁条件不一致")
         zids = {e["id"] for e in pack.get("codex", {}).get("entries", [])}
         tids = {e["id"] for e in tr.get("codex", {}).get("entries", [])}
         if zids != tids:
@@ -348,6 +415,29 @@ def validate(pack_dir: str) -> list[str]:
                 if not isinstance(a.get(k), (int, float)):
                     errors.append(f"{sid}: 常驻角色「{actor}」缺 {k} 坐标")
 
+    # Optional picture interactions preserve original choices and have no energy cost.
+    touch_kinds={"clean","wave","recording","seaweed","call","mist","room","replay","magnet","bell","boat","torch","arms","wire"}
+    for sid, sc in scenes.items():
+        touch_ids=set()
+        for it in sc.get("interactions",[]):
+            if not isinstance(it,dict):errors.append(f"{sid}: interaction 必须是对象");continue
+            if not it.get("id") or it["id"] in touch_ids:errors.append(f"{sid}: interaction id 缺失/重复")
+            touch_ids.add(it.get("id"))
+            if it.get("kind") not in touch_kinds:errors.append(f"{sid}: interaction kind 未注册")
+            for k in ("x","y"):
+                if k in it and (not isinstance(it[k],(int,float)) or not 0<=it[k]<=100):errors.append(f"{sid}: interaction {k} 必须在 0..100")
+            if it.get("actor") and it["actor"] not in characters and it["actor"] not in BUILTIN_ACTORS:errors.append(f"{sid}: interaction actor 未注册")
+
+    sound_kinds={"water","wipe","wind","propeller","splash","whale","bell","magnet","metal","arm","connect","scan","recorder","screen","door"}
+    for sid,sc in scenes.items():
+        cue_ids=set()
+        for cue in sc.get("sounds",[]):
+            if not isinstance(cue,dict):errors.append(f"{sid}: sound 必须是对象");continue
+            if not isinstance(cue.get("id"),str) or not cue["id"] or cue["id"] in cue_ids:errors.append(f"{sid}: sound id 缺失/重复")
+            cue_ids.add(cue.get("id"))
+            if cue.get("kind") not in sound_kinds:errors.append(f"{sid}: sound kind 未注册")
+            if not isinstance(cue.get("match"),str) or not cue["match"].strip():errors.append(f"{sid}: sound match 必须为非空的朗读片段文本")
+
     # --- 9.5 玩法声明（mechanics，2026-10-03 组件化；原 collect 节点检查平移至此）---
     ach_ids = {a["id"] for a in pack["achievements"]}
     codex_entry_ids = {e["id"] for e in (pack.get("codex") or {}).get("entries", [])}
@@ -357,6 +447,26 @@ def validate(pack_dir: str) -> list[str]:
         dtype = decl.get("type")
         if dtype not in KNOWN_MECHANIC_TYPES:
             errors.append(f"mechanics.{mid}: 未注册的玩法类型「{dtype}」（校验器/播放器 registry 均不认识）")
+            continue
+        if dtype == "journey":
+            if decl.get("kind") not in ("ascent", "whale-ride"):errors.append(f"mechanics.{mid}: journey kind 未注册")
+            if decl.get("next") not in scenes:errors.append(f"mechanics.{mid}: journey next 不存在")
+            continue
+        if dtype in ("otter-naming", "otter-play"):
+            if dtype == "otter-play" and decl.get("kind") not in ("lamp","maze","material","g","h","ripple"):
+                errors.append(f"mechanics.{mid}: kind 未注册")
+            if decl.get("next") not in scenes:
+                errors.append(f"mechanics.{mid}: next 不存在")
+            if decl.get("freeInputNext") and decl["freeInputNext"] not in scenes:
+                errors.append(f"mechanics.{mid}: freeInputNext 不存在")
+            for file_key in ("dataFile", "mapFile"):
+                rel=decl.get(file_key, "")
+                if not isinstance(rel,str) or not rel or os.path.isabs(rel) or ".." in rel.split("/") or not os.path.isfile(os.path.join(pack_dir,rel)):
+                    errors.append(f"mechanics.{mid}: {file_key} 无效或文件缺失")
+            if decl.get("achievement") and decl["achievement"] not in ach_ids:
+                errors.append(f"mechanics.{mid}: achievement 不存在")
+            for choice in decl.get("choices",[]):
+                if choice.get("next") not in scenes: errors.append(f"mechanics.{mid}: choices.next 不存在")
             continue
         if dtype != "collect":
             continue

@@ -84,6 +84,7 @@
     "start": {
       "mode": "swim",
       "freeInput": true,
+      "freeInputNext": "surface",
       "text": "The sea bottom is full of lights.\nTAKA cleans the coral in the shiny lights.\n\nTAKA hears a sound.\n\"Ooo... ooo...\"\nIt comes from up there.\n\nThe Old Machine says,\n\"Do not go. There is no water up there.\"",
       "background": "backgrounds/ch01-background.jpg",
       "book": {
@@ -112,7 +113,7 @@
       "choices": [
         {
           "text": "A. Swim up and see",
-          "next": "surface"
+          "next": "ascent-play"
         },
         {
           "text": "B. Keep cleaning the coral",
@@ -162,6 +163,7 @@
     "dream": {
       "mode": "swim",
       "freeInput": true,
+      "freeInputNext": "surface",
       "beats": [
         "TAKA falls asleep and dreams of very bright light",
         "It dreams of wind, like waves: ooo... ooo...",
@@ -191,7 +193,7 @@
       "choices": [
         {
           "text": "Go up and see",
-          "next": "surface"
+          "next": "ascent-play"
         }
       ],
       "speakers": [
@@ -253,6 +255,13 @@
         {
           "word": "seagull",
           "entry": "seagull"
+        }
+      ],
+      "sounds": [
+        {
+          "id": "splash-accent",
+          "kind": "splash",
+          "match": "No water."
         }
       ]
     },
@@ -380,6 +389,13 @@
           "text": "Restart the story",
           "next": "start"
         }
+      ],
+      "sounds": [
+        {
+          "id": "connect-accent",
+          "kind": "connect",
+          "match": "Taka dives back down."
+        }
       ]
     },
     "ending_b": {
@@ -401,6 +417,15 @@
           "next": "start"
         }
       ]
+    },
+    "ascent-play": {
+      "text": "Follow the sound up",
+      "cost": 0,
+      "mode": "swim",
+      "eyeState": "st-standby",
+      "background": "backgrounds/ch01-background.jpg",
+      "mechanic": "sound-ascent",
+      "next": "surface"
     }
   },
   "cover": "cover.jpg",
@@ -450,5 +475,12 @@
         }
       }
     ]
+  },
+  "mechanics": {
+    "sound-ascent": {
+      "type": "journey",
+      "kind": "ascent",
+      "next": "surface"
+    }
   }
 }

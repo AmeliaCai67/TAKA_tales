@@ -1,7 +1,9 @@
+import {mountJourney} from './journey';
 // 玩法组件注册表（2026-10-03 mechanic 组件化，plan: docs/superpowers/plans/2026-10-03-mechanic-component-architecture.md）
 // 新玩法接入 = mechanics/<type>.ts 实现组件 + 在此加 import + registerMechanic 两行。
 // 刻意用「显式注册」而非组件侧 import 回注册表自注册：后者会让 registry → collect → registry 成环，
 // collect 的模块尾在 REGISTRY 初始化前就执行 registerMechanic → TDZ 崩溃（2026-10-03 实 crash：pn before initialization）。
+import { mountOtter } from "./otter";
 import { mountCollect } from "./collect";
 import type { MechanicComponent } from "./types";
 
@@ -19,3 +21,8 @@ export function getMechanic(type: string): MechanicComponent | undefined {
 }
 
 registerMechanic("collect", mountCollect);
+
+registerMechanic("otter-naming",mountOtter);
+registerMechanic("otter-play",mountOtter);
+
+registerMechanic('journey',mountJourney);

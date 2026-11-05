@@ -1,13 +1,11 @@
 // Voice/text input owns recognition and scene-local cleanup. Narrative transitions are injected.
+import {unlock,showToast} from './achievements';
 import { suppressSoundEffects } from './sfx';
 import { mountVoiceDiscovery } from './voice-discovery';
 import { ICON_MIC } from './icons';
-import { pack } from './pack';
 import { showStatus } from './settings';
 import { stopSpeech } from './speech';
-import { api, ApiError } from './api';
-import { session } from './session';
-import { ensureAnonId } from './anon';
+import { requestStoryReply, generationError } from './generation-client';
 import { reportEvent } from './events';
 import { t, lang } from './i18n';
 import { setFigureState } from './scene-presentation';
@@ -153,11 +151,7 @@ export function mountFreeInput(scene: Scene, box: HTMLElement, ctx: InputContext
         showStatus(t("engine.thinking"));
         try {
             // 游客也可自由输入（展示 AI 能力）：无孩子时用匿名设备 ID 走游客生成通道
-            const anonId = (session.token && session.childId) ? undefined
-                         : (await ensureAnonId()) || undefined;
-            const r = await api.generate(
-                session.token && session.childId ? session.childId! : null,
-                pack().id, nextKey, currentText, text, currentSceneKey, anonId, lang);
+            const r = await requestStoryReply(nextKey,currentText,text,currentSceneKey);
             if (disposed) return;
             showStatus("");
             if (r.type === "stay") {
@@ -167,16 +161,13 @@ export function mountFreeInput(scene: Scene, box: HTMLElement, ctx: InputContext
                 // 脏话：零反馈——不回应、不记录路径，直接走默认主线的定稿文本
                 render(nextKey);
             } else {
+                const a=scene.freeInputAchievement?unlock(scene.freeInputAchievement):null;
+                if(a)showToast(a.icon+' '+a.name+'<br>'+a.desc);
                 render(nextKey, { prevText: currentText, choiceText: text, custom: true, generated: r.text });
             }
         } catch (e) {
             if (disposed) return;
-            const status = e instanceof ApiError ? e.status : 0;
-            const why = status === 401 ? t("engine.err_401")
-                      : status === 429 ? t("engine.err_429")
-                      : status === 503 ? t("engine.err_503")
-                      : t("engine.err_network");
-            showStatus(why, 4500);
+            showStatus(generationError(e), 4500);
             ctx.restoreFigure();
             box.querySelectorAll("button, input").forEach(b => (b as HTMLButtonElement | HTMLInputElement).disabled = false);
         }

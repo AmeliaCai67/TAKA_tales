@@ -209,21 +209,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "start/07_taka.mp3": {
-  "hash": "314a7b021d3b89cf26d83e8968529a0f9720c0a8",
+  "hash": "e60c47daebf0c6b04a66465dfcb94d8c016641de",
   "who": "taka",
   "text": "我想知道。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "cd36bfe1f006db71bd4af2e862d5c2d824952997a933ac6f30005bc8300a6540",
+  "audio_sha256": "f3df66fa5551820db8dfe392e78568fd89428f3d565b276281001814b666f9c2",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -570,21 +570,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/06_taka.mp3": {
-  "hash": "df76f205175991c13bf5e4e1aeb3094fcc169567",
+  "hash": "9d7d03315ae01eaa280d5032a61c7e33a2551fc5",
   "who": "taka",
   "text": "我在听。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "af9f6ee163d77a2a7a927c97a88dbfe38d738d6b5bcd381e627edf1105f81187",
+  "audio_sha256": "8a2d846bf33fb286cbff3befd7a3490beb4ab87d98a95b1bf0b36535fdcadd51",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -646,21 +646,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "surface/10_taka.mp3": {
-  "hash": "3d3527bdaeefdc6c6216e3e79ff31d326078dc68",
+  "hash": "06d9216bfc920b6417ba26ed72c60d7ae05dc5b9",
   "who": "taka",
   "text": "我不知道。但我想听完。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "c3a2816ab4f6303aebd28a0998b3bf4fe9d252c67c2378be5f38be0a80aa9952",
+  "audio_sha256": "ad850852536317b9fcdcca5d127f1c1abc2fc00ad1f73ef7562709d304b02492",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -703,21 +703,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/02_taka.mp3": {
-  "hash": "9b6d6fa65c581e270dec4c8679414115c0f061e9",
+  "hash": "b0b720446bdd48fc798f89fe6fc94704bc19137d",
   "who": "taka",
   "text": "你从哪里来？",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "88aa709c150d7108bc0193822d877419fdc1f2558abe468295f762229a0c6c9d",
+  "audio_sha256": "4db0f57268e33124e4f6f707ef92006f6f8c12ddd1a64792468de63c20e1a10b",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -779,21 +779,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ask_wind/06_taka.mp3": {
-  "hash": "d1bff0e5a1fbf0c11726b0919e7a35cc34c0a09d",
+  "hash": "06a301b0169c22baeabc7408b622a3aa908cabf1",
   "who": "taka",
   "text": "云是什么？",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "9b9d177764d3509ab845244447677528403beb96eb73fe8279c95053a810b0b6",
+  "audio_sha256": "540a0176dfd095fe1660f9f96e3ada9abdd5bfcdaa30c5f8d9db9f14d3770c70",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -1330,21 +1330,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "ending_b/07_taka.mp3": {
-  "hash": "db2bd3636b333f178032bc11a31ff2ac2d271e4a",
+  "hash": "4cea2b9bd72dea184ade30619a105fd533436d41",
   "who": "taka",
   "text": "值了。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "f7e509673b667f1c5816517a9c9e7261df549fade9d88b10ccc0908271d66e1f",
+  "audio_sha256": "6201f86abbef8e581af37c34bb6c4cd6e898f6d73697b9662986e82c106c5306",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -1406,21 +1406,21 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/coral.taka.mp3": {
-  "hash": "8ce24a3bda5cd1a989e71148ab5c4a0de9efcc8b",
+  "hash": "cb1089efe53b2150206561743c7bfcb7a4f6ea52",
   "who": "taka",
   "text": "珊瑚不是石头。是很多小虫子盖的房子。 我每天打扫的，就是它们的家。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "9c880d97a9fbecaa491f9b701b4ecefd04819a6f3bfd0e358a35cdf6d0c9041e",
+  "audio_sha256": "63f86ac5ebc567e508b6c26cd202b20dda129ba1b0cc68c66319fe808881cccc",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
@@ -1450,40 +1450,40 @@
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "codex/seagull.taka.mp3": {
-  "hash": "16f00600855423f2305b1076b8cf9dbeac03aa60",
+  "hash": "dbf5f025bee36ea4e7308103b1180cb7fb545d9c",
   "who": "taka",
   "text": "海鸥有翅膀。我没有。 但我有螺旋桨。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "317138bc3c3524085da3eeea2ca9ad967acc162615bc4a8f114644ee757ffb24",
+  "audio_sha256": "6806dadb284dbd6c322c873571d3505564da003692cf9fea317cf93d651404c7",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  },
  "onboarding/voice-guide.mp3": {
-  "hash": "27ccc6afa98ad7ccd20940f30f9c8abe0ad9b2be",
+  "hash": "8da3c23d726ba4ed7381ffc82285cea8775efa80",
   "who": "taka",
   "text": "我在听哦。点一点话筒，或者按住它，跟我说话。",
   "provider": "aliyun",
   "model": "cosyvoice-v3-flash",
   "voice_config": {
    "model": "cosyvoice-v3-flash",
-   "voice": "longxing_v3",
-   "rate": 0.68,
-   "pitch": 0.95,
+   "voice": "cosyvoice-v3-flash-takademo-7523866e5c62401e8c4fed32f95c18cd",
+   "rate": 1.0,
+   "pitch": 1.03,
    "fx": null,
    "fx_ar": "24000",
    "loudnorm": "loudnorm=I=-18:TP=-2:LRA=7"
   },
-  "audio_sha256": "6858bae7045aa998c834471c103ab8e757b83504c1da13048f2e4149ab38d950",
+  "audio_sha256": "5adbb9e0ae3e855e5928108e3e668d0ec42f9ba0183fbea08f95c05d2bd15400",
   "synthesis_override": null,
   "hash_schema": "provider-aware-aliyun-import-v1"
  }

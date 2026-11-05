@@ -2,6 +2,12 @@
 import { session } from './session';
 import { requestJson, type RequestOptions } from './http';
 export { ApiError } from './http';
+export interface DialogueContext {
+    otter_name?: string;
+    position?: [number, number];
+    history?: {child:string;daisy:string}[];
+    record_declined?: boolean;
+}
 const API_BASE: string = import.meta.env.VITE_API_BASE || '';
 function req<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     return requestJson<T>(API_BASE + path, opts, session.token || '');
@@ -64,10 +70,10 @@ export const api = {
         req<{ entries: { story_id: string; entry_id: string; unlocked_at: string | null; tags?: string[] | null }[] }>(`/api/codex?child_id=${childId}`),
     /** M4：选项 C 现场生成（服务端受控流水线；401 未登录 / 429 配额 / 503 生成失败）
      *  2026-08-20：游客也可生成（childId=null + anonId 走匿名通道，展示 AI 能力） */
-    generate: (childId: number | null, storyId: string, sceneKey: string, prevText: string, choiceText: string, currentSceneKey: string, anonId?: string, lang: string = "zh") =>
+    generate: (childId: number | null, storyId: string, sceneKey: string, prevText: string, choiceText: string, currentSceneKey: string, anonId?: string, lang: string = "zh", dialogueContext?: DialogueContext) =>
         req<{ type: "advance" | "stay" | "ignore"; text: string; retried: boolean }>("/api/generate", {
             method: "POST",
-            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText, current_scene_key: currentSceneKey, lang },
+            body: { child_id: childId, story_id: storyId, scene_key: sceneKey, prev_text: prevText, choice_text: choiceText, current_scene_key: currentSceneKey, lang, dialogue_context: dialogueContext },
             headers: anonId ? { "X-Anon-ID": anonId } : undefined,
         }),
     /** 游客匿名（2026-08-18）：注册设备 ID / 上报事件流，均无需登录（无 token 时才用） */

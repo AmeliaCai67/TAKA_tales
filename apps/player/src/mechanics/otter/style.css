@@ -1,0 +1,71 @@
+body.otter-active #book-stage{display:flex!important}
+body.otter-active .dialog{display:none!important}
+body.otter-active #stage #taka-figure{visibility:hidden}
+.spread.otter-mode{min-height:500px;background:#102b3a;color:#dce7e8}
+.otter-mode .otter-canvas-host{position:relative;min-height:380px;overflow:hidden;background-size:cover}
+.otter-canvas-host::after{content:none!important}
+.otter-canvas-host canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;background:#0b2634c9;z-index:3}
+.otter-mode .otter-panel{background:#102b3a;display:flex;flex-direction:column;justify-content:flex-start;padding:28px;gap:16px;overflow:auto;color:#dce7e8}
+.otter-mode h2{font:18px/1.7 var(--font-reader,serif);color:#d4c6a4;margin:0}
+.otter-caption{white-space:pre-wrap;font-size:17px;line-height:1.9;min-height:65px}
+.otter-controls,.otter-actions{display:flex;gap:10px;flex-wrap:wrap}
+.otter-mode button,.otter-mode input{font:14px/1.5 var(--font-shell,sans-serif);border:1px solid #5d7a85;border-radius:10px;padding:11px 16px;background:#183947;color:#dce7e8;min-height:44px;max-width:100%}
+.otter-mode button{cursor:pointer}
+.otter-mode button:disabled{opacity:.4;cursor:default}
+.otter-mode input:not([type=range]){width:100%;background:#0a2330}
+.otter-actions button{width:100%;background:#c9bb91;color:#102b3a;border-color:#c9bb91}
+.otter-status{font-size:12px;line-height:1.8;color:#a3bdc5;min-height:35px}
+.otter-panel small{font-size:11px;line-height:1.7;color:#90abb5}
+.otter-invite{border:1px solid #7f8e80;border-radius:10px;padding:12px;line-height:1.8;flex-basis:100%}
+.otter-invite button{margin:8px 5px 0}
+.otter-naming-actor{position:absolute;width:29%;height:auto;left:35.5%;top:22%;filter:drop-shadow(0 12px 30px #061c2780)}
+/* Registration and the light share one spread; the controls belong to the picture. */
+.otter-lamp-mode .otter-panel .otter-actions{margin-top:auto}
+/* Like the collection stage, the maze owns the whole play area. No text column. */
+body.otter-active:has(.otter-maze-mode) #book-stage{padding:0}
+.spread.otter-maze-mode{position:absolute;inset:70px 16px 16px;width:auto;height:auto;max-width:none;min-height:0;aspect-ratio:auto}
+.otter-maze-mode .otter-canvas-host{width:100%!important;height:100%;min-height:0;flex:1}
+.otter-maze-hud{position:absolute;inset:0;z-index:5;pointer-events:none}
+.otter-maze-hud>*{position:absolute;pointer-events:auto}
+.otter-maze-hud h2{top:17px;left:22px;font-size:17px;text-shadow:0 2px 10px #00131d}
+.otter-maze-hud>.otter-caption{top:48px;left:22px;max-width:min(620px,calc(100% - 120px));font-size:13px;min-height:0;margin:0;color:#b5cbd2;text-shadow:0 2px 6px #00131d}
+.otter-maze-hud>.otter-controls{bottom:18px;left:20px;right:20px;justify-content:center;align-items:center;gap:8px}
+.otter-maze-hud .otter-controls>button{background:#102b3ae8;box-shadow:0 3px 18px #00131d55;backdrop-filter:blur(10px)}
+.otter-maze-hud>.otter-actions{bottom:80px;right:22px;max-width:290px}
+.otter-maze-hud>.otter-status{bottom:78px;left:22px;max-width:min(550px,60%);margin:0;min-height:0;padding:6px 10px;border-radius:8px;background:#0a2330b8}
+.otter-maze-hud>.otter-status:empty{display:none}
+.otter-maze-hud .otter-invite,.otter-copilot{background:#0b2533f5;box-shadow:0 12px 40px #00131d70}
+.otter-copilot{position:absolute;right:20px;bottom:80px;z-index:8;width:min(330px,calc(100% - 40px));padding:16px;border:1px solid #74969e;border-radius:12px;display:flex;flex-direction:column;gap:10px;pointer-events:auto}
+.otter-copilot button{font-size:12px}
+.otter-maze-hud .otter-invite{max-width:420px;padding:14px;flex-basis:auto}
+@media(max-width:767px){
+ body.otter-active #book-stage{align-items:flex-start;overflow:auto;padding:65px 12px 24px}
+ .spread.otter-mode{position:relative;inset:auto;width:100%;height:auto;min-height:0;max-height:none;display:flex;flex-direction:column;aspect-ratio:auto;transform:none!important}
+ .otter-mode .otter-canvas-host{width:100%;height:330px;min-height:330px;flex:0 0 auto}
+ .otter-mode .otter-panel{width:100%;height:auto;max-height:none;padding:21px;overflow:visible}
+ .otter-panel .otter-caption{font-size:16px}
+ .otter-mode button{padding:10px 12px}
+ body.otter-active .spread.turned{display:none!important}
+ .otter-lamp-mode .otter-panel{gap:10px}
+ .otter-lamp-mode .otter-caption{min-height:0;margin:0}
+ .spread.otter-maze-mode{position:absolute;inset:60px 8px 8px;width:auto;height:auto;overflow:hidden}
+ .otter-maze-mode .otter-canvas-host{height:100%;min-height:0;flex:1}
+ .otter-maze-hud h2{left:14px;top:13px;font-size:15px}
+ .otter-maze-hud>.otter-caption{left:14px;top:45px;max-width:calc(100% - 28px);font-size:11px;line-height:1.8}
+ .otter-maze-hud>.otter-controls{left:10px;right:10px;bottom:12px;gap:6px}
+ .otter-maze-hud button{font-size:12px;padding:9px 10px}
+ .otter-maze-hud>.otter-status{left:12px;right:12px;max-width:none;bottom:70px;font-size:11px}
+ .otter-maze-hud>.otter-actions{left:14px;right:14px;bottom:115px;max-width:none}
+}
+body.otter-active:has(.otter-maze-mode) #reader-back{top:16px;left:22px}
+body.otter-active:has(.otter-maze-mode) #stage>.hud{top:16px;right:22px}
+.spread.otter-mode.otter-maze-mode{width:auto;aspect-ratio:auto}
+body.otter-active:has(.otter-maze-mode) #stage{max-width:none;width:100%}
+
+.otter-controls:empty,.otter-status:empty{display:none}
+
+/* Match the reader rule's specificity; its gap:0 previously collapsed these groups. */
+body.book-mode .otter-mode .otter-panel{gap:18px}
+.otter-panel .otter-caption{margin:0;min-height:0}
+.otter-panel>.otter-actions{margin-top:auto;padding-top:22px;border-top:1px solid #74969e26}
+.otter-panel>.otter-status{margin:0}

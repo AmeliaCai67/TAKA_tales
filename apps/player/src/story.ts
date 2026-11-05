@@ -1,3 +1,5 @@
+import type {SceneSound} from './mechanics/scene-sounds';
+import type {SceneTouch} from './mechanics/scene-touches';
 // 故事包类型契约（与 packages/story-schema/schema.json 对应）+ 加载器
 import type { MechanicDecl } from "./mechanics/types";
 
@@ -12,12 +14,15 @@ interface CodexLink {
 }
 
 export interface CodexEntry {
+    audioDisabledLanguages?: string[];
     id: string;
     name: string;
     image: string;          // 相对故事包根（卡片渲染时拼 baseUrl；index.json 里是完整路径）
+    imageCaption?: string;
+    imageFit?: 'contain';
     science: string[];      // 科学介绍（定稿，不走 LLM）
     takaSays: string[];     // 塔卡口吻（定稿）
-    source: { title: string; author: string; license: string; url: string; url2?: string }; // 图片许可四元组；url2 = 合成图第二来源页
+    source: { title: string; author: string; license: string; url: string; url2?: string; licenseUrl?: string }; // 图片许可四元组；url2 = 合成图第二来源页
 }
 
 export interface Scene {
@@ -42,6 +47,10 @@ export interface Scene {
     next?: string;
     choices?: Choice[];
     codex?: CodexLink[]; // 记忆库：本场景可点的关键词（打字机播完后高亮）
+    speechCue?: {who:string;template:string;atomic:true};
+    freeInputAchievement?: string;
+    sounds?: SceneSound[];
+    interactions?: SceneTouch[]; // Optional picture gestures; never alter story choices or narration.
     mechanic?: string; // 玩法声明引用（2026-10-03 组件化）：指向包级 mechanics 表的声明 id（如第四章收集 "farm-collect"）
 }
 
@@ -79,7 +88,8 @@ export interface AchievementDef {
     name: string;
     icon: string;
     desc: string;
-    unlockScene: string;
+    unlockScene: string | null;
+    unlockEvent?: "naming-success" | "free-input-success";
 }
 
 export interface StoryPack {
@@ -96,6 +106,10 @@ export interface StoryPack {
     speakers: Record<string, string>; // 台词归属表：角色中文名 → 声线 id
     achievements: AchievementDef[];
     codex?: { entries: CodexEntry[] }; // 记忆库词条表（2026-08-25）
+    audioPolicy?: {disabledLanguages:string[]};
+    textFormat?: 'speaker-lines';
+    speechAssets?: string[]; // Sidecar declarations for fixed mechanic speech; consumed by TTS pipeline.
+    sceneAliases?: Record<string,string>; // Redirect saved checkpoints after a scene is merged.
     mechanics?: Record<string, MechanicDecl>; // 玩法声明表（2026-10-03 组件化）：声明 id → { type: 组件注册名, ...参数 }；场景用 mechanic 字段引用
     scenes: Record<string, Scene>;
     baseUrl: string; // 故事包根路径（音频等资产相对它解析），加载时注入

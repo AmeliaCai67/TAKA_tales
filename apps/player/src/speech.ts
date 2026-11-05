@@ -1,3 +1,4 @@
+import {storyAudioDisabled} from './audio-policy';
 import { fetchAudioBytes, fetchTtsBlob, revokeBlobUrl, evictStaticBlob, clearAudioCache, sleep } from './audio-cache';
 // 语音系统（生产版，M2 起）：**不依赖浏览器 speechSynthesis**
 //   固定场景 → 故事包预渲染 mp3（edge-tts 定稿声线，manifest 驱动播放链）
@@ -14,24 +15,26 @@ import { ensureAnonId } from "./anon";
 import { t, lang } from "./i18n";
 import { splitSentences } from "./tts-sentence";
 import { applyTtsAliases } from "./tts-aliases";
+import { cleanSpeechText, resolveSpeechCues, type SpeechCue, type ResolvedSpeechCue } from "./speech-cues";
 
 /* ===== 台词归属（tts-segments.ts 纯模块，与 packages/tts-pipeline/tts_pipeline/segments.py 严格镜像） =====
    2026-10-12：解析整体迁入 tts-segments.ts（可独立测试），并补齐英文状态机——
    此前客户端只有中文式正则，LLM 生成的英文台词（TAKA says, “…”/弯引号/后置归属）全部塌给 narrator。 */
 import { parseTextSegs as parseSegs, type Seg } from "./tts-segments";
+import {parseSpeakerLines} from './speaker-lines';
 export type { Seg };
 
 /** 如我所书（2026-08-19）：把一段故事文本解析成逐句（说话人+文本），供对话流收集/上报。
  *  与朗读链路同一解析器，保证书的内容与听到的一致。 */
 export function parseTextSegs(text: string, overrides?: Record<string, string>): Seg[] {
-    return parseSegs(text, pack().speakers, overrides, lang);
+    return pack().textFormat === 'speaker-lines'
+        ? parseSpeakerLines(text, pack().speakers, overrides)
+        : parseSegs(text, pack().speakers, overrides, lang);
 }
 
 // 朗读前清洗：去掉（）内舞台说明（英文含半角括号）；去掉引号字符
 function cleanForSpeech(s: string): string {
-    let t = s.replace(/（[^）]*）/g, "");
-    if (lang === "en") t = t.replace(/\([^)]*\)/g, "");
-    return t.replace(/["“”「」『』]/g, "").trim();
+    return cleanSpeechText(s, lang);
 }
 
 /** 读音别名（story.json ttsAliases）：显示文本不动，只改喂给 TTS 的文案（757 → 七五七）
@@ -48,8 +51,9 @@ function ttsUrlRaw(spoken: string, who: string): string {
     // i18n（2026-08-28）：en 模式走英文声线表（/api/tts?lang=en → voices_en）
     const langParam = lang === "en" ? "&lang=en" : "";
     // pv=声线表版本：URL 一次性绕开浏览器里按旧 URL 缓存的旧供应商音频（服务端不认识此参数、
-    // 不进缓存 key，warm 一致性不受影响）。换声线表/供应商时 +1（2026-10-12 阿里云迁移=2）
-    return TTS_ENDPOINT + "?text=" + encodeURIComponent(spoken) + "&who=" + encodeURIComponent(who) + langParam + "&pv=2";
+    // 不进缓存 key，warm 一致性不受影响）。4=第五章英文 otter/Daisy 声线正式注册。
+    return TTS_ENDPOINT + "?text=" + encodeURIComponent(spoken) + "&who=" + encodeURIComponent(who) + langParam +
+        "&story=" + encodeURIComponent(pack().id) + "&pv=4";
 }
 
 function ttsUrl(text: string, who: string): string {
@@ -65,7 +69,8 @@ const WARM_BATCH = 24; // 与服务端 WARM_MAX_ITEMS 对齐（tts.py）——re
  *  review 2026-10-08 #4 修复：长回复按 ≤24 分批（8/12 真实回复超单批上限，整批 POST 必 422）；
  *  检查 res.ok 并逐批上报 tts_warm_batch（接受/拒绝/失败可观测，不再静默失效）。 */
 async function warmTts(items: { text: string; who: string }[]): Promise<void> {
-    if (!items.length || !speechPref.on) return;
+    if (!items.length || !speechPref.on || storyAudioDisabled()) return;
+    const story = pack().id;
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (session.token) {
         headers["Authorization"] = "Bearer " + session.token;
@@ -81,7 +86,7 @@ async function warmTts(items: { text: string; who: string }[]): Promise<void> {
             const res = await fetch(TTS_ENDPOINT + "/warm", {
                 method: "POST",
                 headers,
-                body: JSON.stringify({ items: batch, lang }),
+                body: JSON.stringify({ items: batch, lang, story }),
             });
             ok = res.ok;
             status = res.status;
@@ -98,7 +103,7 @@ for (const event of ['playing', 'pause', 'ended', 'error']) {
 
 /** Prime this same media element in the wake gesture before the reveal animation. */
 export function unlockStoryAudio(): void {
-    if (!speechPref.on) return;
+    if ((!speechPref.on || storyAudioDisabled())) return;
     const wav = new ArrayBuffer(44 + 1600), view = new DataView(wav);
     const write = (at: number, text: string) => [...text].forEach((c, i) => view.setUint8(at + i, c.charCodeAt(0)));
     write(0,'RIFF'); view.setUint32(4, wav.byteLength - 8, true); write(8,'WAVE'); write(12,'fmt ');
@@ -129,6 +134,15 @@ interface ChainState {
     t0: number | null;                    // 首声埋点基准（本链第一个请求发出时刻）
     abort: AbortController;               // stopSpeech 时取消本链在途请求
     release: (() => void) | null;         // 故事层音频焦点（供高优先级暂停/恢复）
+    onCue?: CueHooks["onCue"];
+    onDone?: CueHooks["onDone"];
+    hadFailure?: boolean;
+}
+export type CuePhase = "waiting" | "playing" | "ended" | "failed";
+export type CueSequenceResult = "ended" | "failed" | "cancelled" | "muted";
+interface CueHooks {
+    onCue?: (index: number, phase: CuePhase) => void;
+    onDone?: (result: CueSequenceResult) => void;
 }
 let chain: ChainState | null = null;
 
@@ -136,13 +150,14 @@ let chain: ChainState | null = null;
  *  （每段 1 次 error 重试就跳段=吞音主源），统一进 fetch→blob→playBlobStrict 严格接力——
  *  白拿动态链的全部韧性（同 blob 重播/重取/看门狗/ended-only advance）。
  *  静态文件无渲染延迟，blob 化只赚不亏；manifest 的 mp3 文件完整，校验放宽为 size>0（见 fetchAudioBytes）。 */
-function startChain(urls: string[], duck?: boolean): void {
-    startStreamChain(urls, duck);
+function startChain(urls: string[], duck?: boolean, hooks?:CueHooks): void {
+    startStreamChain(urls, duck, hooks);
 }
 
 /** 续接到当前链尾（选项朗读跟在正文之后）；链已结束则新开一条 */
 /** 接到播放链尾（链空则直接开播）。语音引导音频等「排在故事之后」的短 clip 用这条 */
 export function queueClip(url: string): void {
+    if(storyAudioDisabled())return;
     appendChain([url]);
 }
 
@@ -173,6 +188,7 @@ export function stopSpeech(): void {
     scenePlayer.onpause = null;
     scenePlayer.onplaying = null;
     choicesQueued = false;
+    c?.onDone?.("cancelled");
 }
 
 /** 首次交互补读用：播放链是否空闲 */
@@ -261,6 +277,7 @@ function playBlob(url: string, state: ChainState): Promise<PlayResult> {
             started = true;
             clearTimeout(playingWatchdog);
             scenePlayer.onplaying = null;
+            if (!stale()) state.onCue?.(state.idx - 1, "playing");
         };
         scenePlayer.onended = () => done("ended");
         scenePlayer.onerror = () => { done(stale() ? "cancelled" : "failed"); }; // 解码/加载失败：升级链接手
@@ -302,22 +319,26 @@ async function waitBlob(state: ChainState, i: number): Promise<string | null> {
  *  error → 同 blob 重播一次（ArkWeb 虚假 error 零成本）→ 仍败 → 重新 fetch 整句再播 →
  *  仍败跳句。review 2026-10-08 #3 修复：跳句一律上报 tts_skip（此前 play 拒绝/重取失败
  *  被静默吞掉，tts_skip=0 不代表没吞句），并淘汰媒体级失败的静态内存条目（#2）。 */
-async function playBlobStrict(state: ChainState, i: number): Promise<void> {
+async function playBlobStrict(state: ChainState, i: number): Promise<PlayResult> {
     const reportSkip = () => {
         reportEvent({ type: "tts_skip", payload: { i, text: state.urls[i].slice(0, 120) } });
         evictStaticBlob(state.blobs[i]); // 字节能过尺寸门槛 ≠ 可解码：坏条目不再供应
     };
     const first = state.blobs[i] as string;
-    if (await playBlob(first, state) !== "failed") return;
-    if (state !== chain) return;
-    if (await playBlob(first, state) !== "failed") return; // 同 blob 重播
-    if (state !== chain) return;
+    const firstResult = await playBlob(first, state);
+    if (firstResult !== "failed") return firstResult;
+    if (state !== chain) return "cancelled";
+    const retryResult = await playBlob(first, state);
+    if (retryResult !== "failed") return retryResult; // 同 blob 重播
+    if (state !== chain) return "cancelled";
     const again = await fetchTtsBlob(state.urls[i], { bustCache: true, signal: state.abort.signal });
-    if (state !== chain) return;
-    if (!again) { reportSkip(); return; }
+    if (state !== chain) return "cancelled";
+    if (!again) { reportSkip(); return "failed"; }
     if (state.blobs[i]) revokeBlobUrl(state.blobs[i]);
     state.blobs[i] = again;
-    if (await playBlob(again, state) === "failed") reportSkip();
+    const result = await playBlob(again, state);
+    if (result === "failed") reportSkip();
+    return result;
 }
 
 /** 接力协程（2026-10-03 v2）：每句 ended 后才进入下一句的等待窗口；等待期间预取在后台继续，
@@ -332,19 +353,24 @@ async function runStreamChain(state: ChainState): Promise<void> {
             for (const b of state.blobs) revokeBlobUrl(b);
             if (state.release) { state.release(); state.release = null; } // 归还音频焦点（此前仅 stopSpeech 归还）
             if (chain === state) chain = null;
+            state.onDone?.(state.hadFailure ? "failed" : "ended");
             return;
         }
+        state.onCue?.(i, "waiting");
         const b = await waitBlob(state, i);
         if (state !== chain) return;
         state.idx = i + 1;
-        if (!b) continue; // 跳句（waitBlob 已上报 tts_skip）
+        if (!b) { state.hadFailure = true; state.onCue?.(i, "failed"); continue; } // waitBlob 已上报 tts_skip
         if (!state.playbackStarted) { state.playbackStarted = true; launchPrefetch(state); }
-        await playBlobStrict(state, i);
+        const result = await playBlobStrict(state, i);
+        if (state !== chain) return;
+        if (result === "failed") state.hadFailure = true;
+        state.onCue?.(i, result === "ended" ? "ended" : "failed");
     }
 }
 
 /** 句级接力播放链：队列/水位/进度全在 ChainState 里，appendChain 续接语义不变。 */
-function startStreamChain(urls: string[], duck?: boolean): void {
+function startStreamChain(urls: string[], duck?: boolean, hooks?: CueHooks): void {
     stopSpeech(); // 停旧链（abort 在途 + revoke 旧 blob + 收尾挂起 attempt）+ speechGen++
     voiceGain = duck ? 0.55 : 1;
     scenePlayer.volume = voiceGain * speechPref.volume; // 且听风吟：人声 duck 给风声
@@ -358,9 +384,31 @@ function startStreamChain(urls: string[], duck?: boolean): void {
         t0: Date.now(),
         abort: new AbortController(),
         release: acquireAudio("story", () => scenePlayer.pause(), () => scenePlayer.play()),
+        ...hooks,
     };
     launchPrefetch(chain);
     void runStreamChain(chain);
+}
+
+/** Explicit cues keep one short authored utterance atomic, including internal punctuation.
+ * Static and dynamic sources share the existing queue, cache, focus and cancellation. */
+export async function playSpeechCues(cues: readonly SpeechCue[], variables: Readonly<Record<string, string>> = {},
+    onCue?: (cue: ResolvedSpeechCue, phase: CuePhase) => void): Promise<CueSequenceResult> {
+    if ((!speechPref.on || storyAudioDisabled())) return "muted";
+    const resolved = resolveSpeechCues(cues, variables, lang);
+    if (!resolved.length) return "ended";
+    const warm: { text: string; who: string }[] = [];
+    const urls = resolved.map(cue => {
+        if (cue.kind === "static") return cue.file;
+        const text = aliasForSpeech(cue.spokenText);
+        warm.push({ text, who: cue.who });
+        return ttsUrlRaw(text, cue.who);
+    });
+    void warmTts(warm);
+    return new Promise(resolve => startStreamChain(urls, undefined, {
+        onCue: (i, phase) => onCue?.(resolved[i], phase),
+        onDone: resolve,
+    }));
 }
 
 /** 控制台问答等自带播放器的调用方用：句切 + 清洗 + URL 化（alias/lang 已含）。
@@ -382,7 +430,7 @@ export function splitTtsUrls(text: string, who: string): string[] {
 }
 
 export function speakStory(text: string, volume?: number, overrides?: Record<string, string>): void {
-    if (!speechPref.on) return;
+    if ((!speechPref.on || storyAudioDisabled())) return;
     const urls: string[] = [];
     const warm: { text: string; who: string }[] = [];
     for (const seg of parseTextSegs(text, overrides)) { // 先在原文上归属角色（引号还在，定界精确）
@@ -404,7 +452,7 @@ export function speakStory(text: string, volume?: number, overrides?: Record<str
 // 选项朗读：接在正文链尾；两个选项时前缀“你选。”（呼应海鸥台词）
 // 有自由输入选项时，末尾补一句“或者，说说你的想法”
 export function speakChoices(choices?: { text: string }[], hasFreeInput?: boolean): void {
-    if (!speechPref.on || !speechPref.readChoices || choicesQueued || !choices || !choices.length) return;
+    if ((!speechPref.on || storyAudioDisabled()) || !speechPref.readChoices || choicesQueued || !choices || !choices.length) return;
     const prefix = choices.length > 1 ? t("speech.choice_prefix") : "";
     const suffix = hasFreeInput ? t("speech.freeinput_suffix") : "";
     const text = prefix + choices.map(c => cleanForSpeech(c.text)).join("。") + "。" + suffix;
@@ -433,7 +481,7 @@ function windTo(target: number, ms = 800): void { // 音量渐变，避免硬切
 }
 
 export function startWind(): void {
-    if (!speechPref.on) return;
+    if ((!speechPref.on || storyAudioDisabled())) return;
     windAudio.play().then(() => windTo(0.55)).catch(() => {});
 }
 
@@ -475,13 +523,16 @@ export function initAudioAssets(): Promise<void> {
 }
 
 export function playSceneAudio(key: string, duck?: boolean): boolean {
-    if (!audioManifest || !audioManifest[key] || !speechPref.on) return false;
+    if (!audioManifest || !audioManifest[key] || (!speechPref.on || storyAudioDisabled())) return false;
     const entry = audioManifest[key];
     const base = pack().baseUrl + (lang === "en" ? "audio-en/" : "audio/");
     const urls = entry.segments.map(s => base + s.file);
     const willQueueChoices = !!(entry.choices && speechPref.readChoices);
     if (willQueueChoices) urls.push(base + entry.choices!.file);
-    startChain(urls, duck);
+    startChain(urls, duck,{onCue:(index,phase)=>{
+        const segment=entry.segments[index];
+        if(phase==='playing'&&segment)document.dispatchEvent(new CustomEvent('taka-narration-line',{detail:{scene:key,text:segment.text}}));
+    }});
     // startChain→stopSpeech 会把 choicesQueued 重置为 false，必须在其后再赋值，
     // 否则 speakChoices 不认为选项已读，会在 mp3 之后再动态 TTS 一遍（选项双读 bug）
     choicesQueued = willQueueChoices;
@@ -494,7 +545,7 @@ export function playSceneAudio(key: string, duck?: boolean): boolean {
  *  review 2026-10-08 修订：只做字节层预热（fetchAudioBytes），不产生 objectURL——
  *  此前经 prefetchTts 产生的 objectURL 被丢弃=泄漏；重复 url 由 inflight 去重，重复调用零开销。 */
 export function prefetchSceneAudio(key: string): void {
-    if (!audioManifest || !speechPref.on) return;
+    if (!audioManifest || (!speechPref.on || storyAudioDisabled())) return;
     const scene = pack().scenes[key];
     const targets = new Set<string>([key]);
     if (scene) {
@@ -557,7 +608,7 @@ export function initSpeech(): void {
     };
     btn.onclick = () => {
         speechPref.on = !speechPref.on;
-        if (!speechPref.on) { stopSpeech(); stopWind(); } // Narration off; effects have their own switch.
+        if ((!speechPref.on || storyAudioDisabled())) { stopSpeech(); stopWind(); } // Narration off; effects have their own switch.
         saveSpeechPref();
         sync();
     };

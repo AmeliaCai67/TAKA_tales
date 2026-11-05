@@ -1,5 +1,5 @@
 /* Approved reader stage: only return, settings and energy stay outside the book. */
-:root{--reader-width:min(94vw,1120px,calc((96dvh - 92px)*16/9));--drawer-ink:var(--paper-ink);--drawer-muted:var(--paper-muted)}
+:root{--reader-bar-top:10px;--reader-bar-h:44px;--reader-gap:14px;--reader-chrome:calc(var(--reader-bar-top) + var(--reader-bar-h) + var(--reader-gap));--reader-width:min(94vw,1120px,calc((100dvh - var(--reader-chrome) - 16px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))*16/9));--drawer-ink:var(--paper-ink);--drawer-muted:var(--paper-muted)}
 #reader-back{position:absolute;left:20px;top:14px;z-index:70;min-height:44px;border:0;background:none;display:flex;align-items:center;gap:7px;color:#adbfb9;font:12px var(--font-shell);letter-spacing:.08em;cursor:pointer;opacity:.82;padding:var(--space-6) 2px}
 #reader-back:hover{opacity:1;color:#e2e7df}
 body.on-shelf #reader-back,body.on-gate #reader-back{display:none}
@@ -12,8 +12,12 @@ body.book-mode:not(.on-shelf):not(.on-gate) .bg-layer{filter:brightness(.52) sat
 body.book-mode:not(.on-shelf):not(.on-gate) .bg-layer.show{opacity:.58}
 body.book-mode:not(.on-shelf):not(.on-gate) .bg-shade{background:rgba(2,9,16,.16)}
 body.book-mode .spread{width:var(--reader-width);border-radius:24px;box-shadow:0 24px 80px #0008,0 0 0 1px #ffffff0a}
-body.book-mode #reader-back{left:calc((100% - var(--reader-width))/2);top:calc((100dvh + 30px - var(--reader-width)*9/16)/2 - 61px)}
-body.book-mode #stage>.hud{right:calc((100% - var(--reader-width))/2);top:calc((100dvh + 30px - var(--reader-width)*9/16)/2 - 61px)}
+/* 书页上方是独立工具栏行：两端锚定同一固定行高，不再从书宽反推 top；
+   书台用固定常量让出工具栏 + 14px 间距，二者永远不相交。 */
+body.book-mode #reader-back,body.book-mode #stage>.hud{top:calc(var(--reader-bar-top) + env(safe-area-inset-top,0px))}
+body.book-mode #reader-back{left:calc((100% - var(--reader-width))/2)}
+body.book-mode #stage>.hud{right:calc((100% - var(--reader-width))/2)}
+body.book-mode #book-stage{padding-top:calc(var(--reader-chrome) + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 body.book-mode .page-text{justify-content:flex-start;gap:0;padding:var(--space-24) 29px 25px;font-family:var(--font-reader)}
 body.book-mode .reader-page-header{flex:none;padding:var(--space-8) 0 17px;border-bottom:1px solid color-mix(in srgb,var(--paper-line) 55%,transparent);margin-bottom:22px}
 body.book-mode .reader-page-header .pagenum{position:static;font:12px var(--font-shell);letter-spacing:.1em;color:var(--paper-muted)}

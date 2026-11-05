@@ -1,3 +1,5 @@
+import {mountSceneSounds} from './mechanics/scene-sounds';
+import {resolveStoryText,storyVariables,clearStoryState} from './story-state';
 import { reportEvent } from "./events";
 import { mountFreeInput, cleanupFreeInput, voiceCapable, toggleVoiceInput } from "./free-input";
 import type { GenCtx } from "./engine-types";
@@ -11,7 +13,7 @@ import { loadSettings, showStatus } from "./settings";
 import { unlockForScene, showToast, unlock } from "./achievements";
 import {
     speakStory, speakChoices, stopSpeech, startWind, stopWind, playSceneAudio, parseTextSegs,
-    prefetchSceneAudio
+    prefetchSceneAudio, playSpeechCues
 } from "./speech";
 import { api, ApiError } from "./api";
 import { session, selectedChild, clearSession } from "./session";
@@ -20,7 +22,7 @@ import { reportAnonEvent } from "./anon";
 import { discoverScene, wrapCodexLinks, resetCodexHighlights } from "./codex";
 import { setBadge } from "./badge";
 import { t } from "./i18n";
-import { bookChoicesEl, renderHotspots, renderSceneBook, renderSceneMechanic, cleanupMechanic, initMechanicAchievement, parkChromeVN, initBookNav, initBookVoice, resetBook } from "./book";
+import { bookChoicesEl, renderVNTouches, renderHotspots, renderSceneBook, renderSceneMechanic, cleanupMechanic, initMechanicAchievement, parkChromeVN, initBookNav, initBookVoice, resetBook } from "./book";
 
 // ===== 电量状态机：全局真电量，场景只声明 cost（消耗量） =====
 // 场景字段（story.json）：
@@ -75,6 +77,7 @@ function cancelScenePresentation(): void {
 let listenTimer: ReturnType<typeof setInterval> | null = null; // 聆听条 timer
 
 // ===== 横屏绘本模式（2026-08-31）：呈现层分派开关，由 main.ts 按宽度阈值/设置档切换 =====
+let sceneSounds:ReturnType<typeof mountSceneSounds>|null=null;
 let bookMode = false;
 export function setBookMode(on: boolean): void {
     bookMode = on;
@@ -97,7 +100,7 @@ let skipCostOnce = false; // 断点续玩跳场：保存的电量已是扣费后
 
 /** 家长入口选中孩子后由 auth.ts 设置断点 */
 export function setResumePoint(p: { sceneKey: string; battery: number; path: string[] } | null): void {
-    resumePoint = p;
+    resumePoint = p?{...p,sceneKey:pack().sceneAliases?.[p.sceneKey]??p.sceneKey}:null;
 }
 
 // ===== 如我所书（2026-08-19）：会话对话流收集 + 增量上报 =====
@@ -388,24 +391,35 @@ export function exitToShelf(): void {
     stopSpeech();
     stopWind();
     resetBook(); // 绘本：清掉气泡揭示计时器（防回书架后还在翻页）
-    cleanupMechanic(); // 玩法组件：还原立绘/卸监听（从收集等玩法页退出书架）
+    cleanupMechanic();
+    sceneSounds?.cleanup();sceneSounds=null; // 玩法组件：还原立绘/卸监听（从收集等玩法页退出书架）
     if (shelfReturn) shelfReturn();
 }
 
 export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
-    const scene = pack().scenes[key];
-    if (!scene) return;
+    key=pack().sceneAliases?.[key]??key;
+    const original = pack().scenes[key];
+    if (!original) return;
+    const scene={...original,text:resolveStoryText(original.text)};
     cancelScenePresentation();
     const generation = sceneGeneration;
     cleanupFreeInput();
+    // Choosing the opening again starts a fresh run; the explicit Resume button
+    // clears resumePoint itself and deliberately preserves mechanic checkpoints.
+    if (ctx && currentSceneKey === pack().startScene && resumePoint) {
+        resumePoint = null;
+        clearStoryState();
+    }
     currentSceneKey = key;
     if (listenTimer) { clearInterval(listenTimer); listenTimer = null; }
     // 玩法场景（mechanic）：卸载上一场景的玩法组件（还原立绘/卸监听/摘布局类；无玩法时为空操作）
     cleanupMechanic();
+    sceneSounds?.cleanup();sceneSounds=null;
 
     // --- 电量结算：先扣后回，太阳救不了已经耗尽的电量；续玩跳场跳过 ---
     if (key === pack().restartScene) { // 每个故事开始回满、开新会话、清空路径
         battery = 100;
+        if(!resumePoint)clearStoryState();
         runPath = [];
         syncSessionStart();
     }
@@ -455,8 +469,8 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const usedAI = !!(ctx && ctx.generated);
 
     // 如我所书：场景文本按说话人切句入对话流（固定场景=beat，AI 生成=ai；含开场/序章）。
-    // 玩法场景（mechanic）：文本只是 UI 提示，不朗读、不入对话流。
-    if (text && !scene.mechanic) {
+    // 玩法提示不入对话流；带显式台词 cue 的合并页仍保留正文记录。
+    if (text && (!scene.mechanic || scene.speechCue)) {
         const segs = parseTextSegs(text, scene.voiceOverrides);
         collectDialogue(segs.map(s => ({
             story_id: pack().id, scene_key: key, role: s.who, text: s.text, type: usedAI ? "ai" : "beat"
@@ -473,17 +487,22 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
     const duringTyping = eye === "st-standby" ? "st-speaking" : eye;
     setFigureState(duringTyping);
 
+    sceneSounds=mountSceneSounds(scene,key);
     currentText = text;
     discoverScene(scene); // 记忆库：读到即「发现」（面板出现剪影）
     // 语音双轨：固定文本 → 预渲染 mp3 包（定稿声线）；AI 生成 → 浏览器 TTS 实时念
     // 且听风吟场景两种轨道都 duck 到 0.55，风声与人声平起平坐；玩法场景静默（无旁白）
-    const played = !usedAI && !scene.mechanic && playSceneAudio(key, scene.isSpecialListen);
-    if (!played && !scene.mechanic) speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
+    const played = (!usedAI || text === scene.text) && !scene.mechanic && playSceneAudio(key, scene.isSpecialListen);
+    if (!played && !scene.mechanic) {
+        if(scene.speechCue)void playSpeechCues([{id:key,kind:'tts',...scene.speechCue}],storyVariables());
+        else speakStory(text, scene.isSpecialListen ? 0.55 : undefined, scene.voiceOverrides);
+    }
     prefetchSceneAudio(key); // P1 滚动预取：当前+下一可选场景静态音频进内存（P1-B 统一通道的取用点）
 
     // 打字播完后的统一收尾：codex 高亮（绘本内部逐气泡已包，VN 在这里整段包）→ 灯光归位 → 选项/聆听条
     const onTextDone = () => {
         if (generation !== sceneGeneration) return;
+        sceneSounds?.read();
         if (!bookMode) wrapCodexLinks(scene); // 绘本模式由 renderSceneBook 逐气泡 wrapCodexIn
         setFigureState(scene.endState || eye);
         if (scene.isSpecialListen) {
@@ -508,15 +527,16 @@ export async function renderScene(key: string, ctx?: GenCtx): Promise<void> {
         return;
     }
     if (bookMode) {
-        renderSceneBook(scene, text, onTextDone); // 绘本：翻页 + 气泡流
+        renderSceneBook(scene, text, onTextDone, key); // 绘本：翻页 + 气泡流
     } else {
         typeText(text, onTextDone); // VN：打字机
+        renderVNTouches(scene,key);
     }
 }
 
 // 绘本 hotspot 的导航回调注入（book.ts 不反向 import engine，防循环依赖）；
 // currentText 在点击当下惰性读取，与 VN 选项路径的 prevText 语义一致
-initBookNav((next, choiceText) => navChoice(next, { prevText: currentText, choiceText }));
+initBookNav((next, choiceText, generated) => navChoice(next, { prevText: currentText, choiceText, generated, custom:!!generated }));
 
 // 绘本话筒 hotspot 的点按回调注入（同 initBookNav 模式，2026-09-28 发现率优化）：
 // activeVoice 由 mountFreeInput 在场景内注册、切场景清除；无控制器时点按静默无效

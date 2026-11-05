@@ -43,6 +43,7 @@ export async function loadPack(storyId: string) {
 function seedGuestResume(storyId: string): void {
     if (session.token && session.childId) return; // 登录态：云端为准
     const lp = loadLocalProgress(storyId);
+    if(lp)lp.sceneKey=pack().sceneAliases?.[lp.sceneKey]??lp.sceneKey;
     // lastEnding 区分「玩完了归位」与「真断点」；restartScene 也可能是合法断点（刚点完开始故事）
     if (lp && !lp.lastEnding && lp.sceneKey !== pack().startScene && pack().scenes[lp.sceneKey]) {
         setResumePoint({ sceneKey: lp.sceneKey, battery: lp.battery, path: lp.path });

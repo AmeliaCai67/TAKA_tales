@@ -78,3 +78,9 @@ test/bert_training/guardrail_model*/
 
 # Isolated E2E runs: throwaway DB, logs, build evidence
 /test/e2e/.artifacts/
+
+# ONNX 模型二进制不入库（112MiB，超 GitHub 单文件 100MiB 限制）：走 scp / release-model.sh
+test/bert_training/onnx/*.onnx
+
+# ONNX 导出的临时中间产物
+sym_shape_infer_temp.onnx

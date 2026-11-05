@@ -1,3 +1,4 @@
+import {storyAudioDisabled} from './audio-policy';
 import { uiIcon } from "./ui-icons";
 // 记忆库（2026-08-25 spec）：叙事层 / 科普层分离的图鉴系统
 // - 场景 scene.codex 标注关键词 → 打字机播完后暖黄高亮可点（wrapCodexLinks）
@@ -168,6 +169,7 @@ function closeCodexCard(): void {
  *  2026-08-28：优先包内预渲染（audio[-en]/codex/<id>.science|taka.mp3），404 才回退服务端动态 TTS——
  *  实时链路冷渲染首段 ~7s + 段间死气，被用户感知为「卡/塔卡说被吞掉」 */
 function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): void {
+    if(entry.audioDisabledLanguages?.includes(lang) || storyId===pack().id && storyAudioDisabled())return;
     if (ttsAudio) { stopEntryTts(); resetTtsBtn(); return; }
     const generation = ++entryTtsGeneration;
     btn.classList.add("playing");
@@ -175,7 +177,8 @@ function toggleEntryTts(entry: CodexEntry, btn: HTMLElement, storyId: string): v
     // 音频路径按词条所属故事拼（面板可跨故事开卡，pack() 是当前加载的故事，会错）
     const audioBase = `stories/${storyId}/` + (lang === "en" ? "audio-en/" : "audio/") + "codex/";
     const tts = (text: string, who: string) =>
-        `${TTS_ENDPOINT}?text=${encodeURIComponent(text)}&who=${who}${lang === "en" ? "&lang=en" : ""}`;
+        `${TTS_ENDPOINT}?text=${encodeURIComponent(text)}&who=${who}${lang === "en" ? "&lang=en" : ""}` +
+        `&story=${encodeURIComponent(storyId)}&pv=3`;
     // [主 URL（包内预渲染）, 回退 URL（动态 TTS）]
     const queue: [string, string][] = [
         [audioBase + entry.id + ".science.mp3", tts(entry.science.join(""), "narrator")],
@@ -223,9 +226,10 @@ function openCodexCard(storyId: string, entry: CodexEntry, imgSrc: string): void
     cardOverlay.innerHTML = `
         <div class="codex-card">
             <button class="cc-close" title="${t("codex.close")}">✕</button>
-            <img class="cc-img" src="${escHtml(imgSrc)}" alt="${escHtml(entry.name)}">
+            <img class="cc-img${entry.imageFit==='contain'?' cc-img-contain':''}" src="${escHtml(imgSrc)}" alt="${escHtml(entry.imageCaption||entry.name)}">
             <div class="cc-body">
                 <div class="cc-name">${escHtml(entry.name)}</div>
+                ${entry.imageCaption?`<p class="cc-image-caption">${escHtml(entry.imageCaption)}</p>`:''}
                 <div class="cc-science">${entry.science.map(s => `<p>${escHtml(s)}</p>`).join("")}</div>
                 <div class="cc-taka">
                     <span class="cc-taka-label">${t("codex.taka_says")}</span>
@@ -233,11 +237,15 @@ function openCodexCard(storyId: string, entry: CodexEntry, imgSrc: string): void
                 </div>
                 ${(() => { const tags = entryTags(storyId, entry.id); return tags?.length ? `<div class="cc-tags"><span class="cc-tags-label">${t("codex.my_tags")}</span>${tags.map(x => `<span class="cc-tag">${escHtml(x)}</span>`).join("")}</div>` : ""; })()}
                 <button class="cc-tts">${uiIcon("sound")}${t("codex.listen")}</button>
-                <div class="cc-src">${t("codex.src_prefix")}${escHtml(entry.source.author)} · ${escHtml(entry.source.license)} · <a href="${escHtml(entry.source.url)}" target="_blank" rel="noopener">${entry.source.url.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>${entry.source.url2 ? ` · <a href="${escHtml(entry.source.url2)}" target="_blank" rel="noopener">${entry.source.url2.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>` : ""}</div>
+                <div class="cc-src">${t("codex.src_prefix")}${escHtml(entry.source.author)} · ${entry.source.licenseUrl?`<a href="${escHtml(entry.source.licenseUrl)}" target="_blank" rel="noopener">${escHtml(entry.source.license)}</a>`:escHtml(entry.source.license)} · <a href="${escHtml(entry.source.url)}" target="_blank" rel="noopener">${entry.source.url.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>${entry.source.url2 ? ` · <a href="${escHtml(entry.source.url2)}" target="_blank" rel="noopener">${entry.source.url2.includes("wikimedia") ? "Wikimedia Commons" : t("codex.src_link")}</a>` : ""}</div>
             </div>
         </div>`;
     cardOverlay.onclick = (e) => { if (e.target === cardOverlay) closeCodexCard(); };
     cardOverlay.querySelector(".cc-close")!.addEventListener("click", closeCodexCard);
+    if(entry.audioDisabledLanguages?.includes(lang)){
+        const button=cardOverlay.querySelector<HTMLButtonElement>('.cc-tts')!;
+        button.disabled=true;button.textContent=lang==='en'?'Audio coming later':'朗读待制作';
+    }
     cardOverlay.querySelector(".cc-tts")!.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleEntryTts(entry, e.currentTarget as HTMLElement, storyId);

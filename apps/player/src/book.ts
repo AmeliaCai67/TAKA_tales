@@ -1,3 +1,4 @@
+import {mountSceneTouches} from './mechanics/scene-touches';
 import { uiIcon } from "./ui-icons";
 // 横屏绘本模式 renderer（2026-08-31，plan: docs/superpowers/plans/2026-08-31-landscape-book-mode.md）
 // 职责只有「场景怎么画」：spread 双缓冲翻页、右页气泡流（stagger 揭示 + 点击补完）、
@@ -17,8 +18,8 @@ import { t } from "./i18n";
 export { parkChromeVN } from "./scene-host";
 
 /* ---------- 导航注入 ---------- */
-let navFn: (next: string, choiceText: string) => void = () => {};
-export function initBookNav(fn: (next: string, choiceText: string) => void): void { navFn = fn; }
+let navFn: (next: string, choiceText: string, generated?: string) => void = () => {};
+export function initBookNav(fn: (next: string, choiceText: string, generated?: string) => void): void { navFn = fn; }
 
 /* 话筒 hotspot 点按注入（2026-09-28）：engine 持有语音识别控制器，book 只画入口不碰状态机 */
 let voiceFn: (() => void) | null = null;
@@ -28,9 +29,14 @@ export function initBookVoice(fn: (() => void) | null): void { voiceFn = fn; }
 let front: HTMLElement | null = null;  // 当前展示中的 spread
 let back: HTMLElement | null = null;   // 幕后填入下一页的 spread
 let revealTimers: ReturnType<typeof setTimeout>[] = [];
+let activeTouches:ReturnType<typeof mountSceneTouches>|null=null;
+let vnTouches:HTMLElement|null=null;
+let vnTouchBounds:ResizeObserver|null=null;
 let sceneSeq = 0; // 场景序号（废弃回调防串场：翻页动画未完成又进下一场景时丢弃旧回调）
 
 export function resetBook(): void {
+    vnTouchBounds?.disconnect();vnTouchBounds=null;
+    activeTouches?.cleanup();activeTouches=null;vnTouches?.remove();vnTouches=null;
     for (const tmr of revealTimers) clearTimeout(tmr);
     revealTimers = [];
     sceneSeq++;
@@ -84,7 +90,7 @@ function whoLabel(who: string): { name: string; cls: string } {
 
 /** 左页构建：背景/decor/常驻角色；withTaka 时把塔卡移入左页（VN↔绘本共用同一 DOM 节点，6 态灯光 CSS 零改动继承）。
  *  玩法场景（mechanic）传 withTaka=false——塔卡的挂载/定位/换装归玩法组件。 */
-function buildLeftPage(scene: Scene, withTaka: boolean): HTMLElement {
+function buildLeftPage(scene: Scene, withTaka: boolean, key: string): HTMLElement {
     const left = document.createElement("div");
     left.className = "page-scene crayon";
     const art = scene.book?.art || scene.background;
@@ -113,11 +119,12 @@ function buildLeftPage(scene: Scene, withTaka: boolean): HTMLElement {
     if (takaSize) f.style.width = takaSize;
     (f.querySelector("svg") as SVGSVGElement).style.transform = tp.rotate ? `rotate(${tp.rotate}deg)` : "";
     left.appendChild(f);
+    if(scene.interactions?.length)activeTouches=mountSceneTouches(scene,key,left);
     return left;
 }
 
 /** 场景渲染：填入幕后 spread → 翻页。onTextDone 由 engine 传入（灯光归位 + 选项/聆听条）。 */
-export function renderSceneBook(scene: Scene, text: string, onTextDone: () => void): void {
+export function renderSceneBook(scene: Scene, text: string, onTextDone: () => void, key: string): void {
     resetBook();
     ensureSpreads();
     parkChromeVN(); // 共享节点（立绘/聆听条）先归位到 #stage/#dialog，避免清空 spread 时把它们一并销毁
@@ -127,7 +134,7 @@ export function renderSceneBook(scene: Scene, text: string, onTextDone: () => vo
     spread.classList.remove("collect-mode"); // 清掉上一收集节点的整页布局（右页恢复显示）
 
     /* ----- 左页：画面 ----- */
-    const left = buildLeftPage(scene, true);
+    const left = buildLeftPage(scene, true, key);
     spread.appendChild(left);
 
     /* ----- 右页：文字气泡 ----- */
@@ -314,6 +321,8 @@ export function initMechanicAchievement(fn: ((id: string) => void) | null): void
 
 /** 离开玩法场景时调用（engine.renderScene 顶部 + exitToShelf）：还原立绘/卸监听/摘布局类；无玩法时为空操作 */
 export function cleanupMechanic(): void {
+    vnTouchBounds?.disconnect();vnTouchBounds=null;
+    activeTouches?.cleanup();activeTouches=null;vnTouches?.remove();vnTouches=null;
     activeMechanic?.cleanup();
     activeMechanic = null;
 }
@@ -324,7 +333,7 @@ export function renderSceneMechanic(key: string, scene: Scene, onDone: () => voi
     const comp = decl ? getMechanic(decl.type) : undefined;
     if (!comp || !decl) {
         console.warn("[mechanics] 玩法声明缺失或类型未注册，退化普通书页:", scene.mechanic);
-        renderSceneBook(scene, scene.text || "", onDone);
+        renderSceneBook(scene, scene.text || "", onDone, key);
         return;
     }
     resetBook();
@@ -334,7 +343,7 @@ export function renderSceneMechanic(key: string, scene: Scene, onDone: () => voi
     const spread = back!;
     spread.innerHTML = "";
     spread.classList.remove("collect-mode"); // 清上一玩法遗留的整页布局（组件按需自加）
-    const left = buildLeftPage(scene, false);
+    const left = buildLeftPage(scene, false, key);
     spread.appendChild(left);
     flipSpread();
     activeMechanic = comp({
@@ -343,7 +352,7 @@ export function renderSceneMechanic(key: string, scene: Scene, onDone: () => voi
         decl,
         host: left,
         spread,
-        nav: (next, choiceText) => navFn(next, choiceText),
+        nav: (next, choiceText, generated) => navFn(next, choiceText, generated),
         unlockAchievement: (id) => mechanicAchFn?.(id),
         onDone,
     });
@@ -351,3 +360,27 @@ export function renderSceneMechanic(key: string, scene: Scene, onDone: () => voi
 
 /** 防翻页回调串场：renderSceneBook 里已用 sceneSeq 守卫，这里对齐 */
 function spreadSceneSeqGuard(): void { sceneSeq++; }
+
+/** Narrow-screen novel mode uses the same optional picture gestures. */
+export function renderVNTouches(scene:Scene,key:string):void{
+ if(!scene.interactions?.length)return;
+ const stage=document.getElementById('stage')!,dialog=document.getElementById('dialog')!,actor=figure();
+ const choices=document.getElementById('choices');
+ const host=document.createElement('div');host.className='vn-touch-host';stage.append(host);vnTouches=host;
+ // VN text grows in normal flow on phones. Keep picture gestures above its
+ // actual top edge instead of positioning them against the full page height.
+ // 横屏时 #choices 是浮在对话框上方的绝对定位块：互动层的下边界必须同时让开
+ // 对话框顶边和选项区顶边，否则 canvas（pointer-events:auto）会吃掉 A/B 选项
+ // 和语音入口的点击（2026-11-01 桌面横屏「浮出水面」无法选择）。
+ const fit=()=>{
+  const origin=stage.getBoundingClientRect(),text=dialog.getBoundingClientRect();
+  const choicesTop=choices&&choices.getClientRects().length?choices.getBoundingClientRect().top:Infinity;
+  const top=Math.max(0,actor.getBoundingClientRect().top-origin.top);
+  host.style.top=top+'px';
+  host.style.height=Math.max(0,Math.min(text.top,choicesTop)-origin.top-top-12)+'px';
+ };
+ fit();vnTouchBounds=new ResizeObserver(fit);
+ for(const element of [stage,dialog,actor])vnTouchBounds.observe(element);
+ if(choices)vnTouchBounds.observe(choices); // 选项区出现/换行也会改变上边界
+ activeTouches=mountSceneTouches(scene,key,host);
+}

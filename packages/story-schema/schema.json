@@ -45,6 +45,14 @@
         "type": "string"
       }
     },
+    "textFormat": {"type": "string", "enum": ["speaker-lines"], "description": "可选：按行首角色名和冒号解析台词；缺省保留原绘本解析"},
+    "speechAssets": {"type":"array","items":{"type":"string"},"description":"包内互动固定语音声明文件；渲染器读取其中 speechCues"},
+    "sceneAliases": {"type": "object", "additionalProperties": {"type": "string"}, "description": "旧断点场景 id → 合并后的有效场景 id；只允许一跳"},
+    "audioPolicy": {
+      "type": "object",
+      "required": ["disabledLanguages"],
+      "properties": {"disabledLanguages": {"type": "array", "items": {"type": "string"}}}
+    },
     "achievements": {
       "type": "array",
       "items": {
@@ -70,9 +78,10 @@
             "type": "string"
           },
           "unlockScene": {
-            "type": "string",
-            "description": "进入该场景即幂等解锁"
-          }
+            "type": ["string", "null"],
+            "description": "场景解锁；事件成就设 null 并声明 unlockEvent"
+          },
+          "unlockEvent": {"type": "string", "enum": ["naming-success", "free-input-success"]}
         }
       }
     },
@@ -106,9 +115,10 @@
         "type": "object",
         "required": ["type"],
         "properties": {
+          "station": {"type": "boolean"},
           "type": {
             "type": "string",
-            "description": "组件注册名（apps/player/src/mechanics/registry.ts）；当前已知：collect"
+            "description": "组件注册名（apps/player/src/mechanics/registry.ts）；当前已知：collect / otter-naming / otter-play / journey"
           },
           "items": {
             "type": "array",
@@ -163,6 +173,80 @@
         "text"
       ],
       "properties": {
+        "interactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "clean",
+                  "wave",
+                  "recording",
+                  "seaweed",
+                  "call",
+                  "mist",
+                  "room",
+                  "replay",
+                  "magnet",
+                  "bell",
+                  "boat",
+                  "torch",
+                  "arms",
+                  "wire"
+                ]
+              },
+              "x": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "actor": {
+                "type": "string"
+              },
+              "far": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "sounds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind",
+              "match"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "match": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
         "mode": {
           "enum": [
             "swim",

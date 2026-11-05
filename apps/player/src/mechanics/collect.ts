@@ -1,3 +1,4 @@
+import {InteractionAudio} from './interaction-audio';
 import { uiIcon } from "../ui-icons";
 // 收集小游戏玩法组件（2026-09 第四章「你好，757」；2026-10-03 mechanic 组件化 Phase 2 对齐契约，
 // plan: docs/superpowers/plans/2026-10-03-mechanic-component-architecture.md）
@@ -10,7 +11,6 @@ import { t, lang } from "../i18n";
 import { entryUnlocked } from "../codex";
 import { preloadedSvg, warmAudio } from "../preload";
 import { reportEvent } from "../events";
-import { speechPref } from "../settings";
 import { figure, loadActor, PIECE_BASE } from "../scene-host";
 import { openCollectFlow, closeCollectFlow, type FlowCallbacks } from "./collect-flow";
 import type { CollectDecl, CollectItem, MechanicCtx, MechanicHandle } from "./types";
@@ -90,30 +90,6 @@ function swimTakaTo(taka: HTMLElement, left: HTMLElement, cxPct: number, cyPct: 
     return p.then(() => { if (isActive()) taka.classList.remove("px-swim"); });
 }
 
-/** 收集即时音效：WebAudio 合成上行双音「叮-咚」（零网络零资产）；语音总开关兼总音量，关则不响 */
-function playCollectSfx(): void {
-    if (!speechPref.on) return;
-    try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ctx: AudioContext = new AC();
-        const t0 = ctx.currentTime;
-        [523.25, 783.99].forEach((f, i) => {
-            const o = ctx.createOscillator();
-            const g = ctx.createGain();
-            o.type = "sine";
-            o.frequency.value = f;
-            const s = t0 + i * 0.09;
-            g.gain.setValueAtTime(0.0001, s);
-            g.gain.exponentialRampToValueAtTime(0.16, s + 0.02);
-            g.gain.exponentialRampToValueAtTime(0.0001, s + 0.22);
-            o.connect(g).connect(ctx.destination);
-            o.start(s); o.stop(s + 0.24);
-        });
-        setTimeout(() => void ctx.close(), 700);
-    } catch { /* 无音频环境静默 */ }
-}
-
 /** 塔卡在 collect 页内可拖拽（pointer + setPointerCapture，移动端灵敏） */
 function makeTakaDraggable(taka: HTMLElement, left: HTMLElement): void {
     if (detachDrag) detachDrag();
@@ -157,6 +133,8 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
     let disposed = false;
     const isActive = () => !disposed;
     const col = ctx.decl as CollectDecl;
+    ctx.spread.classList.toggle('station-mode',!!col.station);
+    const sound=new InteractionAudio(isActive);
     arch = col.bounds ?? DEFAULT_BOUNDS;   // 几何参数自声明注入（同数据源供闸口/路由/玻璃罩）
     bypass = col.bypass ?? DEFAULT_BYPASS;
 
@@ -174,6 +152,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
     const flowCb: FlowCallbacks = {
         onRecorded: (item) => {
             recordedState.add(item.id);
+            renderCount();sound.play("connect");
             left.querySelector(`.collect-item[data-id="${item.id}"]`)?.classList.add("recorded");
             // 全部录入 → 成就（2026-09-07 拍板：ch04_remember 触发点从「集满」改为「录满」）
             if (recordedState.size >= col.required) ctx.unlockAchievement(col.achievement || "");
@@ -185,6 +164,13 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
     countEl.className = "collect-count";
     countEl.textContent = `${colState.size} / ${col.required}`;  // 恢复态计入（已录入的物品）
     left.appendChild(countEl);
+    const station=document.createElement('div');station.className='collect-station';
+    if(col.station)left.append(station);
+    function renderCount(){
+        countEl.textContent=`${colState.size} / ${col.required}`;
+        if(col.station){station.replaceChildren();const heading=document.createElement('span');heading.textContent=lang==='en'?'Undersea tunnel observation station':'海底隧道观察站';const detail=document.createElement('small');detail.textContent=lang==='en'?`Observed ${colState.size}/${col.required} · Recorded ${recordedState.size}/${col.required}`:`已观察 ${colState.size}/${col.required} · 已录入 ${recordedState.size}/${col.required}`;station.append(heading,detail);}
+    }
+    renderCount();
 
     /* 塔卡：移入左页 + 换装（decl.takaSkin 声明时；ch04 = pixel-taka「老机器接入隧道旧摄像头」监控画质，
        离开由 cleanup 还原）。皮肤解析与 loadActor 同源两级：包 characters 注册 > 引擎内置件。 */
@@ -353,7 +339,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
             setTimeout(() => taka.classList.remove("px-scan"), 1000);
             colState.add(it.id);
             btn.classList.add("collected");
-            playCollectSfx(); // 即时音效（WebAudio 合成，零网络）
+            sound.play("scan"); // 即时音效（WebAudio 合成，零网络）
             const ring = document.createElement("span"); // 扫描扩散环：点击瞬间的视觉反馈
             ring.className = "scan-ring";
             btn.appendChild(ring);
@@ -361,7 +347,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
             const labelEl = btn.querySelector(".label"); // 揭晓真名
             if (labelEl && it.label) { labelEl.textContent = it.label; labelEl.classList.add("revealed"); }
             const n = colState.size;
-            countEl.textContent = `${n} / ${col.required}`;
+            renderCount();
             taka.classList.add("collect-flash"); // 塔卡灯闪，收集反馈
             setTimeout(() => taka.classList.remove("collect-flash"), 700);
             if (n >= col.required) {
@@ -422,6 +408,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
     return {
         cleanup: () => {
             disposed = true;
+            sound.cleanup();
             if (detachDrag) detachDrag();
             closeCollectFlow();
             const f = document.getElementById("taka-figure");
@@ -430,7 +417,7 @@ export function mountCollect(ctx: MechanicCtx): MechanicHandle {
                 f.classList.remove("px-mode", "px-swim", "px-scan", "px-interested");
             }
             document.body.classList.remove("collect-active");
-            ctx.spread.classList.remove("collect-mode");
+            ctx.spread.classList.remove("collect-mode","station-mode");
         },
     };
 }

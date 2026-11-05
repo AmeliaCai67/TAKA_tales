@@ -80,7 +80,7 @@ export function initAchievementData(): void {
     sceneAchievements = {};
     for (const a of pack().achievements) {
         achievements[a.id] = { ...a, unlocked: false };
-        sceneAchievements[a.unlockScene] = a.id;
+        if(a.unlockScene) sceneAchievements[a.unlockScene] = a.id;
     }
     // 读档：已解锁的 id 合并进定义
     const unlocked = new Set(readUnlockedIds());

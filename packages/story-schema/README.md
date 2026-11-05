@@ -166,3 +166,11 @@ VITE_API_BASE=http://localhost:8000 VITE_TTS_ENDPOINT=http://localhost:8000/api/
 ## 内容红线（私有）
 
 写作约束不在本包——见 `packages/prompts/redlines.json`（**私有库，永不公开**）：禁牺牲叙事/性别刻板/听话教育/天选之人/宗教词汇。作者定稿制：内置 A/B 路径永远是定稿文本，LLM 只在选项 C 介入。
+
+## 可选图片互动与声音提示
+
+场景可配置 `interactions: [{id, kind, x, y, actor?}]`；坐标为左页百分比。支持 `clean / wave / recording / seaweed / call / mist / room / replay / magnet / bell / boat / torch / arms / wire`。它们不占用 `choices`、不阻塞剧情，也不额外扣电；译文包声明与中文相同。
+
+场景 `sounds: [{id, kind, match}]` 在已有音频 manifest 的片段开始播放时触发一次；`match` 使用该语言的片段文本，`id/kind` 中英一致。音效服从全局音效开关与音量，旁白开关和语速独立。
+
+主玩法声明示例：`mechanics: {"sound-ascent": {"type":"journey","kind":"ascent","next":"surface"}}`。场景引用 `mechanic: "sound-ascent"`，并显式声明 `cost: 0`；另一种 kind 为 `whale-ride`。纯玩法桥接场景无需预渲染音频，不用于放置新的故事对白。collect 声明可加 `station: true`，展示观察/录入两类进度，保持现有闭环。

@@ -1,0 +1,56 @@
+/* Shared visual language: direct picture gestures and one primary continuation. */
+.has-touches{position:relative}
+.scene-touches{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.scene-touch{position:absolute;transform:translate(-50%,-50%);width:clamp(52px,14%,115px);height:auto;min-width:44px;min-height:44px;background:none;border:0;padding:4px;color:#c8d6d8;pointer-events:auto;cursor:pointer;touch-action:none;z-index:3;transition:left 1s ease-out,top 1s ease-out;filter:drop-shadow(0 3px 7px #00192344)}
+.scene-touch:active{transition:none}.scene-touch:focus-visible{outline:2px solid #cdbb8e;outline-offset:3px;border-radius:8px}
+.touch-art{display:block}.touch-art svg{width:100%;height:auto;max-height:100px;overflow:visible}.touch-label{display:block;font:11px/1.5 var(--font-shell,sans-serif);text-shadow:0 1px 5px #001923;white-space:nowrap;position:relative;left:50%;width:max-content;max-width:200px;transform:translateX(-50%);padding-top:4px}
+.touch-feedback{position:absolute;bottom:12px;left:10px;right:10px;text-align:center;color:#d8dfd4;font:12px/1.7 var(--font-shell);text-shadow:0 1px 5px #001923;z-index:4}
+.touch-instruction{position:absolute;left:15px;top:15px;font:12px/1.7 var(--font-shell);color:#c3d5d7;text-shadow:0 2px 5px #001923;pointer-events:none}
+.touch-ripple{position:absolute;width:12px;height:6px;border:1px solid #b8d9d7;border-radius:50%;animation:touchRipple 1.8s ease-out forwards;pointer-events:none;z-index:4}
+@keyframes touchRipple{to{transform:translate(-50%,-50%) scale(12);opacity:0}}
+.touch-water{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;touch-action:none;z-index:1}
+.touch-mist{cursor:grab}.touch-beam{position:absolute;inset:0;background:radial-gradient(circle at var(--touch-light-x,50%) var(--touch-light-y,50%),#c5d2ab18 0,transparent 32%,#00131d22 65%);pointer-events:none;z-index:1}
+.touch-room{width:11%;min-width:52px}.touch-lit .hotspot.touch-near .actor{filter:brightness(1.4) drop-shadow(0 0 8px #a8d8e0);opacity:1}
+.touch-target{position:absolute;width:45px;height:45px;transform:translate(-50%,-50%);border:1px dashed #a7c8c866;border-radius:50%;z-index:2}
+.touch-done .touch-art{filter:brightness(1.12)}.touch-done.touch-wire .touch-art{filter:drop-shadow(0 0 5px #78b5a2)}.touch-done.touch-clean{filter:brightness(1.25)}
+.touch-react.touch-bell .touch-art{transform-origin:50% 0;animation:touchBell 1.2s ease-out}.touch-react:not(.touch-bell) .touch-art{animation:touchBump .5s ease-out}
+@keyframes touchBell{0%{transform:rotate(-20deg)}20%{transform:rotate(17deg)}45%{transform:rotate(-12deg)}70%{transform:rotate(7deg)}100%{transform:rotate(0)}}
+@keyframes touchBump{40%{transform:translateY(-4px)}100%{transform:none}}
+.touch-playing .touch-art{filter:drop-shadow(0 0 6px #d4c392)}
+.vn-touch-host{position:absolute!important;left:2%;right:2%;top:14%;height:36svh;z-index:6;pointer-events:none}
+body.journey-active #book-stage{display:flex!important}body.journey-active .dialog,body.journey-active #stage>#taka-figure{visibility:hidden}
+.spread.journey-mode{display:flex;min-height:450px;background:var(--paper,#102b3a)}
+.journey-mode .page-scene{position:relative;overflow:hidden;min-height:420px;background-size:cover;background-position:center}.journey-mode .page-scene::after{content:none}
+.journey-mode .journey-panel{display:flex;flex-direction:column;gap:20px;padding:28px;background:var(--paper,#102b3a)}
+.journey-panel h2{font:19px/1.7 var(--font-reader);color:var(--paper-ink,#d5dacc);margin:0}
+.journey-panel p{font:15px/1.9 var(--font-reader);color:var(--paper-ink,#c4d3d4);margin:0}
+.journey-actions{margin-top:auto;padding-top:20px;border-top:1px solid #8baca52b}
+.journey-panel button,.journey-circle{min-height:44px;padding:10px 16px;font:14px/1.6 var(--font-shell);border-radius:10px;border:1px solid #88a4ad;background:#1a3d4b;color:#d2dfe0;cursor:pointer}
+.journey-panel .journey-next{width:100%;background:#c7bb95;color:#12303b;border-color:#c7bb95}
+.journey-world{position:absolute;inset:0;touch-action:none;overflow:hidden;background:linear-gradient(#19384722,#06213180);z-index:3}
+.journey-surface-light{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#d5dfbd40,transparent 35%,#00132175);opacity:calc(1 - var(--journey-depth,0)*.8)}
+.journey-swimmer{position:absolute;left:50%;top:84%;width:24%;max-width:150px;transform:translate(-50%,-50%);border:0;background:none;cursor:grab;padding:0;touch-action:none;z-index:3}
+.journey-swimmer:focus-visible{outline:2px dashed #cdbb8e;border-radius:14px}.journey-swimmer svg{width:100%;height:auto;overflow:visible;display:block}
+.journey-whale{width:76%;max-width:none}.journey-whale-body{display:block}.journey-rider{position:absolute;width:15%;bottom:65%;pointer-events:none}.journey-taka{left:34%}.journey-757{left:55%;width:14%}
+.journey-circle{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);z-index:4}
+.journey-breach .journey-world{animation:journeySplash .85s ease-out forwards}
+@keyframes journeySplash{40%{background:#b8d7da88}100%{background:#c6d9d70a}}
+.collect-station{position:absolute;top:18px;left:22px;z-index:6;pointer-events:none;max-width:65%;font:15px/1.8 var(--font-shell);color:#d0dddb;text-shadow:0 2px 8px #001923}.collect-station small{display:block;font-size:11px;color:#afc4cb}
+@media(max-width:767px){
+ /* Override the book's two-page widths even when book mode is forced on a phone. */
+ body.journey-active .spread.journey-mode{position:relative;inset:auto;display:flex;flex-direction:column;min-height:calc(100dvh - 92px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));width:100%;height:auto;max-height:none;aspect-ratio:auto}
+ body.journey-active .journey-mode .page-scene{width:100%;height:350px;min-height:350px;flex:1 0 350px}
+ body.journey-active .journey-mode .journey-panel{width:100%;padding:22px;min-height:245px;gap:15px}
+ body.journey-active #book-stage{align-items:flex-start;padding:65px 12px 24px;overflow:auto}
+ .journey-swimmer{width:25%}.touch-label{font-size:10px}.collect-station{font-size:12px;top:15px;left:15px;max-width:70%}
+}
+@media(prefers-reduced-motion:reduce){.scene-touch{transition:none}.touch-react .touch-art,.journey-turn *{animation:none!important}}
+.journey-turn .journey-whale-body,.journey-turn .journey-rider{animation:journeyOrbit 2.4s ease-in-out}
+.journey-turn.journey-flip .journey-whale-body{animation:journeySomersault 2.4s ease-in-out}
+@keyframes journeyOrbit{25%{transform:translate(24px,-12px) rotate(-6deg)}50%{transform:translate(0,-26px)}75%{transform:translate(-24px,-12px) rotate(6deg)}100%{transform:none}}
+@keyframes journeySomersault{50%{transform:translateY(-20px) rotate(180deg)}100%{transform:rotate(360deg)}}
+.spread.collect-mode.station-mode .collect-count{display:none}
+.journey-bubbles{position:absolute;left:50%;bottom:0;pointer-events:none}.journey-bubbles i{position:absolute;width:5px;height:5px;border:1px solid #b7d5d5;border-radius:50%;animation:journeyBubble 1.6s ease-out infinite;opacity:0}.journey-bubbles i:nth-child(2){left:8px;animation-delay:.5s}.journey-bubbles i:nth-child(3){left:-8px;animation-delay:1s}@keyframes journeyBubble{20%{opacity:.6}100%{transform:translateY(55px);opacity:0}}
+.scene-touches:has(.touch-wire.touch-done) .touch-target{border-style:solid;background:#8bbba333;box-shadow:0 0 10px #8bbba34d}
+.spread.station-mode .collect-item::before{content:'';position:absolute;inset:-16px;border-radius:12px}
+.touch-clean::before{content:'';position:absolute;left:32%;top:24%;width:8px;height:5px;background:#626b5d;border-radius:50%;box-shadow:17px 15px #626b5d,-7px 22px #626b5d;transition:opacity .5s}.touch-clean.touch-done::before{opacity:0}

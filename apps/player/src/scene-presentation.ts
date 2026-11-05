@@ -45,6 +45,17 @@ function adaptChrome(img: HTMLImageElement): void {
     } catch { /* 采样失败保持默认深色 UI */ }
 }
 
+/** 移动端 WebKit：背景淡入后立绘 SVG 里的 filter: url(#tk-edge/#tk-grain) 会失效，
+ *  表现是机身（渐变填充 + 内层噪点滤镜的 rect）整块不画，只剩描边。
+ *  2026-11-01 真机（微信 8.0.79）确认：重建一次节点，色块立刻回来——与「切横屏再切回」
+ *  的恢复现象同源（都是重新解析 SVG）。这里只在背景真的换了之后重建，开销是一次 DOM clone。 */
+function rebuildFigureSvg(): void {
+    const host = document.getElementById("taka-figure");
+    const svg = host?.querySelector("svg");
+    if (!host || !svg) return;
+    host.replaceChild(svg.cloneNode(true), svg);
+}
+
 export function setBackground(rel?: string): void {
     if (!rel) return;
     const url = pack().baseUrl + rel;
@@ -62,6 +73,7 @@ export function setBackground(rel?: string): void {
         bgFront!.classList.remove("show");
         bgFront = back;
         adaptChrome(img);
+        rebuildFigureSvg();
     };
     img.src = url;
 }

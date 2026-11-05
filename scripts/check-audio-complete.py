@@ -35,14 +35,14 @@ def check_files(sid: str, lang: str):
     story = json.loads(story_file.read_text(encoding="utf-8"))
     manifest = json.loads((audio_dir / "manifest.json").read_text(encoding="utf-8"))
 
-    scene_ids = set(story["scenes"].keys())
+    scene_ids = {sid for sid,scene in story['scenes'].items() if not scene.get('mechanic') and not scene.get('speechCue')}
     m_scenes = set(manifest.keys())
     problems = []
 
     # 场景覆盖
     for sc in sorted(scene_ids - m_scenes):
         problems.append(f"故事场景未被 manifest 覆盖: {sc}")
-    for sc in sorted(m_scenes - scene_ids):
+    for sc in sorted(m_scenes - set(story['scenes'])):
         problems.append(f"manifest 含故事外场景: {sc}")
 
     # 文件存在性
@@ -86,8 +86,8 @@ async def check_consistency(sid: str, lang: str):
         d_segs = [(s["file"], s["text"], s["who"]) for s in (d.get("segments") or [])]
         if e_segs != d_segs:
             problems.append(f"场景 {sc}: 磁盘段 {len(d_segs)} ≠ 应有段 {len(e_segs)}")
-        if (e.get("choices") is None) != (d.get("choices") is None):
-            problems.append(f"场景 {sc}: choices 存在性不一致")
+        if e.get('choices') != d.get('choices'):
+            problems.append(f"场景 {sc}: choices 文本/声线/路径不一致")
     return problems
 
 
@@ -105,6 +105,10 @@ async def main():
     any_fail = False
     for sid in stories:
         for lang in langs:
+            declaration = BASE / sid / ('story.en.json' if lang == 'en' else 'story.json')
+            if lang in (json.loads(declaration.read_text()).get('audioPolicy') or {}).get('disabledLanguages', []):
+                print(f'⏭ {sid} [{lang}] 明确禁用 TTS，不要求音频包')
+                continue
             problems, total = check_files(sid, lang)
             head = f"{sid} [{lang}]  段数={total}"
             if problems:

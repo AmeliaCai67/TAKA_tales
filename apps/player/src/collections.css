@@ -59,3 +59,5 @@ body.on-shelf #ai-status{position:fixed;top:calc(16px + env(safe-area-inset-top,
 .jd-icon .ui-icon{width:15px;height:15px}
 .flip-hint .ui-icon,.collect-hint .ui-icon,.cf-meow .ui-icon,.cf-meow-big .ui-icon{margin-right:7px}
 .cf-fact-play{display:inline-flex;align-items:center;justify-content:center}
+.cc-img.cc-img-contain{object-fit:contain;background:var(--surface,#102b3a)}
+.cc-image-caption{font:12px/1.7 var(--font-shell);color:var(--paper-muted);margin:-5px 0 15px}
